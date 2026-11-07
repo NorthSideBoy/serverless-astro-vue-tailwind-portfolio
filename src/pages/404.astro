@@ -1,0 +1,78 @@
+---
+import SiteHeader from '../components/islands/SiteHeaderIsland.vue';
+import SiteFooter from '../components/SiteFooter.astro';
+import Layout from '../layouts/Layout.astro';
+import { content } from '../data/content';
+
+const copy = content.es;
+const path = Astro.url.pathname;
+---
+
+<Layout
+  locale="es"
+  title={`404 — ${copy.hero.name}`}
+  description="La página que buscas no existe o cambió de lugar."
+  indexable={false}
+>
+  <SiteHeader page="not-found" locale="es" path={path} client:load />
+
+  <main id="main">
+    <section
+      class="dot-field section-pad relative overflow-hidden border-b border-line bg-page"
+      aria-labelledby="not-found-title"
+    >
+      <div class="shell relative">
+        <div class="max-w-[760px]">
+          <p class="mono-label text-soft">
+            <span class="seal-glyph mr-1.5 text-[13px]" aria-hidden="true">四</span>
+            // ERROR DE ARCHIVO
+          </p>
+
+          <p
+            class="mt-6 font-mono text-[clamp(64px,13vw,148px)] font-medium leading-none tracking-[-0.06em] text-ink"
+            aria-hidden="true"
+          >
+            404
+          </p>
+
+          <h1
+            id="not-found-title"
+            class="mt-6 font-display text-[clamp(34px,5vw,58px)] font-bold leading-[1.02] tracking-[-0.03em] text-ink"
+          >
+            Esta página no está en el archivo.
+          </h1>
+
+          <p class="mt-5 max-w-[56ch] text-[16px] leading-[1.75] text-muted md:text-[17px]">
+            El enlace puede estar roto o la página pudo haberse movido. Vuelve al dossier para
+            seguir leyendo el registro.
+          </p>
+
+          <div class="mt-9 flex flex-col gap-3 sm:flex-row">
+            <a href="/" class="btn-primary min-w-[190px]">Volver al portfolio</a>
+            <a href="/proyectos" class="btn-ghost min-w-[168px]">Ver proyectos</a>
+          </div>
+
+          <p class="mt-8 font-mono text-[11px] uppercase tracking-[0.08em] text-muted">
+            También puedes seguir por{' '}
+            <a
+              href="/blog"
+              class="text-soft underline decoration-line-strong underline-offset-4 transition hover:decoration-soft"
+            >
+              el blog
+            </a>{' '}
+            o{' '}
+            <a
+              href="/#contact"
+              class="text-soft underline decoration-line-strong underline-offset-4 transition hover:decoration-soft"
+            >
+              escribir directamente
+            </a>
+            .
+          </p>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <SiteFooter locale="es" path={path} />
+</Layout>

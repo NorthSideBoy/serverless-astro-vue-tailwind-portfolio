@@ -1,28 +1,52 @@
 ---
 import '../styles/global.css';
+import type { Locale } from '../data/content';
+import { content } from '../data/content';
+const { locale = 'es', title, description, alternates = true, indexable = true } = Astro.props as {
+  locale?: Locale; title?: string; description?: string; alternates?: boolean; indexable?: boolean;
+};
+const copy = content[locale];
+const canonical = new URL(Astro.url.pathname, Astro.site);
+const defaultPath = Astro.url.pathname.replace(/^\/en(?=\/|$)/, '') || '/';
+const spanishUrl = new URL(defaultPath, Astro.site);
+const englishUrl = new URL(`/en${defaultPath}`, Astro.site);
 ---
-
 <!doctype html>
-<html lang="en">
-	<head>
-		<meta charset="utf-8" />
-		<meta name="viewport" content="width=device-width" />
-		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-		<link rel="icon" href="/favicon.ico" />
-		<meta name="generator" content={Astro.generator} />
-		<title>Astro Basics</title>
-	</head>
-	<body>
-		<slot />
-		<script src="../scripts/firebase-analytics.ts"></script>
-	</body>
+<html lang={locale} data-theme="dark">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#06090B" />
+    <meta name="description" content={description ?? copy.meta.description} />
+    {indexable ? <link rel="canonical" href={canonical} /> : <meta name="robots" content="noindex" />}
+    {indexable && alternates && (
+      <>
+        <link rel="alternate" hreflang="es" href={spanishUrl} />
+        <link rel="alternate" hreflang="en" href={englishUrl} />
+        <link rel="alternate" hreflang="x-default" href={spanishUrl} />
+      </>
+    )}
+    <link rel="sitemap" href="/sitemap-index.xml" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="icon" href="/favicon.ico" />
+    <title>{title ?? copy.meta.title}</title>
+    <script is:inline>
+      try {
+        const stored = localStorage.getItem('sl-theme');
+        const theme = stored === 'dark' || stored === 'light' ? stored : (matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark');
+        document.documentElement.dataset.theme = theme;
+        document.documentElement.style.colorScheme = theme;
+        const meta = document.querySelector('meta[name="theme-color"]');
+        if (meta) meta.setAttribute('content', theme === 'light' ? '#DCE6EB' : '#06090B');
+      } catch { /* Storage may be disabled. */ }
+    </script>
+  </head>
+  <body>
+    <a class="skip-link" href="#main">{copy.ui.skipToContent}</a>
+    <slot />
+  </body>
+  <script>
+    import '../scripts/locale-scroll';
+    import '../scripts/theme-media';
+  </script>
 </html>
-
-<style>
-	html,
-	body {
-		margin: 0;
-		width: 100%;
-		height: 100%;
-	}
-</style>

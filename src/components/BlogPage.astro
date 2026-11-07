@@ -1,0 +1,16 @@
+---
+import BlogBody from './BlogBody.astro';
+import SiteHeader from './islands/SiteHeaderIsland.vue';
+import SiteFooter from './SiteFooter.astro';
+import Layout from '../layouts/Layout.astro';
+import { loadContent } from '../lib/server/content';
+import type { Locale } from '../data/content';
+const { locale } = Astro.props as { locale: Locale };
+const path = Astro.url.pathname;
+const data = await loadContent();
+---
+<Layout locale={locale} title={data.sections.blog[locale].index?.meta?.title} description={data.sections.blog[locale].index?.meta?.description}>
+  <SiteHeader page="blog" locale={locale} path={path} client:load />
+  <BlogBody locale={locale} sections={data.sections} articles={data.articles} />
+  <SiteFooter page="blog" locale={locale} path={path} />
+</Layout>

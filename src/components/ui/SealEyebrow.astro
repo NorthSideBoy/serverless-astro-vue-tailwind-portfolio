@@ -1,0 +1,16 @@
+---
+interface Props { label: string; seal?: string }
+const { label, seal = '' } = Astro.props;
+const compound = Array.from(seal).length > 1;
+---
+<span>
+  {seal && <span class="seal-mark" aria-hidden="true"><span class="seal-mark__box"><span class:list={['seal-glyph seal-mark__glyph', { 'seal-mark__glyph--stacked': compound }]}>{seal}</span></span><span class="seal-mark__slash">//</span></span>}
+  {label}
+</span>
+<style>
+  .seal-mark { display: inline-flex; align-items: center; gap: 0.45em; margin-right: 0.45em; vertical-align: middle; }
+  .seal-mark__box { display: inline-flex; width: 1.85em; height: 1.85em; align-items: center; justify-content: center; border: 1px solid color-mix(in srgb, currentColor 38%, transparent); }
+  .seal-mark__glyph { font-size: 1.3em; line-height: 1; }
+  .seal-mark__glyph--stacked { font-size: 1.01em; line-height: 0.88; letter-spacing: 0; writing-mode: vertical-rl; text-orientation: upright; }
+  .seal-mark__slash { font-size: 0.86em; opacity: 0.72; }
+</style>

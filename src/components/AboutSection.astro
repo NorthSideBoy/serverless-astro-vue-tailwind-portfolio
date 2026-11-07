@@ -1,0 +1,120 @@
+---
+import type { Locale } from '../data/content';
+import { content } from '../data/content';
+import PlateFrame from './ui/PlateFrame.astro';
+import SealEyebrow from './ui/SealEyebrow.astro';
+import UiIcon from './ui/UiIcon.astro';
+
+interface Props { locale: Locale }
+const { locale } = Astro.props;
+const copy = content[locale];
+const plate = locale === 'es'
+  ? { header: 'PLACA 01 // PERSONA', since: 'DESDE 2022 · UTC−4', structure: 'Estructura', design: 'Diseño' }
+  : { header: 'PLATE 01 // PERSONNEL', since: 'SINCE 2022 · UTC−4', structure: 'Structure', design: 'Design' };
+const [titleLead, ...titleRest] = copy.about.title.split(',');
+const titleTail = titleRest.join(',').trim();
+const home = locale === 'en' ? '/en/' : '/';
+---
+<section id="about" class="section-pad bg-section" aria-labelledby="about-title">
+  <div class="shell">
+    <div class="mb-12 flex items-center gap-4 md:mb-16 xl:mb-[100px]">
+      <p class="mono-label shrink-0 text-soft"><SealEyebrow seal="一" label={copy.about.eyebrow} /></p>
+      <span class="h-px flex-1 bg-line" aria-hidden="true" />
+    </div>
+
+    <div class="grid items-start gap-12 lg:grid-cols-[minmax(0,0.72fr)_minmax(0,1.28fr)] lg:gap-16 xl:grid-cols-[minmax(0,0.62fr)_minmax(0,1.38fr)] xl:gap-24">
+      <div class="min-w-0 lg:sticky lg:top-32">
+        <PlateFrame class="overflow-hidden">
+          <div class="about-plate dot-surface flex aspect-[8/10] w-full flex-col bg-page/20 p-6 md:p-8">
+            <div class="flex items-start justify-between gap-3 border-b border-line pb-4 font-mono text-[10px] tracking-[0.1em] text-muted">
+              <span class="flex items-center gap-2"><span>{plate.header}</span><span class="seal-glyph text-[22px] leading-none text-soft" aria-hidden="true">構</span></span>
+              <span class="hidden md:inline">CCS · VE</span>
+            </div>
+            <div class="flex min-h-0 flex-1 flex-col items-center justify-center py-4 text-center">
+              <svg aria-hidden="true" viewBox="0 0 360 220" class="about-monogram h-auto w-full max-w-[170px] md:max-w-[290px]">
+                <defs>
+                  <linearGradient id="about-monogram-fill" x1="45" y1="0" x2="315" y2="0" gradientUnits="userSpaceOnUse">
+                    <stop offset="0" stop-color="var(--c-blue)" /><stop offset="1" stop-color="var(--c-aqua)" />
+                  </linearGradient>
+                  <pattern id="about-monogram-dots" width="6" height="6" patternUnits="userSpaceOnUse"><circle cx="3" cy="3" r="1.5" fill="var(--c-soft)" /></pattern>
+                </defs>
+                <text x="180" y="184" class="about-glyph" text-anchor="middle" fill="url(#about-monogram-fill)">SL</text>
+                <text x="180" y="184" class="about-glyph" text-anchor="middle" fill="url(#about-monogram-dots)">SL</text>
+              </svg>
+              <p class="mt-5 font-display text-[clamp(18px,2vw,27px)] font-semibold leading-tight text-ink">{copy.about.name}</p>
+              <p class="mt-2 max-w-[30ch] font-mono text-[10px] uppercase leading-[1.5] tracking-[0.08em] text-muted md:text-[11px]">{copy.hero.role}</p>
+            </div>
+            <div class="flex items-end justify-between gap-3 border-t border-line pt-4">
+              <span class="font-mono text-[10px] tracking-[0.1em] text-muted">{plate.since}</span>
+              <span class="font-mono text-[10px] tracking-[0.1em] text-muted md:hidden">CCS · VE</span>
+            </div>
+            <p class="mt-3 flex flex-wrap items-center gap-x-2 gap-y-1.5 border-t border-line/60 pt-3 font-mono text-[10px] uppercase leading-none tracking-[0.1em] text-muted">
+              <span class="inline-flex items-center gap-1.5"><span class="seal-glyph text-[13px] text-soft" aria-hidden="true">構</span>{plate.structure}</span>
+              <span class="text-line-strong" aria-hidden="true">·</span>
+              <span class="inline-flex items-center gap-1.5"><span class="seal-glyph text-[13px] text-soft" aria-hidden="true">設計</span>{plate.design}</span>
+            </p>
+          </div>
+        </PlateFrame>
+      </div>
+
+      <div data-about-copy class="section-marker section-signal min-w-0 max-w-[640px] lg:pt-1 xl:pt-3">
+        <h2 id="about-title" class="font-display text-[clamp(50px,6.6vw,86px)] font-bold leading-[0.94] tracking-[-0.045em] text-ink">
+          <span class="about-title__part about-title__part--lead">{titleLead},</span>{' '}
+          {titleTail && <span class="about-title__part about-title__part--tail">{titleTail}</span>}
+        </h2>
+        <p class="about-copy__name mt-5 text-[clamp(18px,1.35vw,22px)] leading-[1.55] text-ink/80 md:mt-6">{copy.about.name}</p>
+        <div class="mt-9 space-y-6 text-[16px] leading-[1.8] text-muted md:mt-12 md:text-[17px]">
+          {copy.about.paragraphs.map((paragraph, index) => <p class="about-copy__paragraph" style={`--about-delay:${640 + Math.min(index * 60, 180)}ms`}>{paragraph}</p>)}
+        </div>
+        <div class="about-copy__actions mt-10 flex flex-wrap gap-x-8 gap-y-4 border-t border-line pt-7 md:mt-12">
+          <a href={`${home}#projects`} class="inline-flex items-center gap-2 text-[14px] font-medium text-soft underline decoration-line-strong underline-offset-4 transition-colors hover:decoration-soft">{copy.hero.primary} <UiIcon name="arrow-right" size={16} /></a>
+          <a href={`${home}#contact`} class="inline-flex items-center gap-2 text-[14px] font-medium text-soft underline decoration-line-strong underline-offset-4 transition-colors hover:decoration-soft">{copy.hero.secondary} <UiIcon name="arrow-right" size={16} /></a>
+        </div>
+      </div>
+    </div>
+
+    <div class="mt-20 md:mt-28 xl:mt-36">
+      <p class="mono-label text-muted">{copy.about.recordLabel}</p>
+      <dl class="mt-6 grid gap-px border-y border-line bg-line sm:grid-cols-2 lg:grid-cols-3">
+        {copy.about.facts.map((fact, index) => <div data-about-fact class="about-fact min-w-0 bg-section px-5 py-5 md:px-6" style={`--reveal-order:${Math.min(index, 5)}`}>
+          <dt class="font-mono text-[10px] uppercase tracking-[0.08em] text-muted">{String(index + 1).padStart(2, '0')} · {fact.label}</dt>
+          <dd class="mt-3 break-words text-[13.5px] font-medium leading-relaxed text-ink">{fact.value}</dd>
+        </div>)}
+      </dl>
+    </div>
+
+    <div class="mt-14 md:mt-16 xl:mt-20">
+      <p class="mono-label text-muted">{copy.about.rolesLabel}</p>
+      <div class="mt-6 grid gap-px border-y border-line bg-line sm:grid-cols-2 md:grid-cols-3">
+        {copy.about.roles.map((role, index) => <article data-about-role class="about-role bg-section px-5 py-6 md:px-6" style={`--reveal-order:${Math.min(index, 4)}`}>
+          <div class="about-role__inner">
+            <span class="font-mono text-[11px] text-muted">{String(index + 1).padStart(2, '0')}</span>
+            <h3 class="mt-3 font-display text-[17px] font-semibold tracking-[-0.01em] text-ink">{role.title}</h3>
+            <p class="mt-1.5 text-[13.5px] leading-relaxed text-muted">{role.description}</p>
+          </div>
+        </article>)}
+      </div>
+    </div>
+  </div>
+</section>
+
+<style>
+  .about-glyph { font-family: var(--font-serif); font-size: 230px; font-weight: 900; letter-spacing: -0.05em; }
+  .about-title__part { position: relative; z-index: 1; display: inline-block; }
+  @media (prefers-reduced-motion: no-preference) {
+    .about-copy__name, .about-copy__paragraph, .about-copy__actions { transition: opacity 520ms cubic-bezier(0.16,1,0.3,1), transform 520ms cubic-bezier(0.16,1,0.3,1); }
+    .about-copy__name { transition-delay: 560ms; }
+    .about-copy__paragraph { transition-delay: var(--about-delay, 640ms); }
+    .about-copy__actions { transition-delay: 860ms; }
+    .is-armed .about-copy__name, .is-armed .about-copy__paragraph, .is-armed .about-copy__actions { opacity: 0; transform: translate3d(0, 8px, 0); transition: none; }
+    .about-fact, .about-role__inner { transition: opacity 460ms cubic-bezier(0.16,1,0.3,1), transform 460ms cubic-bezier(0.16,1,0.3,1); transition-delay: calc(var(--reveal-order, 0) * 55ms); }
+    .about-fact.is-armed, .about-role.is-armed .about-role__inner { opacity: 0; transform: translate3d(0, 8px, 0); transition: none; }
+    h2::after { transition: opacity 420ms ease 860ms; }
+    .is-armed h2::after { opacity: 0; }
+    .is-armed .about-title__part { opacity: 0; }
+    .is-shown .about-title__part--lead { animation: about-title-lead 620ms cubic-bezier(0.16,1,0.3,1) 80ms both; }
+    .is-shown .about-title__part--tail { animation: about-title-tail 720ms cubic-bezier(0.16,1,0.3,1) 520ms both; }
+  }
+  @keyframes about-title-lead { from { opacity: 0; transform: translate3d(0,16px,0); } to { opacity: 1; transform: translate3d(0,0,0); } }
+  @keyframes about-title-tail { from { opacity: 0; transform: translate3d(0,12px,0); } to { opacity: 1; transform: translate3d(0,0,0); } }
+</style>

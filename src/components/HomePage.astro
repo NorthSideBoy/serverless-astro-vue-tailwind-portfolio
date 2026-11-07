@@ -1,0 +1,48 @@
+---
+import SiteHeader from './islands/SiteHeaderIsland.vue';
+import SiteFooter from './SiteFooter.astro';
+import Hero from './islands/HeroIsland.vue';
+import Stats from './islands/StatsIsland.vue';
+import AboutSection from './AboutSection.astro';
+import ServicesSection from './ServicesSection.astro';
+import Skills from './islands/SkillsIsland.vue';
+import StackSection from './StackSection.astro';
+import ExperienceSection from './ExperienceSection.astro';
+import Projects from './islands/ProjectsIsland.vue';
+import EducationSection from './EducationSection.astro';
+import CertificationsSection from './CertificationsSection.astro';
+import BlogSection from './BlogSection.astro';
+import Testimonials from './islands/TestimonialsIsland.vue';
+import Contact from './islands/ContactIsland.vue';
+import Layout from '../layouts/Layout.astro';
+import { loadContent } from '../lib/server/content';
+import type { Locale } from '../data/content';
+
+const { locale } = Astro.props as { locale: Locale };
+const path = Astro.url.pathname;
+const data = await loadContent();
+const ready = { loading: false, error: null };
+---
+<Layout locale={locale}>
+  <SiteHeader page="home" locale={locale} path={path} client:load />
+  <main id="main">
+    <Hero locale={locale} client:load />
+    <Stats locale={locale} client:visible={{ rootMargin: '200px' }} />
+    <AboutSection locale={locale} />
+    <ServicesSection locale={locale} />
+    <Skills locale={locale} client:visible={{ rootMargin: '200px' }} />
+    <StackSection locale={locale} groups={data.groups} technologies={data.technologies} section={data.sections.stack} />
+    <ExperienceSection locale={locale} entries={data.experience} projects={data.projects} reviews={data.reviews} section={data.sections.experience} />
+    <Projects locale={locale} content={{ projects: data.projects, experiences: data.experience, reviews: data.reviews, section: data.sections.projects, ...ready }} client:visible={{ rootMargin: '200px' }} />
+    <EducationSection locale={locale} items={data.education} section={data.sections.education} />
+    <CertificationsSection locale={locale} items={data.certifications} section={data.sections.certifications} />
+    <BlogSection locale={locale} articles={data.articles} section={data.sections.blog} />
+    <Testimonials locale={locale} path={path} content={{ items: data.reviews, experiences: data.experience, projects: data.projects, section: data.sections.reviews, ...ready }} client:idle={{ timeout: 1500 }} />
+    <Contact locale={locale} client:visible={{ rootMargin: '200px' }} />
+  </main>
+  <SiteFooter locale={locale} path={path} />
+</Layout>
+
+<script>
+  import '../scripts/reveal';
+</script>

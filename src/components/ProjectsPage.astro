@@ -1,0 +1,16 @@
+---
+import SiteHeader from './islands/SiteHeaderIsland.vue';
+import SiteFooter from './SiteFooter.astro';
+import ProjectsIndex from './ProjectsIndex.astro';
+import Layout from '../layouts/Layout.astro';
+import { loadContent } from '../lib/server/content';
+import type { Locale } from '../data/content';
+const { locale } = Astro.props as { locale: Locale };
+const path = Astro.url.pathname;
+const data = await loadContent();
+---
+<Layout locale={locale} title={data.sections.projects[locale].index?.meta?.title} description={data.sections.projects[locale].index?.meta?.description}>
+  <SiteHeader page="projects" locale={locale} path={path} client:load />
+  <ProjectsIndex locale={locale} sections={data.sections} projects={data.projects} experiences={data.experience} reviews={data.reviews} />
+  <SiteFooter page="projects" locale={locale} path={path} />
+</Layout>

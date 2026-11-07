@@ -1,0 +1,10 @@
+---
+import ArticlePage from '../../components/ArticlePage.astro';
+import { loadContent } from '../../lib/server/content';
+export async function getStaticPaths() {
+  const data = await loadContent();
+  return data.articles.map(({ slug }) => ({ params: { slug } }));
+}
+const { slug } = Astro.params;
+---
+<ArticlePage locale="es" slug={slug!} />
