@@ -7,17 +7,37 @@
     "node": ">=26.13.0 <27"
   },
   "scripts": {
-    "dev": "astro dev",
-    "build": "astro build",
-    "preview": "astro preview",
+    "dev": "node --env-file-if-exists=.env ./node_modules/.bin/astro dev",
+    "build": "node --env-file-if-exists=.env ./node_modules/.bin/astro build",
+    "check": "astro check",
+    "test": "vitest run --exclude tests/browser.test.ts",
+    "test:browser": "vitest run tests/browser.test.ts",
+    "pretest:browser": "npm run build:fixture",
+    "build:fixture": "CONTENT_SOURCE=fixture PUBLIC_MEDIA_URL=https://media.example.test node ./node_modules/.bin/astro build",
+    "preview": "node --env-file-if-exists=.env ./node_modules/.bin/astro preview",
     "astro": "astro"
   },
   "dependencies": {
+    "@astrojs/sitemap": "^3.7.4",
     "@astrojs/vue": "^7.1.2",
+    "@aws-sdk/client-s3": "^3.1164.0",
+    "@fontsource-variable/fraunces": "^5.3.0",
+    "@fontsource-variable/inter": "^5.3.0",
+    "@fontsource-variable/jetbrains-mono": "^5.3.0",
+    "@fontsource-variable/space-grotesk": "^5.3.0",
     "@tailwindcss/vite": "^4.3.5",
     "astro": "^7.4.7",
-    "firebase": "^13.2.0",
+    "firebase-admin": "^14.5.0",
+    "nanostores": "^1.5.5",
     "tailwindcss": "^4.3.5",
-    "vue": "^3.5.45"
+    "tw-animate-css": "^1.4.0",
+    "vue": "^3.5.45",
+    "zod": "^4.6.7"
+  },
+  "devDependencies": {
+    "@astrojs/check": "^0.9.12",
+    "playwright": "^1.65.0",
+    "typescript": "^6.0.3",
+    "vitest": "^5.1.0"
   }
 }
