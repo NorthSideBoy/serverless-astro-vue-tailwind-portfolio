@@ -1,0 +1,14 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Assumed model: siteSections, authors, stackGroups, technologies,
+    // experience, projects, education, certifications, articles and reviews
+    // are editorial documents keyed by their `id`. The static build and
+    // import scripts use the Admin SDK; browsers never query this database.
+    // Server credentials bypass Security Rules and must stay private.
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}
