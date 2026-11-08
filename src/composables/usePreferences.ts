@@ -1,6 +1,6 @@
 import { computed, inject, onBeforeUnmount, onMounted, provide, shallowRef, type InjectionKey } from 'vue'
 import { content, type Locale } from '@/data/content'
-import { setTheme, themeStore, toggleTheme, type Theme } from '@/stores/theme'
+import { themeStore, type Theme } from '@/stores/theme'
 
 export type { Theme } from '@/stores/theme'
 
@@ -22,35 +22,10 @@ function useTheme() {
 function createPagePreferences(initialLocale: Locale) {
   const pageLocale = shallowRef(initialLocale)
   const theme = useTheme()
-  function changeLocale(value: Locale) {
-    if (typeof window === 'undefined' || value === pageLocale.value) return
-    const path = window.location.pathname.replace(/^\/en(?=\/|$)/, '') || '/'
-    // Keep the visitor where they were reading: the fragment is part of the
-    // address, and the exact offset is carried through session storage so a
-    // language switch behaves like the in-place switch in the Vue app rather
-    // than a trip back to the top.
-    const hash = window.location.hash
-    try {
-      if (window.scrollY > 0) {
-        window.sessionStorage.setItem(
-          'sl-locale-scroll',
-          JSON.stringify({ y: window.scrollY, at: Date.now() }),
-        )
-      }
-    } catch {
-      // Storage may be disabled; the hash still preserves the section.
-    }
-    window.location.assign(`${value === 'en' ? `/en${path}` : path}${hash}`)
-  }
   return {
     theme,
     locale: pageLocale,
     copy: computed(() => content[pageLocale.value]),
-    isDark: computed(() => theme.value === 'dark'),
-    setTheme,
-    toggleTheme,
-    setLocale: changeLocale,
-    toggleLocale: () => changeLocale(pageLocale.value === 'es' ? 'en' : 'es'),
   }
 }
 

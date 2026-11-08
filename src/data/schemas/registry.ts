@@ -1,14 +1,14 @@
 import { z } from 'zod'
 import { siteSectionSchema } from './siteSection'
-import { authorSchema, type Author } from './author'
-import { stackGroupSchema, type StackGroup } from './stackGroup'
-import { technologySchema, type Technology } from './technology'
-import { experienceSchema, type ExperienceEntry } from './experience'
-import { projectSchema, type Project } from './project'
-import { educationSchema, type EducationEntry } from './education'
-import { certificationSchema, type CertificationEntry } from './certification'
-import { articleSchema, type Article } from './article'
-import { reviewSchema, type Testimonial } from './review'
+import { authorSchema } from './author'
+import { stackGroupSchema } from './stackGroup'
+import { technologySchema } from './technology'
+import { experienceSchema } from './experience'
+import { projectSchema } from './project'
+import { educationSchema } from './education'
+import { certificationSchema } from './certification'
+import { articleSchema } from './article'
+import { reviewSchema } from './review'
 import { ContentValidationError, validationIssues } from './errors'
 
 export const collectionSchemas = {
@@ -25,22 +25,9 @@ export const collectionSchemas = {
 } as const
 
 export type CollectionName = keyof typeof collectionSchemas
-export type ContentCollectionName = Exclude<CollectionName, 'siteSections'>
 
 export type CollectionDocumentTypes = {
   [K in CollectionName]: z.infer<(typeof collectionSchemas)[K]>[number]
-}
-
-export interface CollectionTypes {
-  authors: Author
-  stackGroups: StackGroup
-  technologies: Technology
-  experience: ExperienceEntry
-  projects: Project
-  education: EducationEntry
-  certifications: CertificationEntry
-  articles: Article
-  reviews: Testimonial
 }
 
 export type { SectionId, SectionText, SiteSections, SiteSectionDocument } from './siteSection'
@@ -64,15 +51,3 @@ export function parseCollection<K extends CollectionName>(
   }
   return result.data as CollectionDocumentTypes[K][]
 }
-
-export const contentCollectionNames = [
-  'authors',
-  'stackGroups',
-  'technologies',
-  'experience',
-  'projects',
-  'education',
-  'certifications',
-  'articles',
-  'reviews',
-] as const satisfies readonly ContentCollectionName[]

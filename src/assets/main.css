@@ -1,8 +1,8 @@
 @import 'tailwindcss';
 @import 'tw-animate-css';
 
-/* Theme-specific artwork rendered by hydrated islands. The static BlogBody
- * uses the single-image script instead. */
+/* Server HTML carries both artwork variants; CSS reveals the one that matches
+ * the current `data-theme`, so no client script or duplicate request is needed. */
 .theme-media-light { display: none; }
 html[data-theme='light'] .theme-media-dark { display: none; }
 html[data-theme='light'] .theme-media-light { display: block; }

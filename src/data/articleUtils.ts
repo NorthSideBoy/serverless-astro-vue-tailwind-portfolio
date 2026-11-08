@@ -235,10 +235,6 @@ export function sortArticles(source: readonly Article[]): Article[] {
     .sort((a, b) => b.publishedAt.localeCompare(a.publishedAt) || a.order - b.order)
 }
 
-export function findArticle(source: readonly Article[], slug: string): Article | undefined {
-  return source.find((article) => article.slug === slug && article.status === 'published')
-}
-
 export function findAdjacentArticles(
   source: readonly Article[],
   slug: string,

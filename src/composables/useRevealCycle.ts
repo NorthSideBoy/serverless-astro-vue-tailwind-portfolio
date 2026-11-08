@@ -5,7 +5,7 @@ import { onBeforeUnmount, onMounted, ref, type Ref } from 'vue'
  * Shorter absences — a quick scroll-by, a rubber-band bounce — keep the
  * section settled instead of replaying a reveal the visitor never left.
  */
-export const REVEAL_RESET_DELAY = 2400
+const REVEAL_RESET_DELAY = 2400
 
 interface RevealOptions {
   /** Time fully out of view before the target re-arms. */

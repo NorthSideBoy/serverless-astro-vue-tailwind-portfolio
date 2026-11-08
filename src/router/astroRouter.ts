@@ -51,19 +51,6 @@ export function toHref(to: Destination, locale: Locale, currentPath: string): st
   return localized + (to.hash ?? '')
 }
 
-export function useRouter() {
-  const route = useRoute()
-  return {
-    async replace(to: Destination) {
-      if (typeof window === 'undefined') return
-      const href = toHref(to, route.locale, route.path)
-      window.history.replaceState(window.history.state, '', href)
-      route.hash = window.location.hash
-      route.fullPath = window.location.pathname + route.hash
-    },
-  }
-}
-
 export const RouterLink = defineComponent({
   name: 'RouterLink',
   inheritAttrs: false,
