@@ -1,0 +1,693 @@
+
+.identity-plate {
+  --plate-bg: #0a1014;
+  --plate-border: #2b3a42;
+  --plate-line: #192329;
+  --plate-seal: #405966;
+  --plate-muted: #7c8a93;
+  --plate-g1: #00b9e9;
+  --plate-g2: #00d4d4;
+  --plate-dot: #42ffff;
+  --plate-scan: #003d56;
+
+  display: block;
+  width: 100%;
+  height: auto;
+
+  --ip-jolt-scale: 1;
+  --ip-burst-duration: 640ms;
+}
+
+:root[data-theme='light'] .identity-plate {
+  --plate-bg: #eef3f5;
+  --plate-border: #a9bcc6;
+  --plate-line: #cddae1;
+  --plate-seal: #8ba4b0;
+  --plate-muted: #526b77;
+  --plate-g1: #016f97;
+  --plate-g2: #007586;
+  --plate-dot: #0092c7;
+  --plate-scan: #bed9e2;
+}
+
+/*
+ * Negative impression. It borrows the theme's own ink: light on the dark
+ * ground, deep ink on the light paper. The sheet stays transparent so the live
+ * plate keeps reading through the tear. The extra specificity clears the
+ * composed light-theme palette above.
+ */
+:root[data-theme] .identity-plate--ghost {
+  --plate-bg: transparent;
+  --plate-border: var(--c-ink);
+  --plate-line: var(--c-ink);
+  --plate-seal: var(--c-ink);
+  --plate-muted: var(--c-ink);
+  --plate-g1: var(--c-ink);
+  --plate-g2: var(--c-soft);
+  --plate-dot: var(--c-ink);
+  --plate-scan: var(--c-ink);
+  --c-soft: var(--c-ink);
+}
+
+.ip-mono {
+  font-family: var(--font-mono);
+  font-weight: 500;
+}
+
+.ip-head {
+  font-size: 30px;
+  letter-spacing: 0.5px;
+}
+
+.ip-ccs {
+  font-size: 24px;
+  letter-spacing: 2px;
+}
+
+.ip-role {
+  font-size: 30px;
+  letter-spacing: 2.6px;
+}
+
+.ip-meta {
+  font-size: 22px;
+  letter-spacing: 2.9px;
+}
+
+.ip-label {
+  font-size: 16px;
+  letter-spacing: 2.5px;
+}
+
+.ip-value {
+  font-size: 22px;
+  letter-spacing: 0.5px;
+}
+
+.ip-seal {
+  font-family: var(--font-seal);
+  font-size: 46px;
+  font-weight: 500;
+  line-height: 1;
+}
+
+.ip-stamp {
+  font-size: 46px;
+  letter-spacing: 4px;
+  opacity: 0.85;
+}
+
+.ip-monogram {
+  font-family: var(--font-serif);
+  font-size: 310px;
+  font-weight: 900;
+  letter-spacing: 8px;
+}
+
+.ip-details-narrow {
+  display: none;
+}
+
+@media (max-width: 767px) {
+  .ip-details-wide {
+    display: none;
+  }
+
+  .ip-details-narrow {
+    display: inline;
+  }
+
+  .ip-head,
+  .ip-ccs {
+    font-size: 34px;
+  }
+
+  .ip-header-seal {
+    transform: translateX(64px);
+  }
+
+  .ip-role,
+  .ip-meta {
+    font-size: 32px;
+  }
+
+  .ip-label,
+  .ip-value {
+    font-size: 35px;
+  }
+}
+
+/*
+ * Misregistration burst: the mechanical jolts are stepped, not eased, so the
+ * sheet reads like a plotter losing register rather than a soft screen effect.
+ * All groups finish on their original transform.
+ */
+@media (prefers-reduced-motion: no-preference) {
+  .identity-plate.is-glitching {
+    animation: ip-sheet-burst var(--ip-burst-duration) steps(1, end) both;
+  }
+
+  .identity-plate.is-glitching--quick {
+    --ip-jolt-scale: 0.5;
+    --ip-burst-duration: 360ms;
+  }
+
+  .identity-plate.is-glitching .ip-jolt {
+    will-change: transform;
+  }
+
+  .identity-plate.is-glitching .ip-jolt--frame {
+    animation: ip-jolt-frame var(--ip-burst-duration) steps(1, end) both;
+  }
+
+  .identity-plate.is-glitching .ip-jolt--header {
+    animation: ip-jolt-header var(--ip-burst-duration) steps(1, end) both;
+  }
+
+  .identity-plate.is-glitching .ip-jolt--window {
+    animation: ip-jolt-window var(--ip-burst-duration) steps(1, end) both;
+  }
+
+  .identity-plate.is-glitching .ip-jolt--ruler {
+    animation: ip-jolt-ruler var(--ip-burst-duration) steps(1, end) both;
+  }
+
+  .identity-plate.is-glitching .ip-jolt--dossier {
+    animation: ip-jolt-dossier var(--ip-burst-duration) steps(1, end) both;
+  }
+
+  .identity-plate.is-glitching .ip-jolt--details {
+    animation: ip-jolt-details var(--ip-burst-duration) steps(1, end) both;
+  }
+
+  .identity-plate.is-glitching .ip-jolt--facts {
+    animation: ip-jolt-facts var(--ip-burst-duration) steps(1, end) both;
+  }
+
+  .identity-plate.is-glitching .ip-jolt--stamp {
+    animation: ip-jolt-stamp var(--ip-burst-duration) steps(1, end) both;
+  }
+}
+
+@keyframes ip-sheet-burst {
+  0%,
+  100% {
+    transform: translate(0, 0);
+  }
+
+  7% {
+    transform: translate(calc(4px * var(--ip-jolt-scale)), calc(-2px * var(--ip-jolt-scale)));
+  }
+
+  19% {
+    transform: translate(calc(-5px * var(--ip-jolt-scale)), calc(2px * var(--ip-jolt-scale)));
+  }
+
+  33% {
+    transform: translate(calc(3px * var(--ip-jolt-scale)), calc(1px * var(--ip-jolt-scale)));
+  }
+
+  49% {
+    transform: translate(calc(-3px * var(--ip-jolt-scale)), 0);
+  }
+
+  63% {
+    transform: translate(calc(2px * var(--ip-jolt-scale)), calc(-1px * var(--ip-jolt-scale)));
+  }
+
+  76% {
+    transform: translate(0, 0);
+  }
+}
+
+@keyframes ip-jolt-frame {
+  0%,
+  100% {
+    transform: translate(0, 0);
+  }
+
+  17% {
+    transform: translate(calc(4px * var(--ip-jolt-scale)), calc(-2px * var(--ip-jolt-scale)));
+  }
+
+  35% {
+    transform: translate(calc(-5px * var(--ip-jolt-scale)), calc(2px * var(--ip-jolt-scale)));
+  }
+
+  53% {
+    transform: translate(calc(3px * var(--ip-jolt-scale)), 0);
+  }
+
+  69% {
+    transform: translate(0, 0);
+  }
+}
+
+@keyframes ip-jolt-header {
+  0%,
+  100% {
+    transform: translate(0, 0);
+  }
+
+  7% {
+    transform: translate(calc(18px * var(--ip-jolt-scale)), calc(-6px * var(--ip-jolt-scale)));
+  }
+
+  16% {
+    transform: translate(calc(-10px * var(--ip-jolt-scale)), calc(3px * var(--ip-jolt-scale)));
+  }
+
+  27% {
+    transform: translate(calc(24px * var(--ip-jolt-scale)), calc(-2px * var(--ip-jolt-scale)));
+  }
+
+  40% {
+    transform: translate(calc(-7px * var(--ip-jolt-scale)), calc(2px * var(--ip-jolt-scale)));
+  }
+
+  54% {
+    transform: translate(calc(6px * var(--ip-jolt-scale)), 0);
+  }
+
+  67% {
+    transform: translate(0, 0);
+  }
+}
+
+@keyframes ip-jolt-window {
+  0%,
+  100% {
+    transform: translate(0, 0);
+  }
+
+  9% {
+    transform: translate(calc(-14px * var(--ip-jolt-scale)), calc(4px * var(--ip-jolt-scale)));
+  }
+
+  19% {
+    transform: translate(calc(20px * var(--ip-jolt-scale)), calc(-1px * var(--ip-jolt-scale)));
+  }
+
+  31% {
+    transform: translate(calc(-26px * var(--ip-jolt-scale)), calc(5px * var(--ip-jolt-scale)));
+  }
+
+  45% {
+    transform: translate(calc(12px * var(--ip-jolt-scale)), calc(-3px * var(--ip-jolt-scale)));
+  }
+
+  58% {
+    transform: translate(calc(-5px * var(--ip-jolt-scale)), calc(1px * var(--ip-jolt-scale)));
+  }
+
+  72% {
+    transform: translate(0, 0);
+  }
+}
+
+@keyframes ip-jolt-ruler {
+  0%,
+  100% {
+    transform: translate(0, 0);
+  }
+
+  11% {
+    transform: translate(calc(9px * var(--ip-jolt-scale)), calc(-3px * var(--ip-jolt-scale)));
+  }
+
+  23% {
+    transform: translate(calc(-13px * var(--ip-jolt-scale)), calc(2px * var(--ip-jolt-scale)));
+  }
+
+  37% {
+    transform: translate(calc(17px * var(--ip-jolt-scale)), calc(-4px * var(--ip-jolt-scale)));
+  }
+
+  52% {
+    transform: translate(calc(-6px * var(--ip-jolt-scale)), calc(1px * var(--ip-jolt-scale)));
+  }
+
+  66% {
+    transform: translate(0, 0);
+  }
+}
+
+@keyframes ip-jolt-dossier {
+  0%,
+  100% {
+    transform: translate(0, 0);
+  }
+
+  10% {
+    transform: translate(calc(13px * var(--ip-jolt-scale)), calc(-5px * var(--ip-jolt-scale)));
+  }
+
+  23% {
+    transform: translate(calc(-19px * var(--ip-jolt-scale)), calc(4px * var(--ip-jolt-scale)));
+  }
+
+  36% {
+    transform: translate(calc(6px * var(--ip-jolt-scale)), calc(-2px * var(--ip-jolt-scale)));
+  }
+
+  51% {
+    transform: translate(calc(-10px * var(--ip-jolt-scale)), calc(2px * var(--ip-jolt-scale)));
+  }
+
+  65% {
+    transform: translate(calc(2px * var(--ip-jolt-scale)), 0);
+  }
+
+  77% {
+    transform: translate(0, 0);
+  }
+}
+
+@keyframes ip-jolt-details {
+  0%,
+  100% {
+    transform: translate(0, 0);
+  }
+
+  13% {
+    transform: translate(calc(9px * var(--ip-jolt-scale)), calc(3px * var(--ip-jolt-scale)));
+  }
+
+  26% {
+    transform: translate(calc(-12px * var(--ip-jolt-scale)), calc(-2px * var(--ip-jolt-scale)));
+  }
+
+  41% {
+    transform: translate(calc(15px * var(--ip-jolt-scale)), calc(4px * var(--ip-jolt-scale)));
+  }
+
+  56% {
+    transform: translate(calc(-5px * var(--ip-jolt-scale)), 0);
+  }
+
+  70% {
+    transform: translate(0, 0);
+  }
+}
+
+@keyframes ip-jolt-facts {
+  0%,
+  100% {
+    transform: translate(0, 0);
+  }
+
+  12% {
+    transform: translate(calc(-11px * var(--ip-jolt-scale)), calc(-3px * var(--ip-jolt-scale)));
+  }
+
+  25% {
+    transform: translate(calc(15px * var(--ip-jolt-scale)), calc(3px * var(--ip-jolt-scale)));
+  }
+
+  39% {
+    transform: translate(calc(-7px * var(--ip-jolt-scale)), calc(-4px * var(--ip-jolt-scale)));
+  }
+
+  54% {
+    transform: translate(calc(9px * var(--ip-jolt-scale)), calc(2px * var(--ip-jolt-scale)));
+  }
+
+  68% {
+    transform: translate(0, 0);
+  }
+}
+
+@keyframes ip-jolt-stamp {
+  0%,
+  100% {
+    transform: translate(0, 0);
+  }
+
+  14% {
+    transform: translate(calc(-18px * var(--ip-jolt-scale)), calc(7px * var(--ip-jolt-scale)));
+  }
+
+  28% {
+    transform: translate(calc(13px * var(--ip-jolt-scale)), calc(-5px * var(--ip-jolt-scale)));
+  }
+
+  44% {
+    transform: translate(calc(-9px * var(--ip-jolt-scale)), calc(4px * var(--ip-jolt-scale)));
+  }
+
+  59% {
+    transform: translate(calc(5px * var(--ip-jolt-scale)), 0);
+  }
+
+  73% {
+    transform: translate(0, 0);
+  }
+}
+
+
+.identity-plate-stage {
+  position: relative;
+  isolation: isolate;
+
+  --ip-ghost-scale: 1;
+  --ip-ghost-duration: 640ms;
+  --ip-ghost-alpha: 1;
+  --ip-scan-alpha: 1;
+}
+
+.identity-plate-stage.is-glitching--quick {
+  --ip-ghost-scale: 0.5;
+  --ip-ghost-duration: 360ms;
+  --ip-ghost-alpha: 0.8;
+  --ip-scan-alpha: 0.72;
+}
+
+.ip-main {
+  position: relative;
+  z-index: 1;
+  line-height: 0;
+}
+
+.ip-ghost {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+}
+
+.ip-ghost--bands {
+  z-index: 3;
+  -webkit-mask-image: linear-gradient(
+    to bottom,
+    transparent 0%,
+    transparent 17%,
+    #000 17%,
+    #000 25%,
+    transparent 25%,
+    transparent 46%,
+    #000 46%,
+    #000 54%,
+    transparent 54%,
+    transparent 72%,
+    #000 72%,
+    #000 79%,
+    transparent 79%,
+    transparent 100%
+  );
+  mask-image: linear-gradient(
+    to bottom,
+    transparent 0%,
+    transparent 17%,
+    #000 17%,
+    #000 25%,
+    transparent 25%,
+    transparent 46%,
+    #000 46%,
+    #000 54%,
+    transparent 54%,
+    transparent 72%,
+    #000 72%,
+    #000 79%,
+    transparent 79%,
+    transparent 100%
+  );
+}
+
+.identity-plate-stage.is-glitching .ip-ghost {
+  visibility: visible;
+}
+
+/* A plotter head passing over the sheet: one faint line, twice. */
+.identity-plate-stage::after {
+  content: '';
+  position: absolute;
+  z-index: 4;
+  top: 0;
+  right: -2%;
+  left: -2%;
+  height: 12%;
+  color: var(--c-ink);
+  background: linear-gradient(
+    to bottom,
+    transparent 0%,
+    currentColor 46%,
+    currentColor 54%,
+    transparent 100%
+  );
+  opacity: 0;
+  pointer-events: none;
+  transform: translateY(-140%);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .identity-plate-stage.is-glitching .ip-ghost {
+    will-change: transform, opacity;
+  }
+
+  .identity-plate-stage.is-glitching .ip-ghost--full {
+    animation: ip-ghost-full var(--ip-ghost-duration) steps(1, end) both;
+  }
+
+  .identity-plate-stage.is-glitching .ip-ghost--bands {
+    animation: ip-ghost-bands var(--ip-ghost-duration) steps(1, end) both;
+  }
+
+  .identity-plate-stage.is-glitching::after {
+    animation: ip-scan-sweep var(--ip-ghost-duration) steps(1, end) both;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ip-ghost,
+  .identity-plate-stage::after {
+    display: none;
+  }
+}
+
+@keyframes ip-ghost-full {
+  0% {
+    opacity: 0;
+    transform: translate(0, 0);
+  }
+
+  6% {
+    opacity: calc(0.62 * var(--ip-ghost-alpha));
+    transform: translate(calc(-18px * var(--ip-ghost-scale)), calc(-4px * var(--ip-ghost-scale)));
+  }
+
+  18% {
+    opacity: calc(0.3 * var(--ip-ghost-alpha));
+    transform: translate(calc(10px * var(--ip-ghost-scale)), calc(3px * var(--ip-ghost-scale)));
+  }
+
+  30% {
+    opacity: calc(0.68 * var(--ip-ghost-alpha));
+    transform: translate(calc(-26px * var(--ip-ghost-scale)), calc(-2px * var(--ip-ghost-scale)));
+  }
+
+  46% {
+    opacity: calc(0.4 * var(--ip-ghost-alpha));
+    transform: translate(calc(14px * var(--ip-ghost-scale)), calc(5px * var(--ip-ghost-scale)));
+  }
+
+  60% {
+    opacity: calc(0.55 * var(--ip-ghost-alpha));
+    transform: translate(calc(-12px * var(--ip-ghost-scale)), calc(1px * var(--ip-ghost-scale)));
+  }
+
+  76% {
+    opacity: calc(0.22 * var(--ip-ghost-alpha));
+    transform: translate(calc(6px * var(--ip-ghost-scale)), calc(-2px * var(--ip-ghost-scale)));
+  }
+
+  100% {
+    opacity: 0;
+    transform: translate(0, 0);
+  }
+}
+
+@keyframes ip-ghost-bands {
+  0% {
+    opacity: 0;
+    transform: translate(0, 0);
+  }
+
+  8% {
+    opacity: calc(0.9 * var(--ip-ghost-alpha));
+    transform: translate(calc(20px * var(--ip-ghost-scale)), calc(3px * var(--ip-ghost-scale)));
+  }
+
+  20% {
+    opacity: calc(0.55 * var(--ip-ghost-alpha));
+    transform: translate(calc(-14px * var(--ip-ghost-scale)), calc(-4px * var(--ip-ghost-scale)));
+  }
+
+  33% {
+    opacity: calc(0.95 * var(--ip-ghost-alpha));
+    transform: translate(calc(24px * var(--ip-ghost-scale)), calc(1px * var(--ip-ghost-scale)));
+  }
+
+  47% {
+    opacity: calc(0.65 * var(--ip-ghost-alpha));
+    transform: translate(calc(-18px * var(--ip-ghost-scale)), calc(4px * var(--ip-ghost-scale)));
+  }
+
+  61% {
+    opacity: calc(0.82 * var(--ip-ghost-alpha));
+    transform: translate(calc(12px * var(--ip-ghost-scale)), calc(-2px * var(--ip-ghost-scale)));
+  }
+
+  76% {
+    opacity: calc(0.25 * var(--ip-ghost-alpha));
+    transform: translate(calc(-6px * var(--ip-ghost-scale)), calc(1px * var(--ip-ghost-scale)));
+  }
+
+  100% {
+    opacity: 0;
+    transform: translate(0, 0);
+  }
+}
+
+@keyframes ip-scan-sweep {
+  0% {
+    opacity: 0;
+    transform: translateY(-140%);
+  }
+
+  8% {
+    opacity: calc(0.2 * var(--ip-scan-alpha));
+    transform: translateY(40%);
+  }
+
+  22% {
+    opacity: calc(0.18 * var(--ip-scan-alpha));
+    transform: translateY(310%);
+  }
+
+  30% {
+    opacity: calc(0.12 * var(--ip-scan-alpha));
+    transform: translateY(480%);
+  }
+
+  34% {
+    opacity: 0;
+    transform: translateY(540%);
+  }
+
+  60% {
+    opacity: calc(0.14 * var(--ip-scan-alpha));
+    transform: translateY(820%);
+  }
+
+  70% {
+    opacity: 0;
+    transform: translateY(900%);
+  }
+
+  100% {
+    opacity: 0;
+    transform: translateY(-140%);
+  }
+}

@@ -1,8 +1,8 @@
 /**
  * Static reveal controller for the server-rendered sections.
  *
- * Most of the dossier is rendered by Astro as plain HTML so it paints without
- * waiting for Vue. Their entrances still belong to the authored motion system:
+ * Static Astro sections and server-rendered Vue sections paint without
+ * hydration. Their entrances still belong to the authored motion system:
  * this script owns the same arming / quiet-absence cycle as useRevealCycle,
  * without hydrating the sections themselves.
  *
@@ -89,6 +89,9 @@ export function initReveals() {
   collect('.education-item', 'record', targets, seen)
   collect('.certification-item', 'record', targets, seen)
   collect('[data-blog-card]', 'record', targets, seen)
+  collect('[data-contact-panel]', 'stagger', targets, seen)
+  collect('.capabilities', 'stagger', targets, seen)
+  collect('.hero-copy', 'stagger', targets, seen)
 
   if (!targets.length) return
 

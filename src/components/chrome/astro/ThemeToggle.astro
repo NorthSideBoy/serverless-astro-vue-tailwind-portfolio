@@ -1,0 +1,15 @@
+---
+import type { Locale } from '@/data/content';
+import { content } from '@/data/content';
+import UiIcon from '@/components/ui/astro/UiIcon.astro';
+const { locale } = Astro.props as { locale: Locale };
+const label = content[locale].nav.themeToggle;
+---
+<button type="button" data-theme-toggle class="inline-flex h-11 w-11 items-center justify-center rounded-full border border-line bg-panel/20 text-soft transition hover:border-soft hover:bg-panel/50 active:scale-[0.96]" aria-label={label} title={label}>
+  <span class="theme-toggle__icon theme-toggle__icon--sun"><UiIcon name="sun" size={15} /></span>
+  <span class="theme-toggle__icon theme-toggle__icon--moon"><UiIcon name="moon" size={15} /></span>
+</button>
+<style is:global>
+  .theme-toggle__icon { display: none; align-items: center; justify-content: center; }
+  html[data-theme='dark'] .theme-toggle__icon--sun, html[data-theme='light'] .theme-toggle__icon--moon { display: inline-flex; }
+</style>

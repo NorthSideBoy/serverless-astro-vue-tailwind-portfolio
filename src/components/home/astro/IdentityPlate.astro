@@ -1,0 +1,11 @@
+---
+import IdentityPlateSheet from './IdentityPlateSheet.astro';
+import type { Locale } from '@/data/content';
+import '@/styles/identity-plate.css';
+const { locale, alt } = Astro.props as { locale: Locale; alt: string };
+---
+<div class="identity-plate-stage hero-mark w-full max-w-[280px] md:max-w-[320px] xl:max-w-[400px]">
+  <div class="ip-main"><IdentityPlateSheet locale={locale} alt={alt} /></div>
+  <div class="ip-ghost ip-ghost--full" aria-hidden="true"><IdentityPlateSheet locale={locale} tone="ghost" idPrefix="ip-ghost-full" /></div>
+  <div class="ip-ghost ip-ghost--bands" aria-hidden="true"><IdentityPlateSheet locale={locale} tone="ghost" idPrefix="ip-ghost-bands" /></div>
+</div>

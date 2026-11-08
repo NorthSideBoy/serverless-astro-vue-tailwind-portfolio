@@ -1,20 +1,30 @@
 import { afterAll, beforeAll, describe, expect, it } from 'vitest'
 import { spawn, type ChildProcess } from 'node:child_process'
 import { chromium, type Browser, type Page } from 'playwright'
+import { createServer } from 'node:net'
 
 let server: ChildProcess
 let browser: Browser
-const base = 'http://127.0.0.1:4323'
+let base: string
 const deepLink = 'project-mvc-boilerplate'
 
 beforeAll(async () => {
-  server = spawn('node', ['--env-file-if-exists=.env', './node_modules/.bin/astro', 'preview', '--host', '127.0.0.1', '--port', '4323'], {
+  const port = await new Promise<number>((resolve, reject) => {
+    const probe = createServer()
+    probe.once('error', reject)
+    probe.listen(0, '127.0.0.1', () => {
+      const address = probe.address()
+      probe.close(() => resolve(typeof address === 'object' && address ? address.port : 4323))
+    })
+  })
+  base = `http://127.0.0.1:${port}`
+  server = spawn('node', ['--env-file-if-exists=.env', './node_modules/.bin/astro', 'preview', '--ignore-lock', '--host', '127.0.0.1', '--port', String(port)], {
     stdio: ['ignore', 'pipe', 'pipe'],
   })
   await new Promise<void>((resolve, reject) => {
     const timeout = setTimeout(() => reject(new Error('preview server did not start')), 20_000)
     server.stdout?.on('data', (chunk: Buffer) => {
-      if (!chunk.toString().includes('Preview server running')) return
+      if (!chunk.toString().includes(base)) return
       clearTimeout(timeout)
       resolve()
     })
@@ -88,7 +98,6 @@ describe('rendered portfolio', () => {
   it('shares the theme across independent islands and persists it', async () => {
     const page = await openPage()
     await goto(page, '/')
-    await waitForHydration(page)
     const toggle = page.locator('header [data-theme-toggle]').first()
     const before = await page.evaluate(() => document.documentElement.dataset.theme)
     await toggle.click()
@@ -96,7 +105,6 @@ describe('rendered portfolio', () => {
     await expect.poll(() => page.evaluate(() => document.documentElement.dataset.theme)).toBe(after)
     expect(await page.evaluate(() => localStorage.getItem('sl-theme'))).toBe(after)
     await page.reload({ waitUntil: 'domcontentloaded' })
-    await waitForHydration(page)
     expect(await page.evaluate(() => document.documentElement.dataset.theme)).toBe(after)
     await page.close()
   })
@@ -112,15 +120,50 @@ describe('rendered portfolio', () => {
     expect(await page.locator('#education article').count()).toBeGreaterThan(0)
     expect(await page.locator('#certifications article').count()).toBeGreaterThan(0)
     expect(await page.locator('#blog [data-blog-card]').count()).toBeGreaterThan(0)
+    expect(await page.locator('#top h1').count()).toBe(1)
+    expect(await page.locator('#top .identity-plate[role="img"]').count()).toBe(1)
+    expect(await page.locator('[data-scramble]').count()).toBeGreaterThan(0)
+    expect(await page.locator('#skills [role="tab"]').count()).toBe(4)
+    expect(await page.locator('#contact a[href^="mailto:"]').count()).toBe(1)
+    expect(await page.locator('header nav a').count()).toBeGreaterThan(0)
+    expect(await page.locator('footer nav a').count()).toBeGreaterThan(0)
+    expect(await page.locator('astro-island[client="load"]').count()).toBe(0)
     expect(await page.locator('main#main').count()).toBe(1)
     expect(await page.locator('a.skip-link[href="#main"]').count()).toBe(1)
+    await page.close()
+  })
+
+  it('keeps the static skills tabs and contact controls keyboard accessible', async () => {
+    const page = await openPage()
+    await goto(page, '/')
+    const tabs = page.locator('#skills [role="tab"]')
+    await tabs.nth(1).focus()
+    await tabs.nth(1).press('ArrowRight')
+    expect(await tabs.nth(2).getAttribute('aria-selected')).toBe('true')
+    expect(await page.locator('#skills-layer-detail').getAttribute('aria-labelledby')).toBe('skills-layer-tab-2')
+    await tabs.nth(2).press('Home')
+    expect(await tabs.nth(0).getAttribute('aria-selected')).toBe('true')
+    expect(await page.locator('#skills-layer-detail [data-layer-detail]:visible').count()).toBe(1)
+    expect(await page.locator('#contact button[type="submit"]').isDisabled()).toBe(true)
+    const copy = page.locator('[data-copy-email]')
+    await copy.click()
+    await expect.poll(() => page.locator('[data-copy-status]').textContent()).not.toBe('')
+    await page.close()
+  })
+
+  it('keeps the article outline and progress as script enhancements to server HTML', async () => {
+    const page = await openPage()
+    await goto(page, '/blog/fixture-article/')
+    expect(await page.locator('astro-island').count()).toBe(0)
+    expect(await page.locator('[data-article-toc] a[href="#intro"]').count()).toBeGreaterThan(0)
+    await page.evaluate(() => window.scrollTo(0, document.body.scrollHeight))
+    await expect.poll(() => page.locator('[data-reading-progress]').evaluate((element) => (element as HTMLElement).style.transform)).toMatch(/scaleX\(0\.[1-9]|scaleX\(1\)/)
     await page.close()
   })
 
   it('moves focus with the keyboard through the skip link and menu control', async () => {
     const page = await openPage({ viewport: { width: 390, height: 844 } })
     await goto(page, '/')
-    await waitForHydration(page)
     await page.keyboard.press('Tab')
     expect(await page.evaluate(() => document.activeElement?.className)).toContain('skip-link')
     await page.keyboard.press('Enter')
@@ -141,8 +184,7 @@ describe('rendered portfolio', () => {
     expect(await page.locator('link[rel="alternate"][hreflang="es"]').count()).toBe(1)
     expect(await page.locator('main#main').count()).toBe(1)
     expect(await page.locator('h1').count()).toBe(1)
-    await waitForHydration(page)
-    const spanish = page.locator('header [data-locale-link][href="/blog/fixture-article/#intro"]').first()
+    const spanish = page.locator('header [data-locale-link][href="/blog/fixture-article/"]').first()
     await spanish.click()
     await page.waitForURL(`${base}/blog/fixture-article/#intro`)
     expect(await page.locator('html').getAttribute('lang')).toBe('es')

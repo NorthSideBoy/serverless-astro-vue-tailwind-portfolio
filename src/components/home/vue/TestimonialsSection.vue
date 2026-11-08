@@ -39,9 +39,6 @@ const reviews = computed(() =>
 )
 const initialCount = 4
 const showAll = ref(false)
-const visibleReviews = computed(() =>
-  showAll.value ? reviews.value : reviews.value.slice(0, initialCount),
-)
 
 async function revealReviewFromHash(hash: string) {
   const anchor = hash.replace(/^#/, '')
@@ -53,9 +50,8 @@ async function revealReviewFromHash(hash: string) {
   // to the surrounding section before the card exists.
   scrollControl.holdHashSync(prefersReducedMotion() ? 0 : 1200)
 
-  // A deep link to a collapsed review has no target in the SSR document: the
-  // card only exists after the list expands. Mount the whole record first,
-  // then take the visitor to the card the link promised.
+  // All reviews are in the server HTML. Expand hidden cards before scrolling
+  // to a deep link so its target can become visible and receive focus.
   if (!showAll.value) {
     showAll.value = true
     await nextTick()
@@ -117,19 +113,19 @@ watch([() => route.hash, () => props.items], ([hash]) => {
         :error="error"
         @retry="$emit('retry')"
       />
-      <TransitionGroup
+      <div
         id="reviews-list"
-        tag="div"
-        name="review-card"
         class="grid gap-4 md:grid-cols-2 md:gap-5"
         v-show="!loading && !error && items.length"
       >
         <figure
-          v-for="(review, index) in visibleReviews"
+          v-for="(review, index) in reviews"
           :id="reviewAnchor(review.id)"
           :key="review.id"
           :style="{ '--review-order': Math.min(Math.max(index - initialCount, 0), 3) }"
-          class="flex min-w-0 scroll-mt-28 flex-col border border-line bg-panel/15 p-5 transition-colors hover:border-line-strong md:p-7"
+          :hidden="!showAll && index >= initialCount"
+          :class="{ 'is-entering': showAll && index >= initialCount }"
+          class="review-card-item flex min-w-0 scroll-mt-28 flex-col border border-line bg-panel/15 p-5 transition-colors hover:border-line-strong md:p-7"
         >
           <figcaption class="min-w-0">
             <div class="flex min-w-0 items-center gap-3.5">
@@ -239,7 +235,7 @@ watch([() => route.hash, () => props.items], ([hash]) => {
             </p>
           </div>
         </figure>
-      </TransitionGroup>
+      </div>
 
       <div
         v-if="!loading && !error && reviews.length > initialCount"
@@ -270,21 +266,12 @@ watch([() => route.hash, () => props.items], ([hash]) => {
 </template>
 
 <style scoped>
-.review-card-enter-active {
-  transition:
-    opacity 420ms cubic-bezier(0.16, 1, 0.3, 1),
-    transform 520ms cubic-bezier(0.16, 1, 0.3, 1);
-  transition-delay: calc(var(--review-order, 0) * 60ms);
+.review-card-item[hidden] { display: none; }
+@media (prefers-reduced-motion: no-preference) {
+  .review-card-item.is-entering { animation: review-card-enter 520ms cubic-bezier(0.16, 1, 0.3, 1) calc(var(--review-order, 0) * 60ms) both; }
 }
-
-.review-card-enter-from {
-  opacity: 0;
-  transform: translate3d(0, 12px, 0);
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .review-card-enter-active {
-    transition: none;
-  }
+@keyframes review-card-enter {
+  from { opacity: 0; transform: translate3d(0, 12px, 0); }
+  to { opacity: 1; transform: none; }
 }
 </style>

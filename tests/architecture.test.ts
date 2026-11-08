@@ -81,4 +81,37 @@ describe('component architecture', () => {
       .map((entry) => entry.name)
     expect(loose).toEqual([])
   })
+
+  it('renders local home content in Astro and Firestore content through Vue', () => {
+    const home = fs.readFileSync(path.join(componentsDir, 'home/astro/HomePage.astro'), 'utf8')
+    for (const name of ['HeroSection', 'StatsSection', 'SkillsSection', 'ContactSection']) {
+      expect(home).toContain(`./${name}.astro`)
+      expect(home).not.toMatch(new RegExp(`<${name === 'HeroSection' ? 'Hero' : name === 'StatsSection' ? 'Stats' : name === 'SkillsSection' ? 'Skills' : 'Contact'}[^>]*client:`))
+    }
+    for (const name of ['StackContent', 'ExperienceContent', 'EducationContent', 'CertificationsContent']) {
+      expect(home).toContain(`components/islands/home/${name}.vue`)
+    }
+    expect(home).toContain('components/islands/blog/BlogContent.vue')
+    for (const name of ['StackSection', 'ExperienceSection', 'EducationSection', 'CertificationsSection']) {
+      expect(fs.existsSync(path.join(componentsDir, `home/astro/${name}.astro`))).toBe(false)
+    }
+  })
+
+  it('keeps Firestore articles and indexes server-rendered by Vue without hydration', () => {
+    const pages = [
+      ['blog/astro/BlogPage.astro', 'BlogIndexContent'],
+      ['blog/astro/ArticlePage.astro', 'ArticleContent'],
+    ] as const
+    for (const [page, component] of pages) {
+      const source = fs.readFileSync(path.join(componentsDir, page), 'utf8')
+      expect(source).toContain(`components/islands/blog/${component}.vue`)
+      expect(source).not.toMatch(new RegExp(`<${component === 'ArticleContent' ? 'ArticleView' : 'BlogBody'}[^>]*client:`))
+    }
+    const projects = fs.readFileSync(path.join(componentsDir, 'projects/astro/ProjectsPage.astro'), 'utf8')
+    expect(projects).toContain('components/islands/projects/ProjectsIndexIsland.vue')
+    expect(projects).toMatch(/<ProjectsIndex[^>]*client:load/)
+    const reviews = fs.readFileSync(path.join(componentsDir, 'home/vue/TestimonialsSection.vue'), 'utf8')
+    expect(reviews).toContain('v-for="(review, index) in reviews"')
+    expect(reviews).toContain(':hidden="!showAll && index >= initialCount"')
+  })
 })

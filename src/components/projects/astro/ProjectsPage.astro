@@ -1,7 +1,7 @@
 ---
 import SiteHeader from '@/components/chrome/astro/SiteHeader.astro';
 import SiteFooter from '@/components/chrome/astro/SiteFooter.astro';
-import ProjectsIndex from './ProjectsIndex.astro';
+import ProjectsIndex from '@/components/islands/projects/ProjectsIndexIsland.vue';
 import Layout from '@/layouts/Layout.astro';
 import { loadContent } from '@/lib/server/content';
 import type { Locale } from '@/data/content';
@@ -11,6 +11,6 @@ const data = await loadContent();
 ---
 <Layout locale={locale} title={data.sections.projects[locale].index?.meta?.title} description={data.sections.projects[locale].index?.meta?.description}>
   <SiteHeader page="projects" locale={locale} path={path} />
-  <ProjectsIndex locale={locale} sections={data.sections} projects={data.projects} experiences={data.experience} reviews={data.reviews} />
+  <ProjectsIndex locale={locale} page="projects" path={path} content={{ sections: data.sections, projects: data.projects, experiences: data.experience, reviews: data.reviews }} client:load />
   <SiteFooter page="projects" locale={locale} path={path} />
 </Layout>

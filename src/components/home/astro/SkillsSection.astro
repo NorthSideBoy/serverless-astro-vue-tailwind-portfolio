@@ -1,0 +1,39 @@
+---
+import { content, type Locale } from '@/data/content';
+import SectionHeader from '@/components/ui/astro/SectionHeader.astro';
+import PlateFrame from '@/components/ui/astro/PlateFrame.astro';
+import LayerPlate from '@/components/ui/astro/LayerPlate.astro';
+import UiIcon from '@/components/ui/astro/UiIcon.astro';
+const { locale } = Astro.props as { locale: Locale };
+const skills = content[locale].skills;
+const layerIcons = ['database', 'terminal', 'api', 'layers'];
+const skillIcons = ['layers', 'database', 'shield', 'plug', 'check-circle', 'code'];
+const layerColors = ['var(--c-layer-1)', 'var(--c-layer-2)', 'var(--c-layer-3)', 'var(--c-layer-4)'];
+---
+<section id="skills" class="section-pad border-y border-line bg-page" aria-labelledby="skills-title"><div class="shell">
+  <SectionHeader seal="三" eyebrow={skills.eyebrow} title={skills.title} lead={skills.lead} titleId="skills-title" signal />
+  <PlateFrame><div class="p-5 md:p-8 xl:p-10"><section aria-labelledby="skills-capabilities-title" class="skills-capabilities grid gap-7 lg:grid-cols-[230px_minmax(0,1fr)] lg:gap-12"><div><h3 id="skills-capabilities-title" class="mono-label text-soft">{skills.capabilitiesLabel}</h3><p class="mt-3 max-w-[34ch] text-[13px] leading-[1.7] text-muted md:text-[14px]">{skills.capabilitiesNote}</p></div><ul class="capabilities grid gap-px bg-line md:grid-cols-2">{skills.items.map((item, index) => <li class="capability-card bg-section p-5 md:p-6" style={`--capability-delay:${Math.min(index * 50, 250)}ms`}><div class="flex items-start gap-3"><UiIcon name={skillIcons[index] ?? 'code'} size={18} class="mt-0.5 text-icon" /><div class="min-w-0"><h4 class="font-display text-[17px] font-semibold leading-snug tracking-[-0.01em] text-ink md:text-[18px]">{item.title}</h4><p class="mt-2.5 text-[13px] leading-[1.65] text-muted md:text-[13.5px]">{item.description}</p><p class="mt-3.5 font-mono text-[10px] uppercase tracking-[0.07em] text-muted md:text-[10.5px]">{item.tags}</p></div></div></li>)}</ul></section>
+    <section aria-labelledby="skills-layers-title" class="mt-10 border-t border-line pt-9 md:mt-12 md:pt-10"><div class="max-w-[72ch]"><h3 id="skills-layers-title" class="mono-label text-soft">{skills.layersLabel}</h3><p class="mt-3 text-[13px] leading-[1.7] text-muted md:text-[14px]">{skills.layersNote}</p><p id="skills-layers-hint" class="mt-3 font-mono text-[10px] text-muted">{skills.layersHint}</p></div>
+      <div class="layer-layout mt-7"><div class="layer-plate"><LayerPlate layers={skills.layers} /></div><div class="layer-controls" role="tablist" aria-labelledby="skills-layers-title" aria-orientation="horizontal" aria-describedby="skills-layers-hint">{skills.layers.map((layer, index) => <button id={`skills-layer-tab-${index}`} type="button" role="tab" aria-selected={index === 1} aria-controls="skills-layer-detail" tabindex={index === 1 ? 0 : -1} data-selected={index === 1} data-layer-tab={index} class="block p-4 text-left transition-colors duration-200 md:p-5"><span class="flex items-center justify-between gap-3"><span class:list={['font-mono text-[10px] tracking-[0.08em]', index === 1 ? 'text-soft' : 'text-soft/80']}>{layer.index}</span><UiIcon name={layerIcons[index] ?? 'layers'} size={18} class={index === 1 ? 'text-soft' : 'text-muted'} /></span><span class="mt-6 block font-display text-[15px] font-semibold uppercase tracking-[0.04em] text-ink md:text-[16px]">{layer.label}</span><span class="mt-1.5 block font-mono text-[10px] uppercase tracking-[0.07em] text-muted">{layer.detail}</span></button>)}</div>
+      <aside id="skills-layer-detail" role="tabpanel" tabindex="-1" class="layer-detail border border-line bg-panel/15 p-5 md:p-6" aria-labelledby="skills-layer-tab-1">{skills.layers.map((layer, index) => <div data-layer-detail={index} hidden={index !== 1} class="detail-body"><div class="flex items-center justify-between gap-3"><span class="font-mono text-[10px] uppercase tracking-[0.1em]" style={`color:${layerColors[index % 4]}`}>{layer.index} · {skills.layersAction}</span><UiIcon name={layerIcons[index] ?? 'layers'} size={18} class="text-muted" /></div><h4 class="mt-3 font-display text-[17px] font-semibold uppercase tracking-[0.04em] text-ink md:text-[18px]">{layer.label}</h4><p class="mt-1.5 font-mono text-[10px] uppercase tracking-[0.07em] text-muted">{layer.detail}</p><p class="mt-4 text-[14px] leading-[1.7] text-muted md:text-[15px]">{layer.what}</p></div>)}</aside></div>
+    </section>
+  </div></PlateFrame>
+</div></section>
+<script>import '@/scripts/skills-layers';</script>
+<style>
+  .layer-layout { display: grid; grid-template-areas: 'plate' 'tabs' 'detail'; gap: 24px; }
+  .layer-plate { grid-area: plate; min-width: 0; }
+  .layer-controls { grid-area: tabs; display: grid; grid-template-columns: minmax(0,1fr); gap: 1px; background-color: var(--c-line); }
+  .layer-controls button { background-color: var(--c-section); }
+  .layer-controls button:hover { background-color: color-mix(in srgb, var(--c-panel) 30%, transparent); }
+  .layer-controls button[data-selected='true'] { background-color: color-mix(in srgb, var(--c-panel) 60%, transparent); box-shadow: inset 0 1px var(--c-soft); }
+  .layer-detail { grid-area: detail; }
+  .detail-body:not([hidden]) { animation: detail-enter 280ms cubic-bezier(0.16,1,0.3,1) both; }
+  .detail-body[hidden] { display: none; }
+  @keyframes detail-enter { from { opacity: 0; transform: translate3d(8px,5px,0); } to { opacity: 1; transform: none; } }
+  @media (min-width: 640px) { .layer-controls { grid-template-columns: repeat(2,minmax(0,1fr)); } }
+  @media (min-width: 1024px) { .layer-layout { grid-template-columns: minmax(0,1fr) 340px; grid-template-areas: 'plate detail' 'tabs tabs'; align-items: center; column-gap: 40px; } }
+  @media (min-width: 1280px) { .layer-controls { grid-template-columns: repeat(4,minmax(0,1fr)); } }
+  @media (prefers-reduced-motion: reduce) { .layer-controls button, .detail-body { transition: none; animation: none !important; } }
+  @media (prefers-reduced-motion: no-preference) { .capability-card { transition: opacity 520ms cubic-bezier(0.16,1,0.3,1), transform 520ms cubic-bezier(0.16,1,0.3,1); transition-delay: var(--capability-delay,0ms); } .capabilities.is-armed .capability-card { opacity: 0; transform: translate3d(0,10px,0); transition: none; } }
+</style>

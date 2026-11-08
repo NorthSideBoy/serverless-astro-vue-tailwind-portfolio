@@ -1,0 +1,172 @@
+---
+import type { Locale } from '@/data/content';
+interface Props { locale: Locale; idPrefix?: string; tone?: 'normal' | 'ghost'; alt?: string }
+const { locale, idPrefix = 'ip', tone = 'normal', alt } = Astro.props;
+const plateCopy = locale === 'es'
+  ? { header: 'PLACA 00 // IDENTIDAD', meta: 'UTC-4 · DESDE 2022 · ESPAÑOL / INGLÉS', available: 'DISPONIBLE', dossier: 'EXPEDIENTE', availability: 'Remoto o local' }
+  : { header: 'PLATE 00 // IDENTITY', meta: 'UTC-4 · SINCE 2022 · SPANISH / ENGLISH', available: 'AVAILABLE', dossier: 'DOSSIER', availability: 'Remote or local' };
+const ids = { cross: `${idPrefix}-cross`, halftone: `${idPrefix}-halftone`, scan: `${idPrefix}-scan`, base: `${idPrefix}-base` };
+const ticks = Array.from({ length: 61 }, (_, i) => { const x = 85 + i * 13; return { x, major: (x - 124) % 65 === 0 }; });
+---
+<svg
+    viewBox="0 0 960 1200"
+    class:list={['identity-plate', tone === 'ghost' && 'identity-plate--ghost']} role={tone === 'ghost' ? undefined : 'img'} aria-label={tone === 'ghost' ? undefined : alt}
+    focusable="false"
+  >
+    <defs>
+      <pattern id={ids.cross} width="22" height="22" patternUnits="userSpaceOnUse">
+        <rect x="10" y="11" width="3" height="1" fill="var(--c-ink)" opacity="0.06" />
+        <rect x="11" y="10" width="1" height="3" fill="var(--c-ink)" opacity="0.06" />
+      </pattern>
+      <pattern id={ids.halftone} width="8" height="8" patternUnits="userSpaceOnUse">
+        <circle cx="4" cy="5" r="2.2" fill="var(--plate-dot)" />
+      </pattern>
+      <pattern id={ids.scan} width="4" height="4" patternUnits="userSpaceOnUse">
+        <rect width="4" height="1" fill="var(--plate-scan)" opacity="0.22" />
+      </pattern>
+      <linearGradient id={ids.base} x1="185" y1="0" x2="785" y2="0" gradientUnits="userSpaceOnUse">
+        <stop offset="0" stop-color="var(--plate-g1)" />
+        <stop offset="1" stop-color="var(--plate-g2)" />
+      </linearGradient>
+    </defs>
+
+    <!-- sheet ground + cross-hair texture -->
+    <rect width="960" height="1200" fill="var(--plate-bg)" />
+    <rect width="960" height="1200" fill={`url(#${ids.cross})`} />
+
+    <!-- registration frame -->
+    <g class="ip-jolt ip-jolt--frame">
+      <rect
+        x="22.5"
+        y="22.5"
+        width="915"
+        height="1155"
+        fill="none"
+        stroke="var(--plate-border)"
+        stroke-width="1"
+      />
+    </g>
+
+    <!-- header -->
+    <g class="ip-jolt ip-jolt--header">
+      <text x="72" y="78" class="ip-mono ip-head" fill="var(--c-soft)">
+        {plateCopy.header}
+      </text>
+      <text x="570" y="92" class="ip-seal ip-header-seal" fill="var(--c-soft)" text-anchor="middle">
+        構
+      </text>
+      <text x="888" y="76" class="ip-mono ip-ccs" fill="var(--plate-muted)" text-anchor="end">
+        CCS · VE
+      </text>
+      <line x1="72" y1="100.5" x2="888" y2="100.5" stroke="var(--plate-line)" stroke-width="1" />
+    </g>
+
+    <!-- monogram window -->
+    <g class="ip-jolt ip-jolt--window">
+      <rect
+        x="72.5"
+        y="140.5"
+        width="815"
+        height="499"
+        fill="none"
+        stroke="var(--plate-line)"
+        stroke-width="1"
+      />
+      <!-- monogram: real type, gradient fill + halftone dot overlay -->
+      <text x="480" y="534" class="ip-monogram" fill={`url(#${ids.base})`} text-anchor="middle">
+        NSB
+      </text>
+      <text x="480" y="534" class="ip-monogram" fill={`url(#${ids.scan})`} text-anchor="middle">
+        NSB
+      </text>
+      <text
+        x="480"
+        y="534"
+        class="ip-monogram"
+        fill={`url(#${ids.halftone})`}
+        text-anchor="middle"
+      >
+        NSB
+      </text>
+      <g
+        class="ip-jolt ip-jolt--ruler"
+        stroke="var(--plate-border)"
+        stroke-width="1"
+        opacity="0.85"
+      >
+        {ticks.map((tick) => <line x1={tick.x + 0.5} y1={tick.major ? 630 : 634} x2={tick.x + 0.5} y2="640" />)}
+      </g>
+
+      <line x1="72" y1="676.5" x2="888" y2="676.5" stroke="var(--plate-line)" stroke-width="1" />
+    </g>
+
+    <!-- dossier lines -->
+    <g class="ip-jolt ip-jolt--dossier">
+      <g class="ip-jolt ip-jolt--details">
+        <g class="ip-details-wide">
+          <text x="72" y="748" class="ip-mono ip-role" fill="var(--c-soft)">
+            BACKEND-LEANING FULL STACK DEVELOPER
+          </text>
+          <text x="72" y="800" class="ip-mono ip-meta" fill="var(--plate-muted)">
+            {plateCopy.meta}
+          </text>
+        </g>
+        <g class="ip-details-narrow">
+          <text x="72" y="734" class="ip-mono ip-role" fill="var(--c-soft)">BACKEND-LEANING</text>
+          <text x="72" y="778" class="ip-mono ip-role" fill="var(--c-soft)">
+            FULL STACK DEVELOPER
+          </text>
+          <text x="72" y="824" class="ip-mono ip-meta" fill="var(--plate-muted)">
+            {plateCopy.meta}
+          </text>
+        </g>
+      </g>
+
+      <line x1="72" y1="856.5" x2="888" y2="856.5" stroke="var(--plate-line)" stroke-width="1" />
+
+      <g class="ip-jolt ip-jolt--facts">
+        <g class="ip-details-wide">
+          <g class="ip-mono ip-label" fill="var(--plate-muted)">
+            <text x="72" y="920">BASE</text>
+            <text x="345" y="920">{plateCopy.available}</text>
+            <text x="617" y="920">{plateCopy.dossier}</text>
+          </g>
+          <g class="ip-mono ip-value" fill="var(--c-soft)">
+            <text x="72" y="954">Caracas, VE</text>
+            <text x="345" y="954">{plateCopy.availability}</text>
+            <text x="617" y="954">2026 · 0417</text>
+          </g>
+        </g>
+        <g class="ip-details-narrow">
+          <g class="ip-mono ip-label" fill="var(--plate-muted)">
+            <text x="72" y="920">BASE</text>
+            <text x="480" y="920">{plateCopy.available}</text>
+            <text x="72" y="1020">{plateCopy.dossier}</text>
+          </g>
+          <g class="ip-mono ip-value" fill="var(--c-soft)">
+            <text x="72" y="961">Caracas, VE</text>
+            <text x="480" y="961">{plateCopy.availability}</text>
+            <text x="72" y="1061">2026 · 0417</text>
+          </g>
+        </g>
+      </g>
+    </g>
+
+    <!-- blind stamp: the plain seal, struck inside its own hairline box -->
+    <g class="ip-jolt ip-jolt--stamp">
+      <rect
+        x="710.5"
+        y="1038.5"
+        width="165"
+        height="58"
+        fill="none"
+        stroke="var(--plate-seal)"
+        stroke-width="1"
+      />
+      <text x="795" y="1086" class="ip-seal ip-stamp" fill="var(--plate-seal)" text-anchor="middle">
+        設計
+      </text>
+
+      <line x1="72" y1="1108.5" x2="888" y2="1108.5" stroke="var(--plate-line)" stroke-width="1" />
+    </g>
+  </svg>
