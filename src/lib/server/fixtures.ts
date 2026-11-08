@@ -125,8 +125,8 @@ export const fixtureDocuments = {
   }],
   reviews: [{
     id: 'fixture-review', order: 0,
-    author: { provider: 'GitHub', firstName: 'Sample', lastName: 'Reviewer', email: 'sample@example.com', photo: '/images/fixture/avatar.png', roles: ['Developer'] },
-    quote: 'Reseña de prueba', experienceIds: ['fixture-role'], projectSlugs: ['mvc-boilerplate'],
+    author: { provider: 'GitHub', firstName: 'Andrea', lastName: 'Rivas', email: 'andrea.rivas@example.com', photo: '/images/fixture/avatar.png', roles: ['Directora de operaciones', 'Cliente'] },
+    quote: 'El sistema nos permitió unificar el seguimiento de cada proceso y cerrar el mes con información confiable.', experienceIds: ['fixture-role'], projectSlugs: ['mvc-boilerplate'],
   }],
 }
 

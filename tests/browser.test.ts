@@ -70,7 +70,7 @@ describe('rendered portfolio', () => {
     expect(await page.locator('.article-body table').count()).toBe(1)
     expect(await page.locator('.article-body iframe[title="Vídeo de prueba"]').count()).toBe(1)
     expect(await page.locator('.article-body a[download]').count()).toBe(1)
-    expect(await page.content()).not.toContain('sample@example.com')
+    expect(await page.content()).not.toContain('andrea.rivas@example.com')
     await goto(page, '/proyectos/')
     expect(await page.locator('[data-project-card]').count()).toBeGreaterThan(1)
     expect(await page.locator('#projects-grid a[href^="https://"]').count()).toBeGreaterThan(0)

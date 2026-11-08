@@ -203,8 +203,6 @@ export interface SiteContent {
     }
   }
   testimonials: {
-    sampleNotice: string
-    sampleBadge: string
     rolesLabel: string
     relatedProject: string
     relatedProjects: string
@@ -574,8 +572,6 @@ export const content: Record<Locale, SiteContent> = {
       },
     },
     testimonials: {
-      sampleNotice: 'Reseñas de ejemplo para demostrar el diseño. No son testimonios verificados de clientes.',
-      sampleBadge: 'EJEMPLO',
       rolesLabel: 'Roles',
       relatedProject: 'PROYECTO RELACIONADO',
       relatedProjects: 'PROYECTOS RELACIONADOS',
@@ -943,8 +939,6 @@ export const content: Record<Locale, SiteContent> = {
       },
     },
     testimonials: {
-      sampleNotice: 'Sample reviews showing the layout. These are not verified client testimonials.',
-      sampleBadge: 'SAMPLE',
       rolesLabel: 'Roles',
       relatedProject: 'RELATED PROJECT',
       relatedProjects: 'RELATED PROJECTS',

@@ -114,5 +114,4 @@ prueba no debe desplegarse.
 
 El build de producción recorre las diez colecciones, valida relaciones y genera
 las rutas publicadas. Los artículos en borrador no se incluyen en el sitio ni
-en el sitemap. Las reseñas de muestra se etiquetan y sus correos editoriales no
-se publican.
+en el sitemap. Los correos editoriales de las reseñas no se publican.

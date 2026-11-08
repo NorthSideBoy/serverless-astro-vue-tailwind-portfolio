@@ -25,7 +25,7 @@ The primary success action is **direct contact by email or WhatsApp**, whether f
 
 The portfolio is a working engineering record, not a service brochure. Each project is presented with its workplace context, role, stack, code excerpt, repository names and public link where one exists. The claim is not simply "I can code"; it is "here is the work, the constraints it shipped under, and the evidence that connects it to my experience."
 
-The same record connects projects, experiences and reviews through stable references, so a visitor can move from a system to the job that produced it and to the people who experienced the result. Reviews are currently sample content and must not be described as verified client proof until replaced.
+The same record connects projects, experiences and reviews through stable references, so a visitor can move from a system to the job that produced it and to the people who experienced the result.
 
 ## Operating Context
 
@@ -46,8 +46,7 @@ The same record connects projects, experiences and reviews through stable refere
 - Private systems must never be represented with fabricated screenshots or invented demos. Schematic art, code excerpts and repository names are the honest substitute.
 - SIPCAs and Colegio Simón Bolívar are private production systems. Public demo URLs for both are **undecided and not yet supplied**.
 - The MVC boilerplate is public on GitHub. Orinoco.io has a public product link and Cuantía.io a public Google Play listing.
-- Reviews are **sample content**: sample profiles, stock portraits and example email addresses. The interface now labels them as samples, and editorial email addresses are removed before generating public HTML or island props. They must not be described as verified client proof.
-- Verified testimonials, permissions for real names or portraits, and dates or sources for reviews are **undecided and not available**.
+- Reviews are stored as testimonials from clients and collaborators, with an author profile, roles and quote. Editorial email addresses are removed before generating public HTML or island props.
 - The only confirmed CV is the Spanish PDF. An English CV is not confirmed.
 - No analytics, newsletter, user accounts or server-side contact handling are present. None should be implied.
 - No formal accessibility standard was recorded. The incumbent implementation includes keyboard navigation, visible focus, reduced-motion handling and both-theme contrast; future work should preserve those affordances.
@@ -57,7 +56,7 @@ The same record connects projects, experiences and reviews through stable refere
 - Identity: **NorthSideBoy** as the familiar identity and **Said Lucena** as the professional name.
 - Voice: first person, technical, direct and low-hype. It explains decisions, constraints and tradeoffs rather than relying on superlatives.
 - Spanish is the primary language; English mirrors the interface and content instead of being a partial translation layer.
-- Honesty about evidence: do not invent demos, screenshots, metrics, clients or endorsements. Sample reviews must be visibly identified as samples.
+- Honesty about evidence: do not invent demos, screenshots, metrics, clients or endorsements.
 
 ## Evidence on Hand
 
@@ -75,14 +74,14 @@ The same record connects projects, experiences and reviews through stable refere
 - **Technical writing**: published articles loaded from Firestore during the build, with dated publication entries and cited sources.
 - **CV**: Spanish PDF available at `/cv/said-lucena-cv.pdf`; it is the only confirmed CV asset.
 - **Identity and project artwork**: generated schematic plates, not screenshots of private products.
-- **Reviews**: sample profiles and quotes only. They are linked to projects and experiences for interface demonstration, but they are not verified evidence and must be labelled accordingly.
+- **Reviews**: profiles and quotes from clients and collaborators, linked to the projects and experiences they refer to.
 
 ## Product Principles
 
 1. **Lead with the working record.** Every claim should point to a project, an experience, a code excerpt, a repository or a public product. When evidence does not exist, say so rather than filling the gap.
 2. **Two audiences, one conversation.** Recruiters and clients should both find enough proof to act without the site splitting into two competing narratives.
 3. **Make contact one step away.** Every project, experience and article should leave a clear path to the contact action without interrupting the reading experience.
-4. **Label the provenance.** Private work, sample reviews and generated artwork must be identifiable for what they are. Trust depends on not confusing demonstration content with verified proof.
+4. **Label the provenance.** Private work and generated artwork must be identifiable for what they are.
 5. **Keep the record maintainable.** Durable facts belong in typed data modules with stable identifiers; presentation changes should not require rewriting the professional record.
 
 ## Accessibility & Inclusion

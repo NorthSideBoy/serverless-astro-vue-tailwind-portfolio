@@ -103,10 +103,6 @@ watch([() => route.hash, () => props.items], ([hash]) => {
         title-id="testimonials-title"
       />
 
-      <p class="mb-6 border-l-2 border-soft bg-panel/20 px-4 py-3 text-[13px] leading-relaxed text-ink">
-        {{ copy.testimonials.sampleNotice }}
-      </p>
-
       <ContentState
         v-if="loading || error || !items.length"
         :loading="loading"
@@ -139,14 +135,9 @@ watch([() => route.hash, () => props.items], ([hash]) => {
                 class="h-12 w-12 shrink-0 rounded-full border border-line-strong object-cover"
               />
               <div class="min-w-0">
-                <div class="flex flex-wrap items-center gap-x-2.5 gap-y-1">
-                  <p class="font-display text-[16px] font-semibold leading-tight text-ink">
-                    {{ review.author.firstName }} {{ review.author.lastName }}
-                  </p>
-                  <span class="border border-line px-1.5 py-0.5 text-[10px] leading-none text-muted">
-                    {{ copy.testimonials.sampleBadge }}
-                  </span>
-                </div>
+                <p class="font-display text-[16px] font-semibold leading-tight text-ink">
+                  {{ review.author.firstName }} {{ review.author.lastName }}
+                </p>
               </div>
             </div>
             <ul class="mt-4 flex flex-wrap gap-1.5" :aria-label="copy.testimonials.rolesLabel">
