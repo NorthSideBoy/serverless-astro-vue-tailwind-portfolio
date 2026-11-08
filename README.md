@@ -27,15 +27,25 @@ src/
 ├── pages/                Rutas ES y EN
 ├── layouts/              Documento HTML y tema inicial
 ├── components/
-│   ├── islands/          Entradas Vue independientes
-│   ├── article/          Renderizadores Astro de bloques editoriales
-│   └── ui/               Componentes compartidos
+│   ├── chrome/           Header, footer y controles persistentes
+│   ├── home/             Página y secciones de la home
+│   ├── projects/         Índice, tarjetas y carrusel
+│   ├── blog/             Índice, artículo y renderers editoriales
+│   ├── ui/               Primitivas compartidas (astro/ y vue/)
+│   └── islands/          Entradas Vue que Astro hidrata
 ├── data/
 │   └── schemas/          Contratos Zod y validación del grafo
-├── lib/server/           Firestore y resolución de medios
+├── lib/
+│   ├── server/           Firestore y resolución de medios
+│   └── withIslandContext.ts  Contexto compartido de las islas Vue
 ├── router/               Compatibilidad de enlaces para Vue
 └── stores/               Tema compartido entre islas con Nano Stores
 ```
+
+Cada feature separa `astro/` (render estático en build) y `vue/`
+(implementación de islas). Las únicas entradas que un `.astro` puede importar
+desde Vue viven en `components/islands/`; el detalle de las reglas está en
+`src/components/README.md`.
 
 ## Desarrollo
 

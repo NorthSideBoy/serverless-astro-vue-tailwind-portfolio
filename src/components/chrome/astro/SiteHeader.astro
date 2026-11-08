@@ -1,0 +1,14 @@
+---
+import SiteHeaderIsland from '@/components/islands/chrome/SiteHeaderIsland.vue'
+import type { Locale } from '@/data/content'
+
+interface Props {
+  locale: Locale
+  page?: 'home' | 'projects' | 'blog' | 'article' | 'not-found'
+  path: string
+}
+
+const { locale, page = 'home', path } = Astro.props
+---
+
+<SiteHeaderIsland locale={locale} page={page} path={path} client:load />

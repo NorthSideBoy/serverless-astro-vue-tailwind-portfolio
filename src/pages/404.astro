@@ -1,8 +1,8 @@
 ---
-import SiteHeader from '../components/islands/SiteHeaderIsland.vue';
-import SiteFooter from '../components/SiteFooter.astro';
-import Layout from '../layouts/Layout.astro';
-import { content } from '../data/content';
+import SiteHeader from '@/components/chrome/astro/SiteHeader.astro';
+import SiteFooter from '@/components/chrome/astro/SiteFooter.astro';
+import Layout from '@/layouts/Layout.astro';
+import { content } from '@/data/content';
 
 const copy = content.es;
 const path = Astro.url.pathname;
@@ -14,7 +14,7 @@ const path = Astro.url.pathname;
   description="La página que buscas no existe o cambió de lugar."
   indexable={false}
 >
-  <SiteHeader page="not-found" locale="es" path={path} client:load />
+  <SiteHeader page="not-found" locale="es" path={path} />
 
   <main id="main">
     <section

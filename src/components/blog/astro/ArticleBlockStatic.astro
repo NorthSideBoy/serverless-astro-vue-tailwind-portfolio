@@ -1,0 +1,273 @@
+---
+import type { ArticleBlock } from '@/data/schemas/article';
+import { content, type Locale } from '@/data/content';
+import { resolveBlockId } from '@/data/articleUtils';
+import { embedSrc } from '@/components/blog/lib/embeds';
+import { isExternalArticleLink } from '@/components/blog/lib/link';
+import Inline from './ArticleInline.astro';
+import CodeBlock from '@/components/ui/astro/CodeBlock.astro';
+import UiIcon from '@/components/ui/astro/UiIcon.astro';
+
+interface Props {
+  block: ArticleBlock;
+  blockIndex: number;
+  locale: Locale;
+  footnote: (id: string) => number;
+}
+
+const { block, blockIndex, locale, footnote } = Astro.props;
+const copy = content[locale];
+// Inline content is rendered by <Inline /> below, keeping this file fully static.
+const frameStyle = (width?: number, height?: number) =>
+  width && height ? `aspect-ratio:${width}/${height}` : undefined;
+const imageClass = (fit?: 'cover' | 'contain', width?: number, height?: number) => [
+  'w-full',
+  width && height ? 'h-full' : 'h-auto',
+  fit === 'cover' ? 'object-cover' : 'object-contain',
+];
+const alignClass = (align?: 'left' | 'center' | 'right') =>
+  align === 'center' ? 'text-center' : align === 'right' ? 'text-right' : 'text-left';
+const embed = block.type === 'embed' ? embedSrc(block.provider, block.url, 'dark') : null;
+---
+{block.type === 'heading' && (
+  block.level === 2 ? (
+    <h2 id={resolveBlockId(block, blockIndex)} class="mt-12 mb-4 max-w-[72ch] scroll-mt-28 font-display text-[23px] font-bold leading-[1.2] tracking-[-0.025em] text-ink md:mt-14 md:text-[27px]">
+      <Inline nodes={block.segments} locale={locale} footnote={footnote} />
+    </h2>
+  ) : block.level === 3 ? (
+    <h3 id={resolveBlockId(block, blockIndex)} class="mt-9 mb-3 max-w-[72ch] scroll-mt-28 font-display text-[18px] font-semibold leading-[1.3] tracking-[-0.02em] text-ink md:text-[20px]">
+      <Inline nodes={block.segments} locale={locale} footnote={footnote} />
+    </h3>
+  ) : (
+    <h4 id={resolveBlockId(block, blockIndex)} class="mt-7 mb-2 max-w-[72ch] scroll-mt-28 font-display text-[16px] font-semibold leading-[1.35] tracking-[-0.015em] text-ink md:text-[17px]">
+      <Inline nodes={block.segments} locale={locale} footnote={footnote} />
+    </h4>
+  )
+)}
+
+{block.type === 'paragraph' && (
+  <p class="mt-5 max-w-[72ch] text-[15.5px] leading-[1.8] text-ink/85 md:text-[16.5px]">
+    <Inline nodes={block.segments} locale={locale} footnote={footnote} />
+  </p>
+)}
+
+{block.type === 'quote' && (
+  <blockquote class="mt-9 max-w-[72ch] border-l-2 border-soft/70 pl-5 md:pl-6">
+    <p class="font-serif text-[19px] italic leading-[1.55] text-ink md:text-[21px]">
+      <Inline nodes={block.segments} locale={locale} footnote={footnote} />
+    </p>
+    {block.cite && (
+      <cite class="mt-3 block font-mono text-[10px] uppercase not-italic tracking-[0.08em] text-muted">
+        {block.cite.href ? (
+          <a
+            href={block.cite.href}
+            target={isExternalArticleLink(block.cite.href) ? '_blank' : undefined}
+            rel={isExternalArticleLink(block.cite.href) ? 'noopener noreferrer' : undefined}
+            class="transition hover:text-soft"
+          >
+            {block.cite.text}
+          </a>
+        ) : block.cite.text}
+      </cite>
+    )}
+  </blockquote>
+)}
+
+{block.type === 'list' && (
+  block.ordered ? (
+    <ol start={block.start} class="mt-6 max-w-[72ch] space-y-3">
+      {block.items.map((item, index) => (
+        <li class="flex gap-4">
+          <span class="mt-[2px] shrink-0 font-mono text-[11px] font-medium tracking-[0.08em] text-soft" aria-hidden="true">
+            {String((block.start ?? 1) + index).padStart(2, '0')}
+          </span>
+          <div class="min-w-0">
+            <p class="text-[15px] leading-[1.75] text-ink/85 md:text-[16px]"><Inline nodes={item.segments} locale={locale} footnote={footnote} /></p>
+            {item.children?.length && (
+              <ul class="mt-2 space-y-2">
+                {item.children.map((child) => (
+                  <li class="flex gap-3.5">
+                    <span class="mt-[10px] h-1 w-1 shrink-0 rounded-full bg-soft" aria-hidden="true" />
+                    <p class="text-[15px] leading-[1.75] text-ink/85"><Inline nodes={child.segments} locale={locale} footnote={footnote} /></p>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </div>
+        </li>
+      ))}
+    </ol>
+  ) : (
+    <ul class="mt-6 max-w-[72ch] space-y-3">
+      {block.items.map((item) => (
+        <li class="flex gap-3.5">
+          <span class="mt-[10px] h-1 w-1 shrink-0 rounded-full bg-soft" aria-hidden="true" />
+          <div class="min-w-0">
+            <p class="text-[15px] leading-[1.75] text-ink/85 md:text-[16px]"><Inline nodes={item.segments} locale={locale} footnote={footnote} /></p>
+            {item.children?.length && (
+              <ul class="mt-2 space-y-2">
+                {item.children.map((child) => (
+                  <li class="flex gap-3.5">
+                    <span class="mt-[10px] h-1 w-1 shrink-0 rounded-full bg-soft" aria-hidden="true" />
+                    <p class="text-[15px] leading-[1.75] text-ink/85"><Inline nodes={child.segments} locale={locale} footnote={footnote} /></p>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </div>
+        </li>
+      ))}
+    </ul>
+  )
+)}
+
+{block.type === 'code' && (
+  <CodeBlock class="mt-8 max-w-full" code={block.code} label={block.label} lang={block.lang} filename={block.filename} />
+)}
+
+{block.type === 'image' && (
+  <figure class:list={['mt-9', block.display === 'wide' ? 'w-full' : 'max-w-[72ch]']}>
+    <div class="overflow-hidden border border-line bg-sunken" style={frameStyle(block.width, block.height)}>
+      {block.href ? (
+        <a
+          href={block.href}
+          target={isExternalArticleLink(block.href) ? '_blank' : undefined}
+          rel={isExternalArticleLink(block.href) ? 'noopener noreferrer' : undefined}
+          class="block"
+        >
+          <img src={block.darkSrc ?? block.src} alt={block.alt} width={block.width} height={block.height} loading="lazy" decoding="async" class:list={['theme-media-dark', ...imageClass(block.fit, block.width, block.height)]} /><img src={block.src} alt={block.alt} width={block.width} height={block.height} loading="lazy" decoding="async" class:list={['theme-media-light', ...imageClass(block.fit, block.width, block.height)]} />
+        </a>
+      ) : (
+        <><img src={block.darkSrc ?? block.src} alt={block.alt} width={block.width} height={block.height} loading="lazy" decoding="async" class:list={['theme-media-dark', ...imageClass(block.fit, block.width, block.height)]} /><img src={block.src} alt={block.alt} width={block.width} height={block.height} loading="lazy" decoding="async" class:list={['theme-media-light', ...imageClass(block.fit, block.width, block.height)]} /></>
+      )}
+    </div>
+    {(block.caption || block.credit) && (
+      <figcaption class="mt-3 font-mono text-[10px] uppercase leading-relaxed tracking-[0.08em] text-muted">
+        {block.caption}
+        {block.credit && <span class="ml-2 text-muted/75">{block.credit}</span>}
+      </figcaption>
+    )}
+  </figure>
+)}
+
+{block.type === 'gallery' && (
+  <div class="article-gallery mt-9 max-w-full" role="group" aria-label={copy.articlePage.galleryLabel}>
+    <div class:list={['grid gap-4', block.columns === 3 ? 'sm:grid-cols-2 lg:grid-cols-3' : 'sm:grid-cols-2']}>
+      {block.items.map((item) => (
+        <figure class="mt-0">
+          <div class="overflow-hidden border border-line bg-sunken" style={frameStyle(item.width, item.height)}>
+            <img src={item.darkSrc ?? item.src} alt={item.alt} width={item.width} height={item.height} loading="lazy" decoding="async" class="theme-media-dark h-full w-full object-contain" /><img src={item.src} alt={item.alt} width={item.width} height={item.height} loading="lazy" decoding="async" class="theme-media-light h-full w-full object-contain" />
+          </div>
+          {item.caption && <figcaption class="mt-3 font-mono text-[10px] uppercase leading-relaxed tracking-[0.08em] text-muted">{item.caption}</figcaption>}
+        </figure>
+      ))}
+    </div>
+    {block.caption && <p class="mt-3 font-mono text-[10px] uppercase leading-relaxed tracking-[0.08em] text-muted">{block.caption}</p>}
+  </div>
+)}
+
+{block.type === 'callout' && (
+  <aside class:list={[
+    'mt-9 max-w-[72ch] border p-5 md:p-6',
+    block.tone === 'tip' ? 'border-soft/40 bg-soft/[0.04]' : block.tone === 'warning' ? 'border-soft/60 bg-soft/[0.06]' : block.tone === 'important' ? 'border-soft/70 bg-soft/[0.08]' : 'border-line bg-panel/25',
+  ]}>
+    <p class="mono-label text-soft">{copy.articlePage.calloutTones[block.tone ?? 'note']}</p>
+    {block.title && <p class="mt-2 font-display text-[17px] font-semibold leading-[1.35] tracking-[-0.015em] text-ink">{block.title}</p>}
+    <p class="mt-3 text-[14.5px] leading-[1.75] text-ink/85 md:text-[15.5px]"><Inline nodes={block.segments} locale={locale} footnote={footnote} /></p>
+  </aside>
+)}
+
+{block.type === 'divider' && <hr class="my-10 border-line" />}
+
+{block.type === 'table' && (
+  <figure class="mt-9 max-w-full">
+    <div class="overflow-x-auto border border-line bg-panel/10 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-soft" tabindex="0" role="region" aria-label={block.caption ?? copy.articlePage.tableLabel}>
+      <table class="w-full min-w-[560px] border-collapse text-left text-[14px] leading-[1.65]">
+        {block.caption && <caption class="border-b border-line px-4 py-3 text-left font-mono text-[10px] uppercase tracking-[0.08em] text-muted">{block.caption}</caption>}
+        {block.head && (
+          <thead class="bg-panel/30">
+            <tr class="border-b border-line">
+              {block.head.cells.map((cell) => (
+                <th scope="col" class:list={['px-4 py-3 font-mono text-[10.5px] font-medium uppercase tracking-[0.08em] text-soft', alignClass(cell.align)]}>
+                  <Inline nodes={cell.segments} locale={locale} footnote={footnote} />
+                </th>
+              ))}
+            </tr>
+          </thead>
+        )}
+        <tbody>
+          {block.rows.map((row) => (
+            <tr class="border-b border-line/70 last:border-b-0">
+              {row.cells.map((cell) => (
+                <td class:list={['px-4 py-3 align-top text-ink/85', alignClass(cell.align)]}><Inline nodes={cell.segments} locale={locale} footnote={footnote} /></td>
+              ))}
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  </figure>
+)}
+
+{block.type === 'embed' && (
+  <figure class="mt-9 max-w-full">
+    <div class:list={['overflow-hidden border border-line bg-sunken', block.aspect === '4/3' ? 'aspect-[4/3]' : block.aspect === '1/1' ? 'aspect-square' : 'aspect-video']}>
+      {embed ? (
+        <iframe
+          src={embed}
+          title={block.title}
+          sandbox={block.provider === 'codepen' || block.provider === 'codesandbox' ? 'allow-scripts allow-same-origin allow-popups allow-forms' : undefined}
+          loading="lazy"
+          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+          allowfullscreen
+          referrerpolicy="strict-origin-when-cross-origin"
+          class="h-full w-full border-0"
+        />
+      ) : (
+        <div class="flex h-full items-center justify-center p-6">
+          <a href={block.url} target="_blank" rel="noopener noreferrer" aria-label={`${copy.articlePage.embedFallback}: ${block.title}`} class="inline-flex min-h-11 items-center gap-2 font-mono text-[11px] uppercase tracking-[0.08em] text-soft transition hover:text-ink">
+            {copy.articlePage.embedFallback}
+          </a>
+        </div>
+      )}
+    </div>
+    {block.caption && <figcaption class="mt-3 font-mono text-[10px] uppercase leading-relaxed tracking-[0.08em] text-muted">{block.caption}</figcaption>}
+  </figure>
+)}
+
+{block.type === 'file' && (
+  <a
+    href={block.src}
+    download={block.download ? '' : undefined}
+    class="mt-8 flex max-w-[72ch] items-center gap-4 border border-line bg-panel/15 p-4 transition hover:border-line-strong"
+  >
+    <span class="flex h-9 w-9 shrink-0 items-center justify-center border border-line text-soft" aria-hidden="true">
+      <UiIcon name="download" size={15} />
+    </span>
+    <span class="min-w-0">
+      <span class="block text-[14px] font-semibold text-ink">{block.label}</span>
+      {block.meta && <span class="mt-1 block font-mono text-[10px] uppercase tracking-[0.08em] text-muted">{block.meta}</span>}
+    </span>
+    <UiIcon name="arrow-right" size={14} class="ml-auto shrink-0 text-muted" />
+  </a>
+)}
+
+{block.type === 'footnotes' && (
+  <section class="mt-12 max-w-[72ch] border-t border-line pt-6" aria-label={copy.articlePage.footnotesTitle}>
+    <h2 class="mono-label text-muted">{copy.articlePage.footnotesTitle}</h2>
+    <ol class="mt-4 space-y-4">
+      {[...block.items].sort((a, b) => footnote(a.id) - footnote(b.id)).map((item) => (
+        <li id={`fn-${item.id}`} class="flex gap-3 text-[13.5px] leading-[1.7] text-ink/80">
+          <span class="shrink-0 font-mono text-[11px] font-medium tracking-[0.08em] text-soft">{footnote(item.id)}</span>
+          <div class="min-w-0">
+            <p><Inline nodes={item.segments} locale={locale} footnote={footnote} /></p>
+            <a href={`#fnref-${item.id}`} class="mt-1 inline-flex min-h-8 items-center gap-1 font-mono text-[9.5px] uppercase tracking-[0.08em] text-muted transition hover:text-soft">
+              <UiIcon name="arrow-up" size={11} />
+              <span class="sr-only">{copy.articlePage.backToReference}</span>
+            </a>
+          </div>
+        </li>
+      ))}
+    </ol>
+  </section>
+)}

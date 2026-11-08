@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import { createSSRApp, defineComponent, h } from 'vue'
 import { renderToString } from 'vue/server-renderer'
-import { withIslandContext } from '../src/components/islands/withIslandContext'
+import { withIslandContext } from '../src/lib/withIslandContext'
 import { usePreferences } from '../src/composables/usePreferences'
 import { useRoute } from '../src/router/astroRouter'
 

@@ -1,0 +1,16 @@
+---
+import SiteHeader from '@/components/chrome/astro/SiteHeader.astro';
+import SiteFooter from '@/components/chrome/astro/SiteFooter.astro';
+import ProjectsIndex from './ProjectsIndex.astro';
+import Layout from '@/layouts/Layout.astro';
+import { loadContent } from '@/lib/server/content';
+import type { Locale } from '@/data/content';
+const { locale } = Astro.props as { locale: Locale };
+const path = Astro.url.pathname;
+const data = await loadContent();
+---
+<Layout locale={locale} title={data.sections.projects[locale].index?.meta?.title} description={data.sections.projects[locale].index?.meta?.description}>
+  <SiteHeader page="projects" locale={locale} path={path} />
+  <ProjectsIndex locale={locale} sections={data.sections} projects={data.projects} experiences={data.experience} reviews={data.reviews} />
+  <SiteFooter page="projects" locale={locale} path={path} />
+</Layout>

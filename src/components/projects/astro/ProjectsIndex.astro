@@ -1,0 +1,45 @@
+---
+import type { Locale } from '@/data/content';
+import { content } from '@/data/content';
+import type { SiteSections } from '@/data/schemas/siteSection';
+import type { Project } from '@/data/projects';
+import type { ExperienceEntry } from '@/data/experience';
+import type { Testimonial } from '@/data/testimonials';
+import ProjectsFilter from '@/components/islands/projects/ProjectsFilter.vue';
+import ProjectIndexCard from './ProjectIndexCard.astro';
+import SealEyebrow from '@/components/ui/astro/SealEyebrow.astro';
+import UiIcon from '@/components/ui/astro/UiIcon.astro';
+
+interface Props { locale: Locale; sections: SiteSections; projects: Project[]; experiences: ExperienceEntry[]; reviews: Testimonial[] }
+const { locale, sections, projects, experiences, reviews } = Astro.props;
+const copy = content[locale];
+const counts = {
+  all: projects.length,
+  own: projects.filter((project) => !project.collaboration).length,
+  collaborations: projects.filter((project) => project.collaboration).length,
+};
+---
+<main id="main">
+  <section class="projects-index-texture dot-field relative overflow-hidden border-b border-line bg-page">
+    <div class="shell relative py-12 md:py-16 xl:py-20">
+      <a href={locale === 'en' ? '/en/' : '/'} class="inline-flex min-h-11 items-center gap-2 font-mono text-[11px] uppercase tracking-[0.08em] text-muted transition hover:text-soft"><UiIcon name="arrow-left" size={14} />{copy.projectsPage.back}</a>
+      <div class="mt-8 max-w-[760px]">
+        <p class="mono-label text-soft"><SealEyebrow seal="五" label={copy.projectsPage.eyebrow} /></p>
+        <h1 class="mt-4 font-display text-[38px] font-bold leading-[1.05] tracking-[-0.03em] text-ink md:text-[50px] xl:text-[58px]">{sections.projects[locale].index?.title}</h1>
+        <p class="mt-4 text-[15px] leading-[1.7] text-muted md:text-base">{sections.projects[locale].index?.lead}</p>
+      </div>
+    </div>
+  </section>
+  <section class="section-pad bg-section">
+    <div class="shell">
+      <ProjectsFilter client:load label={copy.projectsPage.filterLabel} labels={copy.projectsPage.filters} countLabel={copy.projectsPage.countLabel} counts={counts} />
+      {projects.length ? <div id="projects-grid" class="mt-8 grid items-start gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:gap-5">
+        {projects.map((project) => <ProjectIndexCard project={project} locale={locale} experiences={experiences} reviews={reviews} />)}
+      </div> : <p class="mt-10 border border-line p-8 text-center text-[13.5px] text-muted" role="status">{copy.projectsPage.empty}</p>}
+    </div>
+  </section>
+</main>
+<style is:global>
+  .projects-index-texture { --dot-field-height: 100%; --dot-field-strength: 65%; --dot-field-mask: linear-gradient(to right, black 0%, transparent 75%); --tex-dot-core: var(--c-muted); --tex-dot-edge: var(--c-line-strong); }
+  #projects-grid [data-project-card][hidden] { display: none !important; }
+</style>

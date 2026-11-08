@@ -1,5 +1,5 @@
 ---
-import ArticlePage from '../../components/ArticlePage.astro';
+import ArticlePage from '@/components/blog/astro/ArticlePage.astro';
 import { loadContent } from '../../lib/server/content';
 export async function getStaticPaths() {
   const data = await loadContent();
