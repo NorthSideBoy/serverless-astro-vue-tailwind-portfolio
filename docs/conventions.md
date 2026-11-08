@@ -124,9 +124,10 @@ already rendered.
 
 ### R-ASTRO-06 — Keep SEO in Astro
 
-Title, description, canonical URL, alternate locales and indexability are Astro
-responsibilities, including when the values come from Firestore. The HTML
-`<head>` must be complete before Vue runs.
+Title, description, canonical URL, alternate locales, indexability, Open Graph,
+Twitter Cards, the robots meta tag and JSON-LD are Astro responsibilities,
+including when the values come from Firestore. The HTML `<head>` must be
+complete before Vue runs.
 
 ## 3. Vue conventions
 
@@ -352,11 +353,16 @@ otherwise guarded. A disabled or full storage area must not break the page.
 
 Public routes are:
 
-- `/`, `/proyectos`, `/blog`, `/blog/:slug`;
-- `/en/`, `/en/proyectos`, `/en/blog`, `/en/blog/:slug`.
+- `/`, `/proyectos/`, `/blog/`, `/blog/:slug/`;
+- `/en/`, `/en/proyectos/`, `/en/blog/`, `/en/blog/:slug/`.
 
-Vue links must use `toHref` or `RouterLink` from `src/router/astroRouter.ts`, not
-hand-built English paths.
+Every public URL ends with a slash. Vue links must use `toHref` or `RouterLink`
+from `src/router/astroRouter.ts`, not hand-built English paths. Named
+destinations include `{ name: 'article', slug }`.
+
+Blog indexes are scoped to their locale. An article without a translation stays
+in the other locale's blog; do not generate a fallback route or a cross-language
+card.
 
 ### R-I18N-02 — Mark translated text
 
@@ -374,6 +380,22 @@ locale navigation.
 Even when title or description comes from Firestore, compute it in the Astro
 route and pass it to `Layout.astro`. Do not update metadata from a hydrated
 island for primary content.
+
+### R-SEO-02 — Build JSON-LD and social metadata in Astro
+
+Use the pure builders in `src/lib/seo.ts` to generate JSON-LD and pass the result
+to `Layout.astro`. Keep `@id` values and absolute URLs stable across renders.
+Structured data must describe visible content: do not add ratings, reviews or
+properties the page does not show. `serializeJsonLd` must escape `<` before the
+script is rendered.
+
+### R-SEO-03 — Generate the sitemap from the validated snapshot
+
+The sitemap is built from `loadContent()` by
+`src/pages/sitemap-0.xml.ts` through `src/lib/sitemap.ts`. It must contain only
+canonical, indexable URLs, with `lastmod` for articles and `xhtml:link`
+alternates for pages available in both locales. Do not add URLs that are
+`noindex`, redirects or missing translations.
 
 ## 9. Content, schemas and media
 
@@ -453,7 +475,9 @@ Theme changes are expressed through `data-theme` and the semantic tokens in
 component to one theme unless it is intentional artwork.
 
 Theme-aware images use the `theme-media-dark` / `theme-media-light` classes.
-Both variants may exist in the server HTML; CSS reveals the active one.
+Both variants may exist in the server HTML; CSS reveals the active one. When
+`darkSrc` is absent or equal to `src`, render a single image instead of two
+copies of the same source.
 
 ### R-STYLE-03 — Scope component styles
 
@@ -567,6 +591,8 @@ output.
 | Theme store | `src/stores/theme.ts` |
 | Header and footer | `src/components/chrome/astro/` |
 | Content loading | `src/lib/server/content.ts` |
+| Structured data and social metadata | `src/lib/seo.ts` |
+| Sitemap | `src/lib/sitemap.ts`, `src/pages/sitemap-0.xml.ts`, `src/pages/sitemap-index.xml.ts` |
 | Schemas | `src/data/schemas/` |
 | Relations and anchors | `src/data/relations.ts`, `src/data/anchors.ts` |
 | Client scripts | `src/scripts/` |

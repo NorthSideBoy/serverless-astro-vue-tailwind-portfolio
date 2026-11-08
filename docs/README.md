@@ -76,6 +76,6 @@ test should still have a concrete file example and a stated rationale.
 
 ## Future boundary
 
-The planned CMS at `/admin` and the Vercel Deploy Hook are not implemented.
+The planned CMS at `/admin` and the hosting deploy hook are not implemented.
 They are documented briefly in [architecture.md](architecture.md#future-cms-and-deploy-hook)
 as an architectural intention, not as current behaviour.

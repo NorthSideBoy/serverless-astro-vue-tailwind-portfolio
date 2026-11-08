@@ -2,6 +2,7 @@
 import { computed, onMounted, ref } from 'vue'
 import { usePreferences } from '@/composables/usePreferences'
 import { useRevealCycle } from '@/composables/useRevealCycle'
+import { hasThemeVariant } from '@/data/themeMedia'
 import type { ProjectMedia } from '@/data/projects'
 
 const props = withDefaults(
@@ -20,6 +21,11 @@ const root = ref<HTMLElement | null>(null)
 const mounted = ref(false)
 const { armed } = useRevealCycle(root, { enabled: props.trace, threshold: 0.3 })
 const traced = computed(() => mounted.value && props.trace && !armed.value)
+const hasCoverThemeVariant = computed(() =>
+  props.media.type === 'cover'
+    ? hasThemeVariant(props.media.light, props.media.dark)
+    : false,
+)
 
 onMounted(() => {
   mounted.value = true
@@ -45,21 +51,38 @@ onMounted(() => {
     <span class="project-media__trace project-media__trace--top" aria-hidden="true" />
     <span class="project-media__trace project-media__trace--bottom" aria-hidden="true" />
     <template v-if="media.type === 'cover'">
+      <template v-if="hasCoverThemeVariant">
+        <img
+          :src="media.dark"
+          :alt="variant === 'featured' ? media.alt[locale] : ''"
+          :width="media.width"
+          :height="media.height"
+          :loading="eager ? 'eager' : 'lazy'"
+          decoding="async"
+          :class="[
+            'theme-media-dark',
+            variant === 'featured'
+              ? 'aspect-[16/10] w-full object-cover'
+              : 'h-full w-full object-cover',
+          ]"
+        />
+        <img
+          :src="media.light"
+          :alt="variant === 'featured' ? media.alt[locale] : ''"
+          :width="media.width"
+          :height="media.height"
+          :loading="eager ? 'eager' : 'lazy'"
+          decoding="async"
+          :class="[
+            'theme-media-light',
+            variant === 'featured'
+              ? 'aspect-[16/10] w-full object-cover'
+              : 'h-full w-full object-cover',
+          ]"
+        />
+      </template>
       <img
-        :src="media.dark"
-        :alt="variant === 'featured' ? media.alt[locale] : ''"
-        :width="media.width"
-        :height="media.height"
-        :loading="eager ? 'eager' : 'lazy'"
-        decoding="async"
-        :class="[
-          'theme-media-dark',
-          variant === 'featured'
-            ? 'aspect-[16/10] w-full object-cover'
-            : 'h-full w-full object-cover',
-        ]"
-      />
-      <img
+        v-else
         :src="media.light"
         :alt="variant === 'featured' ? media.alt[locale] : ''"
         :width="media.width"
@@ -67,7 +90,6 @@ onMounted(() => {
         :loading="eager ? 'eager' : 'lazy'"
         decoding="async"
         :class="[
-          'theme-media-light',
           variant === 'featured'
             ? 'aspect-[16/10] w-full object-cover'
             : 'h-full w-full object-cover',

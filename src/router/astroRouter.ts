@@ -9,9 +9,16 @@ import {
   type InjectionKey,
 } from 'vue'
 import type { Locale } from '@/data/content'
+import { articlePath, blogPath, homePath, projectsPath } from '@/data/paths'
 
 type Page = 'home' | 'projects' | 'blog' | 'article' | 'not-found'
-type Destination = string | { path?: string; name?: Page; hash?: string; query?: Record<string, string> }
+type Destination = string | {
+  path?: string
+  name?: Page
+  slug?: string
+  hash?: string
+  query?: Record<string, string>
+}
 type Route = { name: Page; path: string; hash: string; fullPath: string; query: Record<string, string>; locale: Locale }
 
 const routeKey: InjectionKey<Route> = Symbol('astroRoute')
@@ -19,7 +26,15 @@ const routeKey: InjectionKey<Route> = Symbol('astroRoute')
 export function provideRoute(page: Page, locale: Locale, pagePath?: string) {
   const path =
     pagePath ??
-    (typeof window === 'undefined' ? (page === 'home' ? '/' : `/${page}`) : window.location.pathname)
+    (typeof window === 'undefined'
+      ? page === 'home'
+        ? homePath('es')
+        : page === 'projects'
+          ? projectsPath('es')
+          : page === 'blog'
+            ? blogPath('es')
+            : '/'
+      : window.location.pathname)
   const hash = typeof window === 'undefined' ? '' : window.location.hash
   const route = reactive({ name: page, path, hash, fullPath: path + hash, query: {}, locale })
   provide(routeKey, route)
@@ -44,10 +59,41 @@ export function useRoute(): Route {
 }
 
 export function toHref(to: Destination, locale: Locale, currentPath: string): string {
-  if (typeof to === 'string') return to.startsWith('#') ? currentPath + to : (locale === 'en' && to.startsWith('/') ? `/en${to === '/' ? '/' : to}` : to)
-  const named = to.name === 'projects' ? '/proyectos' : to.name === 'blog' ? '/blog' : '/'
-  const path = to.path ?? (to.name ? named : currentPath)
-  const localized = locale === 'en' && path.startsWith('/') && path !== '/en' && !path.startsWith('/en/') ? `/en${path === '/' ? '/' : path}` : path
+  if (typeof to === 'string') {
+    if (to.startsWith('#')) return currentPath + to
+    if (
+      locale !== 'en' ||
+      !to.startsWith('/') ||
+      to === '/en' ||
+      to.startsWith('/en/')
+    ) {
+      return to
+    }
+
+    return `/en${to === '/' ? '/' : to}`
+  }
+
+  const namedPath =
+    to.name === 'projects'
+      ? projectsPath(locale)
+      : to.name === 'blog'
+        ? blogPath(locale)
+        : to.name === 'article' && to.slug
+          ? articlePath(locale, to.slug)
+          : to.name === 'home'
+            ? homePath(locale)
+            : undefined
+
+  const rawPath = to.path ?? namedPath ?? currentPath
+  const localized = to.path
+    ? locale === 'en' &&
+      rawPath.startsWith('/') &&
+      rawPath !== '/en' &&
+      !rawPath.startsWith('/en/')
+      ? `/en${rawPath === '/' ? '/' : rawPath}`
+      : rawPath
+    : rawPath
+
   return localized + (to.hash ?? '')
 }
 

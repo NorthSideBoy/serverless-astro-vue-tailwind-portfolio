@@ -25,6 +25,17 @@ export function availableArticleLanguages(article: Article): ArticleLang[] {
   return (['es', 'en'] as const).filter((lang) => Boolean(article.translations[lang]))
 }
 
+/**
+ * Published articles that can be rendered in a locale. An article without a
+ * translation must not generate a fallback route in the other language.
+ */
+export function articlesForLocale(
+  articles: readonly Article[],
+  locale: ArticleLang,
+): Article[] {
+  return sortArticles(articles.filter((article) => Boolean(article.translations[locale])))
+}
+
 export function resolveArticleTranslation(
   article: Article,
   preferred: ArticleLang,

@@ -4,7 +4,7 @@ import { RouterLink } from '@/router/astroRouter'
 import { usePreferences } from '@/composables/usePreferences'
 import { useRevealList } from '@/composables/useRevealCycle'
 import { projectAnchor } from '@/data/anchors'
-import type { Project } from '@/data/projects'
+import { MAX_HOME_CAROUSEL_PROJECTS, type Project } from '@/data/projects'
 import type { ExperienceEntry } from '@/data/experience'
 import type { Testimonial } from '@/data/testimonials'
 import type { Locale } from '@/data/content'
@@ -44,7 +44,11 @@ const featuredProjects = computed(() =>
     })),
 )
 
-const otherProjects = computed(() => props.projects.filter((project) => !project.featured))
+const otherProjects = computed(() =>
+  props.projects
+    .filter((project) => !project.featured)
+    .slice(0, MAX_HOME_CAROUSEL_PROJECTS),
+)
 
 const featuredList = ref<HTMLElement | null>(null)
 const { armed: featuredArmed } = useRevealList(featuredList, '[data-featured-project]', {
@@ -215,7 +219,7 @@ function metaLine(project: Project) {
       </div>
 
       <div
-        v-if="!loading && !error && otherProjects.length"
+        v-if="!loading && !error && projects.length"
         class="mt-16 border-t border-line pt-10 xl:mt-20"
       >
         <div class="flex flex-col gap-5 md:flex-row md:items-end md:justify-between">
@@ -246,6 +250,7 @@ function metaLine(project: Project) {
         </div>
 
         <ProjectsCarousel
+          v-if="otherProjects.length"
           :projects="otherProjects"
           :experiences="experiences"
           :reviews="reviews"

@@ -42,6 +42,16 @@ export interface ServiceItem {
 
 export interface SiteContent {
   meta: { title: string; description: string }
+  seo: {
+    personName: string
+    alternateName: string
+    jobTitle: string
+    ogImageAlt: string
+    email: string
+    sameAs: string[]
+    locality: string
+    country: string
+  }
   nav: {
     links: NavLink[]
     homeLabel: string
@@ -52,6 +62,8 @@ export interface SiteContent {
     themeToLight: string
     themeToggle: string
     languageLabel: string
+    homeBreadcrumb: string
+    breadcrumbLabel: string
   }
   hero: {
     eyebrow: string
@@ -253,6 +265,16 @@ export const content: Record<Locale, SiteContent> = {
       description:
         'Portfolio de NorthSideBoy, Said Lucena: desarrollo backend y full stack, sistemas en producción y proyectos desde Caracas, Venezuela.',
     },
+    seo: {
+      personName: 'Said Lucena',
+      alternateName: 'NorthSideBoy',
+      jobTitle: 'Desarrollador Full Stack con foco en backend',
+      ogImageAlt: 'NorthSideBoy — portfolio de Said Lucena',
+      email: 'saidlucena519@gmail.com',
+      sameAs: ['https://github.com/NorthSideBoy'],
+      locality: 'Caracas',
+      country: 'VE',
+    },
     nav: {
       links: [
         { id: 'about', label: 'Sobre mí' },
@@ -272,6 +294,8 @@ export const content: Record<Locale, SiteContent> = {
       themeToLight: 'Cambiar a tema claro',
       themeToggle: 'Cambiar tema',
       languageLabel: 'Idioma',
+      homeBreadcrumb: 'Inicio',
+      breadcrumbLabel: 'Ruta de navegación',
     },
     hero: {
       eyebrow: 'DOSSIER',
@@ -611,6 +635,16 @@ export const content: Record<Locale, SiteContent> = {
       description:
         "NorthSideBoy, Said Lucena's portfolio: backend and full-stack development, production systems and projects from Caracas, Venezuela.",
     },
+    seo: {
+      personName: 'Said Lucena',
+      alternateName: 'NorthSideBoy',
+      jobTitle: 'Backend-leaning Full Stack Developer',
+      ogImageAlt: "NorthSideBoy — Said Lucena's portfolio",
+      email: 'saidlucena519@gmail.com',
+      sameAs: ['https://github.com/NorthSideBoy'],
+      locality: 'Caracas',
+      country: 'VE',
+    },
     nav: {
       links: [
         { id: 'about', label: 'About' },
@@ -630,6 +664,8 @@ export const content: Record<Locale, SiteContent> = {
       themeToLight: 'Switch to light theme',
       themeToggle: 'Change theme',
       languageLabel: 'Language',
+      homeBreadcrumb: 'Home',
+      breadcrumbLabel: 'Breadcrumb',
     },
     hero: {
       eyebrow: 'DOSSIER',

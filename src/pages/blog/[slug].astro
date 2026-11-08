@@ -1,9 +1,10 @@
 ---
 import ArticlePage from '@/components/blog/astro/ArticlePage.astro';
+import { articlesForLocale } from '@/data/articleUtils';
 import { loadContent } from '../../lib/server/content';
 export async function getStaticPaths() {
   const data = await loadContent();
-  return data.articles.map(({ slug }) => ({ params: { slug } }));
+  return articlesForLocale(data.articles, 'es').map(({ slug }) => ({ params: { slug } }));
 }
 const { slug } = Astro.params;
 ---

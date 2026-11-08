@@ -6,12 +6,15 @@ import {
   articleCoverAlt,
   articleCoverSrc,
   articleReadTime,
+  articlesForLocale,
   availableArticleLanguages,
   buildArticleIndex,
   findAdjacentArticles,
   formatArticleDate,
   resolveArticleTranslation,
 } from '@/data/articleUtils'
+import { hasThemeVariant } from '@/data/themeMedia'
+import { toHref } from '@/router/astroRouter'
 import ArticleBlock from './ArticleBlock.vue'
 import ArticleToc from './ArticleToc.vue'
 import UiIcon from '@/components/ui/vue/UiIcon.vue'
@@ -30,10 +33,21 @@ const footnotes = computed(() =>
   Object.fromEntries(index.value.footnoteNumbers),
 )
 const neighbors = computed(() =>
-  findAdjacentArticles(props.items, props.article.slug),
+  findAdjacentArticles(
+    articlesForLocale(props.items, props.locale),
+    props.article.slug,
+  ),
 )
-const blog = computed(() => (props.locale === 'en' ? '/en/blog/' : '/blog/'))
-const articleUrl = (slug: string) => `${blog.value}${slug}`
+const blog = computed(() => toHref({ name: 'blog' }, props.locale, ''))
+const homeHref = computed(() => toHref({ name: 'home' }, props.locale, ''))
+const blogLabel = computed(
+  () => copy.value.nav.links.find((link) => link.id === 'blog')?.label ?? 'Blog',
+)
+const articleUrl = (slug: string) =>
+  toHref({ name: 'article', slug }, props.locale, '')
+const coverHasThemeVariant = computed(() =>
+  hasThemeVariant(props.article.cover.src, props.article.cover.darkSrc),
+)
 const coverAlt = computed(() =>
   articleCoverAlt(props.article.cover, translation.value.lang),
 )
@@ -55,12 +69,34 @@ const coverClass = computed(() =>
   <main id="main">
     <section class="border-b border-line bg-page">
       <div class="shell py-12 md:py-16 xl:py-20">
-        <a
-          :href="blog"
-          class="inline-flex min-h-11 items-center gap-2 font-mono text-[11px] uppercase tracking-[0.08em] text-muted transition hover:text-soft"
-          ><UiIcon name="arrow-left" :size="14" />
-          {{ copy.articlePage.back }}</a
-        >
+        <nav :aria-label="copy.nav.breadcrumbLabel">
+          <ol
+            class="flex flex-wrap items-center gap-x-2 gap-y-1 font-mono text-[11px] uppercase tracking-[0.08em] text-muted"
+          >
+            <li>
+              <a
+                :href="homeHref"
+                class="inline-flex min-h-11 items-center transition hover:text-soft"
+                >{{ copy.nav.homeBreadcrumb }}</a
+              >
+            </li>
+            <li aria-hidden="true">/</li>
+            <li>
+              <a
+                :href="blog"
+                class="inline-flex min-h-11 items-center transition hover:text-soft"
+                >{{ blogLabel }}</a
+              >
+            </li>
+            <li aria-hidden="true">/</li>
+            <li
+              aria-current="page"
+              class="max-w-[60ch] truncate text-soft"
+            >
+              {{ translation.title }}
+            </li>
+          </ol>
+        </nav>
         <div class="mt-8 max-w-[860px]">
           <div class="flex flex-wrap items-center gap-x-4 gap-y-2">
             <p :lang="translation.lang" class="mono-label text-muted">
@@ -163,17 +199,31 @@ const coverClass = computed(() =>
             class="min-w-0 w-full max-w-[860px] justify-self-center xl:justify-self-start"
           >
             <figure class="overflow-hidden border border-line bg-sunken">
+              <template v-if="coverHasThemeVariant">
+                <img
+                  :src="articleCoverSrc(article.cover, 'dark')"
+                  :alt="coverAlt"
+                  :lang="translation.lang"
+                  :width="article.cover.width ?? 1200"
+                  :height="article.cover.height ?? 750"
+                  :style="coverStyle"
+                  decoding="async"
+                  class="theme-media-dark w-full object-cover"
+                  :class="coverClass"
+                /><img
+                  :src="articleCoverSrc(article.cover, 'light')"
+                  :alt="coverAlt"
+                  :lang="translation.lang"
+                  :width="article.cover.width ?? 1200"
+                  :height="article.cover.height ?? 750"
+                  :style="coverStyle"
+                  decoding="async"
+                  class="theme-media-light w-full object-cover"
+                  :class="coverClass"
+                />
+              </template>
               <img
-                :src="articleCoverSrc(article.cover, 'dark')"
-                :alt="coverAlt"
-                :lang="translation.lang"
-                :width="article.cover.width ?? 1200"
-                :height="article.cover.height ?? 750"
-                :style="coverStyle"
-                decoding="async"
-                class="theme-media-dark w-full object-cover"
-                :class="coverClass"
-              /><img
+                v-else
                 :src="articleCoverSrc(article.cover, 'light')"
                 :alt="coverAlt"
                 :lang="translation.lang"
@@ -181,7 +231,7 @@ const coverClass = computed(() =>
                 :height="article.cover.height ?? 750"
                 :style="coverStyle"
                 decoding="async"
-                class="theme-media-light w-full object-cover"
+                class="w-full object-cover"
                 :class="coverClass"
               />
             </figure>

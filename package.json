@@ -9,16 +9,15 @@
   "scripts": {
     "dev": "node --env-file-if-exists=.env ./node_modules/.bin/astro dev",
     "build": "node --env-file-if-exists=.env ./node_modules/.bin/astro build",
-    "check": "astro check",
+    "check": "node --env-file-if-exists=.env ./node_modules/.bin/astro check",
     "test": "vitest run --exclude tests/browser.test.ts",
     "test:browser": "vitest run tests/browser.test.ts",
     "pretest:browser": "npm run build:fixture",
-    "build:fixture": "CONTENT_SOURCE=fixture PUBLIC_MEDIA_URL=https://media.example.test node ./node_modules/.bin/astro build",
+    "build:fixture": "CONTENT_SOURCE=fixture PUBLIC_MEDIA_URL=https://media.example.test SITE_URL=https://fixture.example.test node ./node_modules/.bin/astro build",
     "preview": "node --env-file-if-exists=.env ./node_modules/.bin/astro preview",
     "astro": "astro"
   },
   "dependencies": {
-    "@astrojs/sitemap": "^3.7.4",
     "@astrojs/vue": "^7.1.2",
     "@aws-sdk/client-s3": "^3.1164.0",
     "@fontsource-variable/fraunces": "^5.3.0",

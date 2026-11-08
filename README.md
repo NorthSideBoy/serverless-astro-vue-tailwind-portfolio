@@ -72,7 +72,7 @@ credenciales descritas abajo o Application Default Credentials.
 
 | Variable | Uso |
 | --- | --- |
-| `SITE_URL` | Dominio canónico y sitemap. |
+| `SITE_URL` | Dominio canónico para canonical, hreflang, Open Graph y sitemap. Obligatorio: el build falla si no está definido. |
 | `PUBLIC_MEDIA_URL` | Dominio público de R2 para archivos dinámicos. Debe usar HTTPS y es obligatorio en el build. |
 | `R2_ACCOUNT_ID`, `R2_ACCESS_KEY_ID`, `R2_SECRET_ACCESS_KEY`, `R2_BUCKET` | Credenciales server-only para el futuro CRUD de medios en R2. No se usan en el build estático. |
 | `FIREBASE_PROJECT_ID`, `FIREBASE_CLIENT_EMAIL`, `FIREBASE_PRIVATE_KEY` | Credenciales de la cuenta de servicio para leer Firestore en build sin archivo JSON. Si no se definen, se usa Application Default Credentials. |
@@ -102,6 +102,9 @@ npm test
 npm run test:browser
 npm run build
 ```
+
+El sitemap público se sirve desde `/sitemap-index.xml` y `/sitemap-0.xml`; se
+genera en build con `lastmod` de los artículos y alternates de idioma.
 
 `npm test` ejecuta las pruebas unitarias y de contratos. `npm run test:browser`
 genera un build aislado con contenido de prueba (`CONTENT_SOURCE=fixture`) y

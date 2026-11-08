@@ -191,4 +191,104 @@ describe('rendered portfolio', () => {
     expect(await page.evaluate(() => window.location.hash)).toBe('#intro')
     await page.close()
   })
+
+  it('exposes canonical, social and JSON-LD metadata', async () => {
+    const page = await openPage({ javaScriptEnabled: false })
+    await goto(page, '/')
+    expect(await page.locator('link[rel="canonical"]').getAttribute('href'))
+      .toBe('https://fixture.example.test/')
+    expect(await page.locator('meta[property="og:type"]').getAttribute('content'))
+      .toBe('website')
+    expect(await page.locator('meta[property="og:image"]').getAttribute('content'))
+      .toBe('https://fixture.example.test/og-default.png')
+    const homeJson = await page.locator('script[type="application/ld+json"]').textContent()
+    expect(homeJson).toContain('"@type":"ProfilePage"')
+
+    await goto(page, '/blog/fixture-article/')
+    expect(await page.locator('meta[property="og:type"]').getAttribute('content'))
+      .toBe('article')
+    expect(await page.locator('meta[property="og:image"]').getAttribute('content'))
+      .toContain('/images/fixture/cover.png')
+    const articleJson = await page.locator('script[type="application/ld+json"]').textContent()
+    expect(articleJson).toContain('"@type":"BlogPosting"')
+    expect(articleJson).toContain('"@type":"BreadcrumbList"')
+    expect(await page.locator('nav[aria-label="Ruta de navegación"]').count()).toBe(1)
+    await page.close()
+  })
+
+  it('serves a sitemap with lastmod and language alternates', async () => {
+    const index = await fetch(`${base}/sitemap-index.xml`)
+    expect(index.ok).toBe(true)
+    expect(await index.text()).toContain('/sitemap-0.xml')
+
+    const response = await fetch(`${base}/sitemap-0.xml`)
+    expect(response.ok).toBe(true)
+    const body = await response.text()
+    expect(body).toContain('https://fixture.example.test/blog/fixture-article/')
+    expect(body).toContain('https://fixture.example.test/blog/solo-es/')
+    expect(body).toContain('https://fixture.example.test/en/blog/solo-en/')
+    expect(body).not.toContain('https://fixture.example.test/en/blog/solo-es/')
+    expect(body).not.toContain('https://fixture.example.test/blog/solo-en/')
+    expect(body).toContain('<lastmod>2024-01-02</lastmod>')
+    expect(body).toContain('<lastmod>2024-02-02</lastmod>')
+    expect(body).toContain('<lastmod>2024-03-02</lastmod>')
+    expect(body).toContain('hreflang="x-default"')
+    expect(body).not.toContain('/projects/')
+  })
+
+  it('keeps each blog index scoped to its locale', async () => {
+    const spanish = await fetch(`${base}/blog/solo-es/`)
+    expect(spanish.ok).toBe(true)
+    expect(await spanish.text()).toContain('Artículo solo en español')
+
+    const english = await fetch(`${base}/en/blog/solo-es/`)
+    expect(english.status).toBe(404)
+    const englishOnly = await fetch(`${base}/en/blog/solo-en/`)
+    expect(englishOnly.ok).toBe(true)
+    const spanishFallback = await fetch(`${base}/blog/solo-en/`)
+    expect(spanishFallback.status).toBe(404)
+
+    const spanishBody = await (await fetch(`${base}/blog/`)).text()
+    expect(spanishBody).toContain('/blog/solo-es/')
+    expect(spanishBody).toContain('/blog/fixture-article/')
+    expect(spanishBody).not.toContain('/en/blog/solo-en/')
+    expect(spanishBody).not.toContain('English only article')
+
+    const englishBody = await (await fetch(`${base}/en/blog/`)).text()
+    expect(englishBody).toContain('/en/blog/solo-en/')
+    expect(englishBody).toContain('/en/blog/fixture-article/')
+    expect(englishBody).not.toContain('/blog/solo-es/')
+    expect(englishBody).not.toContain('Artículo solo en español')
+
+    const spanishHome = await (await fetch(`${base}/`)).text()
+    expect(spanishHome).not.toContain('/en/blog/solo-en/')
+    const englishHome = await (await fetch(`${base}/en/`)).text()
+    expect(englishHome).not.toContain('/blog/solo-es/')
+  })
+
+  it('renders a single image when theme variants are identical', async () => {
+    const page = await openPage({ javaScriptEnabled: false })
+    await goto(page, '/blog/fixture-article/')
+    expect(await page.locator('img[src="/images/fixture/body.png"]').count()).toBe(1)
+    expect(await page.locator('img[src="/images/fixture/cover.png"]').count()).toBe(1)
+    await page.close()
+  })
+
+  it('keeps internal page links on their trailing-slash canonical form', async () => {
+    const page = await openPage({ javaScriptEnabled: false })
+    for (const path of ['/', '/blog/fixture-article/']) {
+      await goto(page, path)
+      const missing = await page.locator('a[href]').evaluateAll((links) =>
+        links
+          .map((link) => link.getAttribute('href'))
+          .filter((href): href is string => {
+            if (href === null) return false
+            const [pathname] = href.split('#')
+            return /^\/(en\/)?(blog|proyectos)(\/[^/]+)?$/.test(pathname)
+          }),
+      )
+      expect(missing).toEqual([])
+    }
+    await page.close()
+  })
 })

@@ -5,6 +5,7 @@ import type { ArticleBlock } from '@/data/schemas/article'
 import { resolveBlockId } from '@/data/articleUtils'
 import { embedSrc } from '@/components/blog/lib/embeds'
 import { isExternalArticleLink } from '@/components/blog/lib/link'
+import ArticleImage from './ArticleImage.vue'
 import ArticleInline from './ArticleInline.vue'
 import CodeBlock from '@/components/ui/vue/CodeBlock.vue'
 import UiIcon from '@/components/ui/vue/UiIcon.vue'
@@ -226,42 +227,27 @@ const footnote = (id: string) => props.footnotes[id] ?? 0
           isExternalArticleLink(block.href) ? 'noopener noreferrer' : undefined
         "
         class="block"
-        ><img
-          :src="block.darkSrc ?? block.src"
-          :alt="block.alt"
-          :width="block.width"
-          :height="block.height"
-          loading="lazy"
-          decoding="async"
-          class="theme-media-dark"
-          :class="imageClass(block.fit, block.width, block.height)" /><img
+      >
+        <ArticleImage
           :src="block.src"
+          :dark-src="block.darkSrc"
           :alt="block.alt"
           :width="block.width"
           :height="block.height"
-          loading="lazy"
-          decoding="async"
-          class="theme-media-light"
-          :class="imageClass(block.fit, block.width, block.height)" /></a
-      ><template v-else
-        ><img
-          :src="block.darkSrc ?? block.src"
-          :alt="block.alt"
-          :width="block.width"
-          :height="block.height"
-          loading="lazy"
-          decoding="async"
-          class="theme-media-dark"
-          :class="imageClass(block.fit, block.width, block.height)" /><img
-          :src="block.src"
-          :alt="block.alt"
-          :width="block.width"
-          :height="block.height"
-          loading="lazy"
-          decoding="async"
-          class="theme-media-light"
-          :class="imageClass(block.fit, block.width, block.height)"
-      /></template>
+          :fit="block.fit"
+          :img-class="imageClass(block.fit, block.width, block.height).join(' ')"
+        />
+      </a>
+      <ArticleImage
+        v-else
+        :src="block.src"
+        :dark-src="block.darkSrc"
+        :alt="block.alt"
+        :width="block.width"
+        :height="block.height"
+        :fit="block.fit"
+        :img-class="imageClass(block.fit, block.width, block.height).join(' ')"
+      />
     </div>
     <figcaption
       v-if="block.caption || block.credit"
@@ -290,22 +276,13 @@ const footnote = (id: string) => props.footnotes[id] ?? 0
           class="overflow-hidden border border-line bg-sunken"
           :style="frameStyle(item.width, item.height)"
         >
-          <img
-            :src="item.darkSrc ?? item.src"
-            :alt="item.alt"
-            :width="item.width"
-            :height="item.height"
-            loading="lazy"
-            decoding="async"
-            class="theme-media-dark h-full w-full object-contain"
-          /><img
+          <ArticleImage
             :src="item.src"
+            :dark-src="item.darkSrc"
             :alt="item.alt"
             :width="item.width"
             :height="item.height"
-            loading="lazy"
-            decoding="async"
-            class="theme-media-light h-full w-full object-contain"
+            img-class="h-full w-full object-contain"
           />
         </div>
         <figcaption

@@ -4,13 +4,36 @@ import SiteHeader from '@/components/chrome/astro/SiteHeader.astro';
 import SiteFooter from '@/components/chrome/astro/SiteFooter.astro';
 import Layout from '@/layouts/Layout.astro';
 import { loadContent } from '@/lib/server/content';
-import type { Locale } from '@/data/content';
+import { articlesForLocale } from '@/data/articleUtils';
+import { content, type Locale } from '@/data/content';
+import { buildBlogGraph } from '@/lib/seo';
 const { locale } = Astro.props as { locale: Locale };
 const path = Astro.url.pathname;
 const data = await loadContent();
+const copy = content[locale];
+const articles = articlesForLocale(data.articles, locale);
+const index = data.sections.blog[locale].index;
+const blogTitle = index?.title ?? data.sections.blog[locale].title;
+const blogDescription = index?.meta?.description ?? data.sections.blog[locale].lead;
+const site = Astro.site ?? new URL(Astro.url.origin);
+const jsonLd = buildBlogGraph({
+  site,
+  locale,
+  copy,
+  articles,
+  title: blogTitle,
+  description: blogDescription,
+});
 ---
-<Layout locale={locale} title={data.sections.blog[locale].index?.meta?.title} description={data.sections.blog[locale].index?.meta?.description}>
+<Layout
+  locale={locale}
+  type="website"
+  title={index?.meta?.title}
+  description={index?.meta?.description}
+  indexable={articles.length > 0}
+  jsonLd={jsonLd}
+>
   <SiteHeader page="blog" locale={locale} path={path} />
-  <BlogBody locale={locale} sections={data.sections} articles={data.articles} />
+  <BlogBody locale={locale} sections={data.sections} articles={articles} />
   <SiteFooter page="blog" locale={locale} path={path} />
 </Layout>

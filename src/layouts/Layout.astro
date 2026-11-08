@@ -2,14 +2,62 @@
 import '../styles/global.css';
 import type { Locale } from '../data/content';
 import { content } from '../data/content';
-const { locale = 'es', title, description, alternates = true, indexable = true } = Astro.props as {
-  locale?: Locale; title?: string; description?: string; alternates?: boolean; indexable?: boolean;
+import { ogLocale, serializeJsonLd } from '../lib/seo';
+
+interface SocialImage {
+  src: string;
+  alt: string;
+  width?: number;
+  height?: number;
+}
+
+interface ArticleMeta {
+  publishedTime?: string;
+  modifiedTime?: string;
+  section?: string;
+}
+
+const {
+  locale = 'es',
+  title,
+  description,
+  alternates = true,
+  indexable = true,
+  type = 'website',
+  image,
+  article,
+  jsonLd,
+} = Astro.props as {
+  locale?: Locale;
+  title?: string;
+  description?: string;
+  alternates?: boolean;
+  indexable?: boolean;
+  type?: 'website' | 'article';
+  image?: SocialImage;
+  article?: ArticleMeta;
+  jsonLd?: Record<string, unknown> | Record<string, unknown>[];
 };
+
 const copy = content[locale];
-const canonical = new URL(Astro.url.pathname, Astro.site);
+const site = Astro.site ?? new URL(Astro.url.origin);
+const canonical = new URL(Astro.url.pathname, site);
 const defaultPath = Astro.url.pathname.replace(/^\/en(?=\/|$)/, '') || '/';
-const spanishUrl = new URL(defaultPath, Astro.site);
-const englishUrl = new URL(`/en${defaultPath}`, Astro.site);
+const spanishUrl = new URL(defaultPath, site);
+const englishUrl = new URL(`/en${defaultPath}`, site);
+const showAlternates = indexable && alternates;
+const socialImage: SocialImage = image ?? {
+  src: new URL('/og-default.png', site).href,
+  alt: copy.seo.ogImageAlt,
+  width: 1200,
+  height: 630,
+};
+const socialImageUrl = new URL(socialImage.src, site).href;
+const pageTitle = title ?? copy.meta.title;
+const pageDescription = description ?? copy.meta.description;
+const robots = indexable
+  ? 'index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1'
+  : 'noindex, follow';
 ---
 <!doctype html>
 <html lang={locale} data-theme="dark">
@@ -17,19 +65,58 @@ const englishUrl = new URL(`/en${defaultPath}`, Astro.site);
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="theme-color" content="#06090B" />
-    <meta name="description" content={description ?? copy.meta.description} />
-    {indexable ? <link rel="canonical" href={canonical} /> : <meta name="robots" content="noindex" />}
-    {indexable && alternates && (
+    <meta name="description" content={pageDescription} />
+    <meta name="author" content={copy.seo.personName} />
+    <meta name="robots" content={robots} />
+    {indexable && <link rel="canonical" href={canonical} />}
+    {showAlternates && (
       <>
         <link rel="alternate" hreflang="es" href={spanishUrl} />
         <link rel="alternate" hreflang="en" href={englishUrl} />
         <link rel="alternate" hreflang="x-default" href={spanishUrl} />
       </>
     )}
+    <meta property="og:type" content={type} />
+    <meta property="og:site_name" content={copy.seo.alternateName} />
+    <meta property="og:title" content={pageTitle} />
+    <meta property="og:description" content={pageDescription} />
+    <meta property="og:url" content={canonical} />
+    <meta property="og:locale" content={ogLocale(locale)} />
+    {showAlternates && (
+      <meta
+        property="og:locale:alternate"
+        content={ogLocale(locale === 'es' ? 'en' : 'es')}
+      />
+    )}
+    <meta property="og:image" content={socialImageUrl} />
+    <meta property="og:image:alt" content={socialImage.alt} />
+    {socialImage.width && (
+      <meta property="og:image:width" content={String(socialImage.width)} />
+    )}
+    {socialImage.height && (
+      <meta property="og:image:height" content={String(socialImage.height)} />
+    )}
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={pageTitle} />
+    <meta name="twitter:description" content={pageDescription} />
+    <meta name="twitter:image" content={socialImageUrl} />
+    <meta name="twitter:image:alt" content={socialImage.alt} />
+    {type === 'article' && article?.publishedTime && (
+      <meta property="article:published_time" content={article.publishedTime} />
+    )}
+    {type === 'article' && article?.modifiedTime && (
+      <meta property="article:modified_time" content={article.modifiedTime} />
+    )}
+    {type === 'article' && article?.section && (
+      <meta property="article:section" content={article.section} />
+    )}
     <link rel="sitemap" href="/sitemap-index.xml" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <link rel="icon" href="/favicon.ico" />
-    <title>{title ?? copy.meta.title}</title>
+    <title>{pageTitle}</title>
+    {jsonLd && (
+      <script type="application/ld+json" set:html={serializeJsonLd(jsonLd)} />
+    )}
     <script is:inline>
       try {
         const stored = localStorage.getItem('sl-theme');

@@ -96,6 +96,32 @@ export const fixtureDocuments = {
         ],
       },
     },
+  }, {
+    id: 'solo-es', order: 1, status: 'published', publishedAt: '2024-02-01', updatedAt: '2024-02-02',
+    cover: { src: '/images/fixture/cover.png', alt: localized('Portada de prueba'), width: 1200, height: 750 },
+    authorId: 'fixture-author', featured: false,
+    translations: {
+      es: {
+        title: 'Artículo solo en español', excerpt: 'Solo disponible en español', category: 'Pruebas',
+        blocks: [
+          { id: 'intro', type: 'heading', level: 2, segments: [{ type: 'text', text: 'Introducción' }] },
+          { type: 'paragraph', segments: [{ type: 'text', text: 'Contenido solo en español.' }] },
+        ],
+      },
+    },
+  }, {
+    id: 'solo-en', order: 2, status: 'published', publishedAt: '2024-03-01', updatedAt: '2024-03-02',
+    cover: { src: '/images/fixture/cover.png', alt: localized('Fixture cover'), width: 1200, height: 750 },
+    authorId: 'fixture-author', featured: false,
+    translations: {
+      en: {
+        title: 'English only article', excerpt: 'Only available in English', category: 'Testing',
+        blocks: [
+          { id: 'intro', type: 'heading', level: 2, segments: [{ type: 'text', text: 'Introduction' }] },
+          { type: 'paragraph', segments: [{ type: 'text', text: 'English-only content.' }] },
+        ],
+      },
+    },
   }],
   reviews: [{
     id: 'fixture-review', order: 0,

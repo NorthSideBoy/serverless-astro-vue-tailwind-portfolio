@@ -7,7 +7,7 @@ de render:
 components/
 ├── chrome/     Header, footer y controles persistentes
 ├── home/       Página y secciones de la home
-├── projects/   Índice, tarjetas y carrusel
+├── projects/   Índice, tarjetas y carrusel (máx. 5 en la home)
 ├── blog/       Índice, artículo y renderers editoriales
 ├── ui/         Primitivas compartidas
 └── islands/    Entradas Vue que Astro importa

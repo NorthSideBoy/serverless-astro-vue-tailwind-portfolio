@@ -16,14 +16,23 @@ import Testimonials from '@/components/islands/home/TestimonialsIsland.vue';
 import Contact from './ContactSection.astro';
 import Layout from '@/layouts/Layout.astro';
 import { loadContent } from '@/lib/server/content';
-import type { Locale } from '@/data/content';
+import { content, type Locale } from '@/data/content';
+import { homeProjectSubset } from '@/data/projects';
+import { buildHomeGraph } from '@/lib/seo';
 
 const { locale } = Astro.props as { locale: Locale };
 const path = Astro.url.pathname;
 const data = await loadContent();
+const copy = content[locale];
+const site = Astro.site ?? new URL(Astro.url.origin);
+const homeProjects = homeProjectSubset(data.projects);
+const knowsAbout = data.technologies
+  .filter((technology) => technology.core)
+  .map((technology) => technology.name);
+const jsonLd = buildHomeGraph({ site, locale, copy, knowsAbout });
 const ready = { loading: false, error: null };
 ---
-<Layout locale={locale}>
+<Layout locale={locale} type="website" jsonLd={jsonLd}>
   <SiteHeader page="home" locale={locale} path={path} />
   <main id="main">
     <Hero locale={locale} />
@@ -33,7 +42,7 @@ const ready = { loading: false, error: null };
     <Skills locale={locale} />
     <StackSection locale={locale} groups={data.groups} technologies={data.technologies} section={data.sections.stack} />
     <ExperienceSection locale={locale} entries={data.experience} projects={data.projects} reviews={data.reviews} section={data.sections.experience} />
-    <Projects locale={locale} content={{ projects: data.projects, experiences: data.experience, reviews: data.reviews, section: data.sections.projects, ...ready }} client:visible={{ rootMargin: '200px' }} />
+    <Projects locale={locale} content={{ projects: homeProjects, experiences: data.experience, reviews: data.reviews, section: data.sections.projects, ...ready }} client:visible={{ rootMargin: '200px' }} />
     <EducationSection locale={locale} items={data.education} section={data.sections.education} />
     <CertificationsSection locale={locale} items={data.certifications} section={data.sections.certifications} />
     <BlogSection locale={locale} articles={data.articles} section={data.sections.blog} />

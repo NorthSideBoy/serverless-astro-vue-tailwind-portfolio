@@ -5,11 +5,12 @@ import type { Article } from '@/data/schemas/article'
 import type { SiteSections } from '@/data/schemas/siteSection'
 import {
   articleReadTime,
+  articlesForLocale,
   availableArticleLanguages,
   formatArticleDate,
   resolveArticleTranslation,
-  sortArticles,
 } from '@/data/articleUtils'
+import { toHref } from '@/router/astroRouter'
 import SectionHeader from '@/components/ui/vue/SectionHeader.vue'
 import UiIcon from '@/components/ui/vue/UiIcon.vue'
 
@@ -19,15 +20,22 @@ const props = defineProps<{
   section: SiteSections['blog']
 }>()
 const copy = computed(() => content[props.locale])
-const blog = computed(() => (props.locale === 'en' ? '/en/blog/' : '/blog/'))
-const latest = computed(() =>
-  sortArticles(props.articles)
+const blog = computed(() => toHref({ name: 'blog' }, props.locale, ''))
+const latest = computed(() => {
+  const sorted = articlesForLocale(props.articles, props.locale)
+  const featured = sorted.filter((post) => post.featured)
+  const other = sorted.filter((post) => !post.featured)
+
+  // The home is a curated teaser: featured posts are always visible first.
+  return [...featured, ...other]
     .slice(0, 3)
     .map((post) => ({
       post,
       translation: resolveArticleTranslation(post, props.locale),
-    })),
-)
+    }))
+})
+const articleHref = (slug: string, lang: 'es' | 'en') =>
+  toHref({ name: 'article', slug }, lang, '')
 </script>
 <template>
   <section
@@ -48,7 +56,7 @@ const latest = computed(() =>
         <a
           v-for="({ post, translation }, index) in latest"
           :key="post.slug"
-          :href="`${blog}${post.slug}`"
+          :href="articleHref(post.slug, translation.lang)"
           data-blog-card
           class="blog-card group relative flex flex-col overflow-hidden border border-line bg-panel/15 p-5 hover:border-line-strong md:p-6"
           :class="index === 0 ? 'dot-corner' : ''"
@@ -111,6 +119,13 @@ const latest = computed(() =>
           </div>
         </a>
       </div>
+      <p
+        v-if="!latest.length"
+        class="mt-6 border border-line bg-panel/10 p-5 text-[13px] text-muted"
+        role="status"
+      >
+        {{ copy.ui.emptyContent }}
+      </p>
       <div v-if="latest.length" class="mt-10 flex justify-end">
         <a :href="blog" class="btn-ghost"
           >{{ copy.blog.viewAll }} <UiIcon name="arrow-right" :size="15"

@@ -7,11 +7,13 @@ import {
   articleCoverAlt,
   articleCoverSrc,
   articleReadTime,
+  articlesForLocale,
   availableArticleLanguages,
   formatArticleDate,
   resolveArticleTranslation,
-  sortArticles,
 } from '@/data/articleUtils'
+import { hasThemeVariant } from '@/data/themeMedia'
+import { toHref } from '@/router/astroRouter'
 import SealEyebrow from '@/components/ui/vue/SealEyebrow.vue'
 import UiIcon from '@/components/ui/vue/UiIcon.vue'
 
@@ -21,7 +23,7 @@ const props = defineProps<{
   articles: Article[]
 }>()
 const copy = computed(() => content[props.locale])
-const sorted = computed(() => sortArticles(props.articles))
+const sorted = computed(() => articlesForLocale(props.articles, props.locale))
 const featured = computed(() => sorted.value[0])
 const featuredTranslation = computed(
   () =>
@@ -35,15 +37,21 @@ const rest = computed(() =>
       translation: resolveArticleTranslation(post, props.locale),
     })),
 )
-const url = (slug: string) =>
-  `${props.locale === 'en' ? '/en' : ''}/blog/${slug}`
+const homeHref = computed(() => toHref({ name: 'home' }, props.locale, ''))
+const url = (slug: string, lang: 'es' | 'en') =>
+  toHref({ name: 'article', slug }, lang, '')
+const featuredHasThemeVariant = computed(() =>
+  featured.value
+    ? hasThemeVariant(featured.value.cover.src, featured.value.cover.darkSrc)
+    : false,
+)
 </script>
 <template>
   <main id="main">
     <section class="border-b border-line bg-page">
       <div class="shell py-12 md:py-16 xl:py-20">
         <a
-          :href="locale === 'en' ? '/en/' : '/'"
+          :href="homeHref"
           class="inline-flex min-h-11 items-center gap-2 font-mono text-[11px] uppercase tracking-[0.08em] text-muted transition hover:text-soft"
           ><UiIcon name="arrow-left" :size="14" />{{ copy.blogPage.back }}</a
         >
@@ -81,37 +89,60 @@ const url = (slug: string) =>
             class="mt-6 grid grid-cols-[minmax(0,1fr)] gap-8 border border-line bg-panel/10 md:grid-cols-2 md:gap-10"
           >
             <a
-              :href="url(featured.slug)"
+              :href="url(featured.slug, featuredTranslation.lang)"
               class="group relative block overflow-hidden border-b border-line bg-sunken md:border-b-0 md:border-r"
             >
+              <template v-if="featuredHasThemeVariant">
+                <img
+                  :src="articleCoverSrc(featured.cover, 'dark')"
+                  :alt="articleCoverAlt(featured.cover, featuredTranslation.lang)"
+                  :lang="featuredTranslation.lang"
+                  :width="featured.cover.width ?? 1200"
+                  :height="featured.cover.height ?? 750"
+                  decoding="async"
+                  class="theme-media-dark w-full object-cover transition duration-500 group-hover:scale-[1.015]"
+                  :class="{
+                    'aspect-[16/10]':
+                      !featured.cover.width || !featured.cover.height,
+                  }"
+                  :style="
+                    featured.cover.width && featured.cover.height
+                      ? {
+                          aspectRatio: `${featured.cover.width} / ${featured.cover.height}`,
+                        }
+                      : undefined
+                  "
+                />
+                <img
+                  :src="articleCoverSrc(featured.cover, 'light')"
+                  :alt="articleCoverAlt(featured.cover, featuredTranslation.lang)"
+                  :lang="featuredTranslation.lang"
+                  :width="featured.cover.width ?? 1200"
+                  :height="featured.cover.height ?? 750"
+                  decoding="async"
+                  class="theme-media-light w-full object-cover transition duration-500 group-hover:scale-[1.015]"
+                  :class="{
+                    'aspect-[16/10]':
+                      !featured.cover.width || !featured.cover.height,
+                  }"
+                  :style="
+                    featured.cover.width && featured.cover.height
+                      ? {
+                          aspectRatio: `${featured.cover.width} / ${featured.cover.height}`,
+                        }
+                      : undefined
+                  "
+                />
+              </template>
               <img
-                :src="articleCoverSrc(featured.cover, 'dark')"
-                :alt="articleCoverAlt(featured.cover, featuredTranslation.lang)"
-                :lang="featuredTranslation.lang"
-                :width="featured.cover.width ?? 1200"
-                :height="featured.cover.height ?? 750"
-                decoding="async"
-                class="theme-media-dark w-full object-cover transition duration-500 group-hover:scale-[1.015]"
-                :class="{
-                  'aspect-[16/10]':
-                    !featured.cover.width || !featured.cover.height,
-                }"
-                :style="
-                  featured.cover.width && featured.cover.height
-                    ? {
-                        aspectRatio: `${featured.cover.width} / ${featured.cover.height}`,
-                      }
-                    : undefined
-                "
-              />
-              <img
+                v-else
                 :src="articleCoverSrc(featured.cover, 'light')"
                 :alt="articleCoverAlt(featured.cover, featuredTranslation.lang)"
                 :lang="featuredTranslation.lang"
                 :width="featured.cover.width ?? 1200"
                 :height="featured.cover.height ?? 750"
                 decoding="async"
-                class="theme-media-light w-full object-cover transition duration-500 group-hover:scale-[1.015]"
+                class="w-full object-cover transition duration-500 group-hover:scale-[1.015]"
                 :class="{
                   'aspect-[16/10]':
                     !featured.cover.width || !featured.cover.height,
@@ -164,7 +195,7 @@ const url = (slug: string) =>
                 class="mt-5 font-display text-[24px] font-semibold leading-[1.2] tracking-[-0.025em] text-ink md:text-[28px]"
               >
                 <a
-                  :href="url(featured.slug)"
+                  :href="url(featured.slug, featuredTranslation.lang)"
                   :lang="featuredTranslation.lang"
                   class="transition hover:text-soft"
                   >{{ featuredTranslation.title }}</a
@@ -177,7 +208,7 @@ const url = (slug: string) =>
                 {{ featuredTranslation.excerpt }}
               </p>
               <a
-                :href="url(featured.slug)"
+                :href="url(featured.slug, featuredTranslation.lang)"
                 class="group mt-auto inline-flex min-h-11 items-center gap-2 pt-6 font-mono text-[11px] uppercase tracking-[0.08em] text-soft transition hover:text-ink"
                 >{{ copy.blogPage.readMore }}
                 <UiIcon
@@ -190,7 +221,7 @@ const url = (slug: string) =>
           <div v-if="rest.length" class="mt-14 border-t border-line">
             <article v-for="{ post, translation } in rest" :key="post.slug">
               <a
-                :href="url(post.slug)"
+                :href="url(post.slug, translation.lang)"
                 class="group grid grid-cols-[minmax(0,1fr)] gap-x-10 gap-y-3 border-b border-line py-8 transition-colors hover:bg-panel/10 md:grid-cols-[190px_minmax(0,1fr)_auto] md:items-baseline md:py-9"
                 ><div
                   class="flex flex-wrap items-center gap-x-3 gap-y-1 md:flex-col md:items-start md:gap-y-1.5"

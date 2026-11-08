@@ -55,8 +55,8 @@ provenance:
   browser behaviour.
 - Managed content can be printed only: articles, the blog index, stack,
   experience, education and certifications need no client JavaScript.
-- Managed content can be interactive: project filters, the projects carousel and
-  the reviews expansion need client state.
+- Managed content can be interactive: project filters, the projects carousel
+  (capped at five on the home) and the reviews expansion need client state.
 
 The implementation therefore uses three rendering paths:
 
@@ -115,7 +115,16 @@ Astro owns the document and the route boundaries:
 
 Astro also owns SEO metadata even when the values come from Firestore. Article
 titles, descriptions, canonical URLs and alternates are computed in the Astro
-route so the `<head>` is complete before any Vue code runs.
+route so the `<head>` is complete before any Vue code runs. `Layout.astro`
+renders Open Graph, Twitter Cards, the robots meta tag and the page JSON-LD.
+`src/lib/seo.ts` builds the structured-data graph (`WebSite`, `Person`,
+`ProfilePage`, `BlogPosting`, `CollectionPage`, `BreadcrumbList`).
+
+The sitemap is generated at build time by `src/pages/sitemap-0.xml.ts` from the
+same validated `loadContent()` snapshot. It includes only canonical, indexable
+URLs, uses `updatedAt` as `lastmod` for articles and emits `xhtml:link`
+alternates for bilingual pages. `sitemap-index.xml` remains the public entry
+point referenced by `robots.txt` and `Layout.astro`.
 
 ## Vue entries and islands
 
@@ -150,7 +159,7 @@ interaction wins:
 | --- | --- | --- |
 | none | HTML that needs no client state | Articles, blog index, stack, experience, education, certifications, blog teaser |
 | `client:load` | Interaction that must be ready immediately | Projects index filter |
-| `client:visible` | Interaction below the fold | Home projects carousel and details |
+| `client:visible` | Interaction below the fold | Home projects carousel (capped at five) and details |
 | `client:idle` | Non-critical interaction after first paint | Reviews expansion and deep-link handling |
 | `client:only` | Not used | Avoid it: it gives up server HTML and SEO |
 
@@ -274,12 +283,24 @@ before HTML or island props are generated.
 ## Routing, internationalization and SEO
 
 - Spanish is the default route without a prefix; English is under `/en`.
+- Every public URL ends with a slash. `astro.config.mjs` sets
+  `trailingSlash: 'always'`; the eventual hosting platform must mirror it.
 - `src/router/astroRouter.ts` provides `toHref` and `RouterLink` for Vue
-  components so links stay localized.
-- `Layout.astro` emits canonical, `hreflang` and `x-default` links.
+  components so links stay localized. Named destinations include articles.
+- `Layout.astro` emits canonical, `hreflang`, `x-default`, Open Graph, Twitter
+  Cards and the robots meta tag.
+- `src/lib/seo.ts` builds the per-page JSON-LD graph. Article pages also render
+  a visible breadcrumb in `ArticleView.vue`; the breadcrumb labels and URLs are
+  reused by `BreadcrumbList`.
 - Translated content carries a `lang` attribute.
-- `/projects` redirects to `/proyectos`; the canonical public routes are
-  `/`, `/proyectos`, `/blog` and `/blog/:slug`, plus their `/en` counterparts.
+- `/projects` redirects to `/proyectos/`; the canonical public routes are
+  `/`, `/proyectos/`, `/blog/` and `/blog/:slug/`, plus their `/en`
+  counterparts.
+- Article routes are generated only for the locales that have a translation, so
+  an article cannot produce a fallback duplicate in the other language.
+- Blog indexes are scoped to their locale. An article without a translation
+  appears only in the blog index of the language that exists; no fallback route
+  or cross-language card is generated.
 - SEO values that come from Firestore are still computed in Astro page
   components, not in Vue.
 
@@ -331,9 +352,9 @@ The intended publishing flow is:
 ```text
 editor writes to Firestore
         ↓
-CMS calls a Vercel Deploy Hook
+CMS calls the hosting deploy hook
         ↓
-Vercel rebuilds the Astro site
+the hosting provider rebuilds the Astro site
         ↓
 loadContent() reads and validates Firestore
         ↓
