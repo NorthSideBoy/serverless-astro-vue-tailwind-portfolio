@@ -10,7 +10,11 @@ Manage the background server with `astro dev stop`, `astro dev status`, and `ast
 
 ## Documentation
 
-Full documentation: https://docs.astro.build
+Project engineering conventions: [`docs/conventions.md`](docs/conventions.md)
+Architecture and rationale: [`docs/architecture.md`](docs/architecture.md)
+Section recipe: [`docs/guides/adding-a-section.md`](docs/guides/adding-a-section.md)
+
+Full Astro documentation: https://docs.astro.build
 
 Consult these guides before working on related tasks:
 

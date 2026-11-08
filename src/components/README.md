@@ -10,7 +10,7 @@ components/
 ├── projects/   Índice, tarjetas y carrusel
 ├── blog/       Índice, artículo y renderers editoriales
 ├── ui/         Primitivas compartidas
-└── islands/    Entradas Vue que Astro hidrata
+└── islands/    Entradas Vue que Astro importa
 ```
 
 Cada feature usa las mismas subcarpetas:
@@ -27,27 +27,47 @@ Cada feature usa las mismas subcarpetas:
 1. Un archivo `.astro` **nunca** importa un `.vue` que no esté bajo
    `components/islands/`.
 2. Un archivo `.vue` **nunca** importa un `.astro`.
-3. `components/islands/` es la única puerta de hidratación. Cada entrada se
-   importa desde Astro con una directiva `client:*`.
+3. `components/islands/` es la única puerta de importación Astro → Vue, pero
+   **no** obliga a hidratar. Puede contener entradas SSR-only sin `client:*`.
 4. Los wrappers de `islands/` usan `withIslandContext` (`src/lib`) para recibir
    locale, ruta y contenido sin duplicar esa lógica en cada isla.
-5. `chrome/astro/SiteHeader.astro` y `chrome/astro/SiteFooter.astro` centralizan
-   la hidratación del chrome. Las páginas no importan sus islas directamente.
+5. `chrome/astro/SiteHeader.astro` y `chrome/astro/SiteFooter.astro` son
+   componentes Astro estáticos. Las páginas los componen directamente; no
+   existen islas de header o footer.
+6. Los nombres distinguen el modo de render:
+   - `*Island.vue` — entrada hidratada.
+   - `*Content.vue` — entrada renderizada solo en build.
 
-`tests/architecture.test.ts` verifica las reglas 1 y 2.
+`tests/architecture.test.ts` verifica las reglas 1, 2 y la separación actual
+entre contenido local en Astro y contenido Firestore en Vue.
 
 ## Primitivas compartidas
 
-`ui/astro/` y `ui/vue/` contienen twins de las primitivas que necesitan ambos
-mundos: `CodeBlock`, `PlateFrame`, `SealEyebrow`, `SectionHeader` y `UiIcon`.
-Si cambias la marca, los estilos o el comportamiento de una, cambia también la
-otra. Los imports deben respetar el framework del consumidor:
+`ui/astro/` y `ui/vue/` contienen gemelas de las primitivas que necesitan ambos
+mundos. Actualmente son:
+
+- `PlateFrame`
+- `SealEyebrow`
+- `SectionHeader`
+- `UiIcon`
+
+Otras primitivas viven en un solo mundo:
+
+- `CodeBlock` y `TechIcon` solo existen en `ui/vue/`.
+- `LayerPlate` solo existe en `ui/astro/`.
+
+Si cambias la marca, los estilos o el comportamiento de una primitiva gemela,
+cambia también la otra. Los imports deben respetar el framework del consumidor:
 
 - una sección `.astro` usa `ui/astro/...`;
 - una sección `.vue` usa `ui/vue/...`.
 
 ## Dependencias entre features
 
-`home` importa `BlogSection` desde `blog` porque la home muestra el teaser del
-blog. Es la única dependencia cruzada prevista; para todo lo demás, una feature
-solo depende de `ui`, `chrome` o `islands`.
+`home` importa el teaser del blog desde `blog` porque la home muestra ese
+contenido. Es la única dependencia cruzada prevista; para todo lo demás, una
+feature solo depende de `ui`, `chrome` o `islands`.
+
+La arquitectura y las reglas completas están en
+[`docs/architecture.md`](../../docs/architecture.md) y
+[`docs/conventions.md`](../../docs/conventions.md).

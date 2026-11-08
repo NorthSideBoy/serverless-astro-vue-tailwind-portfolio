@@ -1,20 +1,24 @@
 # Portfolio de Said Lucena
 
-Sitio estático construido con Astro, islas de Vue 3 y Tailwind 4. El contenido
+Sitio estático construido con Astro, Vue 3 y Tailwind 4. El contenido
 editorial vive en Cloud Firestore y solo los archivos dinámicos de las
 colecciones se sirven desde Cloudflare R2. Los archivos estáticos viven
 únicamente en el proyecto.
 
 ## Arquitectura
 
-- **Astro** genera el HTML de inicio, proyectos, blog y artículos durante el
-  build. El contenido editorial y las secciones estables son componentes
-  `.astro`; no envían JavaScript de framework al navegador.
-- **Vue** hidrata solo las islas que necesitan estado o interacción: encabezado,
-  tema/idioma, filtros de proyectos, progreso e índice del artículo, controles
-  de contacto y pie con contenido pasado por slot.
-- **Firestore** es la fuente de verdad del contenido. El build falla si una
-  colección está vacía o si el grafo editorial no valida.
+- **Astro** posee rutas, layout, metadatos SEO, chrome y el contenido local
+  (hero, cifras, about, servicios, habilidades y contacto). Las interacciones de
+  esas secciones viven en scripts ligeros de `src/scripts/`, no en islas Vue.
+- **Vue** renderiza el contenido administrado en Firestore durante el build.
+  Artículos, índice del blog, stack, experiencia, educación, certificaciones y
+  teaser del blog se sirven como HTML inicial sin hidratación. Solo se hidratan
+  las superficies que necesitan estado: el índice de proyectos
+  (`client:load`), los proyectos de la home (`client:visible`) y las reseñas
+  (`client:idle`).
+- **Firestore** es la fuente de verdad del contenido editorial. El build falla
+  si una colección está vacía o si el grafo editorial no valida. El navegador
+  nunca consulta Firestore.
 - **R2** entrega únicamente los archivos dinámicos referenciados por las
   colecciones: imágenes de proyectos, portadas y diagramas de artículos,
   archivos de blog y fotos de reviews. En Firestore se guardan rutas
@@ -25,27 +29,33 @@ colecciones se sirven desde Cloudflare R2. Los archivos estáticos viven
 ```text
 src/
 ├── pages/                Rutas ES y EN
-├── layouts/              Documento HTML y tema inicial
+├── layouts/              Documento HTML, SEO y tema inicial
 ├── components/
-│   ├── chrome/           Header, footer y controles persistentes
+│   ├── chrome/           Header, footer y controles persistentes (Astro)
 │   ├── home/             Página y secciones de la home
 │   ├── projects/         Índice, tarjetas y carrusel
 │   ├── blog/             Índice, artículo y renderers editoriales
 │   ├── ui/               Primitivas compartidas (astro/ y vue/)
-│   └── islands/          Entradas Vue que Astro hidrata
+│   └── islands/          Entradas Vue que Astro importa
 ├── data/
 │   └── schemas/          Contratos Zod y validación del grafo
 ├── lib/
-│   ├── server/           Firestore y resolución de medios
-│   └── withIslandContext.ts  Contexto compartido de las islas Vue
-├── router/               Compatibilidad de enlaces para Vue
-└── stores/               Tema compartido entre islas con Nano Stores
+│   ├── server/           Firestore, fixtures y resolución de medios
+│   └── withIslandContext.ts  Contexto por isla Vue
+├── router/               Enlaces y estado de hash para Vue
+├── scripts/              Mejoras progresivas para HTML Astro
+└── stores/               Tema persistido entre islas
 ```
 
 Cada feature separa `astro/` (render estático en build) y `vue/`
 (implementación de islas). Las únicas entradas que un `.astro` puede importar
-desde Vue viven en `components/islands/`; el detalle de las reglas está en
-`src/components/README.md`.
+desde Vue viven en `components/islands/`; esa carpeta es una frontera de
+importación, no una obligación de hidratar: también contiene entradas SSR-only.
+
+Las reglas de ingeniería están documentadas en [`docs/`](docs/README.md):
+[arquitectura](docs/architecture.md), [convenciones](docs/conventions.md) y
+[guía para añadir secciones](docs/guides/adding-a-section.md). El resumen local
+de componentes vive en `src/components/README.md`.
 
 ## Desarrollo
 
