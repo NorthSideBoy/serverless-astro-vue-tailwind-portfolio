@@ -6,7 +6,6 @@ import { experienceAnchor, projectAnchor } from '@/data/anchors'
 import type { ReviewExperience, ReviewProject, Testimonial } from '@/data/testimonials'
 import Avatar from '@/components/ui/vue/Avatar.vue'
 import UiIcon from '@/components/ui/vue/UiIcon.vue'
-import GoogleMark from '@/components/ui/vue/GoogleMark.vue'
 
 const props = withDefaults(
   defineProps<{
@@ -65,7 +64,7 @@ const rolesArePlaceholder = computed(() => props.review.author.roles.length === 
               data-review-google
               class="inline-flex items-center gap-1 border border-line px-1.5 py-0.5 font-mono text-[9.5px] uppercase tracking-[0.06em] text-muted"
             >
-              <GoogleMark :size="11" />
+              <UiIcon name="google" :size="11" />
               Google
             </span>
           </div>

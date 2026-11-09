@@ -202,4 +202,60 @@ describe('component architecture', () => {
     expect(panel).toContain("alert?.focus({ preventScroll: true })")
     expect(panel).toContain('scrollIntoView')
   })
+
+  it('keeps the server-only technology resolver out of Vue components', () => {
+    const violations = files
+      .filter((file) => file.endsWith('.vue'))
+      .filter((file) =>
+        importsOf(file).some((specifier) => specifier === '@/lib/server/techIcons'),
+      )
+    expect(violations.map((file) => path.relative(srcDir, file))).toEqual([])
+  })
+
+  it('keeps simple-icons imports in the brand module and the server resolver', () => {
+    const allowed = new Set([
+      path.join(componentsDir, 'ui/brand-icons.ts'),
+      path.join(srcDir, 'lib/server/techIcons.ts'),
+    ])
+    const violations = files
+      .filter((file) => !allowed.has(file))
+      .filter((file) =>
+        importsOf(file).some(
+          (specifier) => specifier === 'simple-icons' || specifier.startsWith('simple-icons/'),
+        ),
+      )
+    expect(violations.map((file) => path.relative(srcDir, file))).toEqual([])
+  })
+
+  it('keeps Lucide framework packages in their render layer', () => {
+    const astroViolations = files
+      .filter((file) => file.endsWith('.astro'))
+      .filter((file) => importsOf(file).some((specifier) => specifier === '@lucide/vue'))
+    const vueViolations = files
+      .filter((file) => file.endsWith('.vue'))
+      .filter((file) => importsOf(file).some((specifier) => specifier === '@lucide/astro'))
+    expect([
+      ...astroViolations.map((file) => path.relative(srcDir, file)),
+      ...vueViolations.map((file) => path.relative(srcDir, file)),
+    ]).toEqual([])
+  })
+
+  it('keeps icon primitives free of raw HTML injection', () => {
+    for (const file of [
+      path.join(componentsDir, 'ui/astro/UiIcon.astro'),
+      path.join(componentsDir, 'ui/vue/UiIcon.vue'),
+      path.join(componentsDir, 'ui/vue/TechIcon.vue'),
+    ]) {
+      const source = fs.readFileSync(file, 'utf8')
+      expect(source).not.toMatch(/\bset:html\b|\bv-html\b/)
+    }
+  })
+
+  it('wraps every hydrated island entry with withIslandContext', () => {
+    const entries = walk(islandsDir).filter((file) => file.endsWith('Island.vue'))
+    const violations = entries.filter(
+      (file) => !fs.readFileSync(file, 'utf8').includes('withIslandContext'),
+    )
+    expect(violations.map((file) => path.relative(srcDir, file))).toEqual([])
+  })
 })

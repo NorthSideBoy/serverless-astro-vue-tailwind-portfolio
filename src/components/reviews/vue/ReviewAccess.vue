@@ -7,7 +7,6 @@ import { reviewPanelPath } from '@/data/paths'
 import SealEyebrow from '@/components/ui/vue/SealEyebrow.vue'
 import PlateFrame from '@/components/ui/vue/PlateFrame.vue'
 import UiIcon from '@/components/ui/vue/UiIcon.vue'
-import GoogleMark from '@/components/ui/vue/GoogleMark.vue'
 
 const { copy, locale } = usePreferences()
 const { status, error, busy, signIn, retry } = useReviewSession()
@@ -112,7 +111,7 @@ function errorMessage() {
                 :aria-busy="status === 'loading' || busy"
                 @click="signIn"
               >
-                <GoogleMark :size="18" />
+                <UiIcon name="google" :size="18" />
                 {{
                   status === 'loading'
                     ? copy.reviews.access.googleLoading

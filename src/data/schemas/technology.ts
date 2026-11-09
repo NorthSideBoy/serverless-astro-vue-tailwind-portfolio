@@ -1,5 +1,4 @@
 import { z } from 'zod'
-import { techIcons } from '../techIcons'
 import { httpsUrlSchema, idSchema, localizedSchema, orderSchema, slugSchema } from './primitives'
 
 export const technologyTypeSchema = z.enum(['technology', 'concept'])
@@ -24,12 +23,13 @@ export const technologySchema = z
     name: z.string().min(1),
     tag: localizedSchema,
     href: httpsUrlSchema.optional(),
-    icon: z
+    icon: z.string().min(1).optional(),
+    customIcon: z
       .string()
       .min(1)
-      .refine(
-        (icon) => Object.prototype.hasOwnProperty.call(techIcons, icon),
-        'Unknown technology icon',
+      .regex(
+        /^\/images\/(?:[a-z0-9_-]+\/)*[a-z0-9_-]+\.svg$/,
+        'Custom icon must be a lowercase SVG path under /images/',
       )
       .optional(),
     hoverColor: technologyHoverColorSchema.optional(),
@@ -56,11 +56,19 @@ export const technologySchema = z
       })
     }
 
-    if (technology.stackGroupId && !technology.icon) {
+    if (technology.stackGroupId && !technology.icon && !technology.customIcon) {
       context.addIssue({
         code: 'custom',
         path: ['icon'],
-        message: 'Stack technologies require an icon',
+        message: 'Stack technologies require an icon key or a custom SVG',
+      })
+    }
+
+    if (!technology.stackGroupId && technology.customIcon) {
+      context.addIssue({
+        code: 'custom',
+        path: ['customIcon'],
+        message: 'Only Stack technologies use custom icons',
       })
     }
 
@@ -82,5 +90,9 @@ export const technologySchema = z
   })
 
 export type Technology = z.infer<typeof technologySchema>
+
+export type StackTechnology = Technology & {
+  resolvedIconPath: string | null
+}
 
 export const technologyIdSchema = idSchema

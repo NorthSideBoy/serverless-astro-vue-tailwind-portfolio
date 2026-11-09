@@ -127,7 +127,7 @@ function remove(index: number): void {
               :aria-label="`${removeLabel}: ${role}`"
               @click="remove(index)"
             >
-              <UiIcon name="close" :size="12" />
+              <UiIcon name="x" :size="12" />
             </button>
           </span>
         </li>

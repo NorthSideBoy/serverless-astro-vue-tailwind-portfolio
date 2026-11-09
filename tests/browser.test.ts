@@ -45,6 +45,13 @@ async function openPage(options: { javaScriptEnabled?: boolean; viewport?: { wid
     if (url.hostname === '127.0.0.1') return route.continue()
     return route.abort()
   })
+  await page.route('**/images/tech-icons/fixture.svg', (route) =>
+    route.fulfill({
+      status: 200,
+      contentType: 'image/svg+xml',
+      body: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20Z"/></svg>',
+    }),
+  )
   return page
 }
 
@@ -116,6 +123,9 @@ describe('rendered portfolio', () => {
     expect(await page.locator('#about h2').count()).toBe(1)
     expect(await page.locator('#services article').count()).toBeGreaterThan(2)
     expect(await page.locator('#stack a[href^="https://"]').count()).toBeGreaterThan(0)
+    expect(await page.locator('#stack [data-tech-icon="typescript"]').count()).toBe(1)
+    expect(await page.locator('#stack [data-tech-icon="astro"]').count()).toBe(1)
+    expect(await page.locator('#stack [data-tech-icon="fixture-custom"]').count()).toBe(1)
     expect(await page.locator('#experience article').count()).toBeGreaterThan(0)
     expect(await page.locator('#education article').count()).toBeGreaterThan(0)
     expect(await page.locator('#certifications article').count()).toBeGreaterThan(0)
@@ -142,6 +152,66 @@ describe('rendered portfolio', () => {
     expect(await page.locator('astro-island[client="load"]').count()).toBe(0)
     expect(await page.locator('main#main').count()).toBe(1)
     expect(await page.locator('a.skip-link[href="#main"]').count()).toBe(1)
+    await page.close()
+  })
+
+  it('renders the shared icon set in server HTML and after hydration', async () => {
+    const ssr = await openPage({ javaScriptEnabled: false })
+    await goto(ssr, '/')
+
+    for (const name of [
+      'menu',
+      'x',
+      'sun',
+      'moon',
+      'mail',
+      'copy',
+      'check',
+      'github',
+      'google',
+      'whatsapp',
+      'arrow-right',
+      'arrow-up-right',
+    ]) {
+      expect(await ssr.locator(`svg[data-icon="${name}"]`).count()).toBeGreaterThan(0)
+    }
+
+    expect(
+      await ssr
+        .locator('svg[data-icon]')
+        .evaluateAll((nodes) =>
+          nodes.every((node) => node.getAttribute('aria-hidden') === 'true'),
+        ),
+    ).toBe(true)
+    expect(
+      await ssr.locator('header button[aria-controls="mobile-menu"]').getAttribute('aria-label'),
+    ).toBeTruthy()
+    expect(
+      await ssr.locator('header [data-theme-toggle]').first().getAttribute('aria-label'),
+    ).toBeTruthy()
+
+    const totalIcons = await ssr.locator('svg[data-icon]').count()
+
+    await goto(ssr, '/blog/fixture-article/')
+    const externalLink = ssr.locator('.article-body p a[href="https://example.com"]').first()
+    expect(await externalLink.locator('svg[data-icon="arrow-up-right"]').count()).toBe(1)
+    expect(
+      await externalLink.locator('svg[data-icon="arrow-up-right"]').getAttribute('class'),
+    ).toContain('inline-block')
+    expect(await externalLink.locator('span.sr-only').textContent()).toContain('pestaña nueva')
+    await ssr.close()
+
+    const page = await openPage()
+    const errors: string[] = []
+    page.on('console', (message) => {
+      if (message.type() === 'error') errors.push(message.text())
+    })
+    await goto(page, '/')
+    await page.waitForSelector('astro-island[client="idle"]:not([ssr])', { state: 'attached' })
+
+    expect(await page.locator('svg[data-icon]').count()).toBe(totalIcons)
+    expect(await page.locator('svg[data-icon="arrow-right"]').count()).toBeGreaterThan(0)
+    expect(errors).toEqual([])
     await page.close()
   })
 

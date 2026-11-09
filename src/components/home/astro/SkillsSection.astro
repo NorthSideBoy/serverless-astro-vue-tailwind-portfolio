@@ -4,10 +4,11 @@ import SectionHeader from '@/components/ui/astro/SectionHeader.astro';
 import PlateFrame from '@/components/ui/astro/PlateFrame.astro';
 import LayerPlate from '@/components/ui/astro/LayerPlate.astro';
 import UiIcon from '@/components/ui/astro/UiIcon.astro';
+import type { IconName } from '@/components/ui/icon-names';
 const { locale } = Astro.props as { locale: Locale };
 const skills = content[locale].skills;
-const layerIcons = ['database', 'terminal', 'api', 'layers'];
-const skillIcons = ['layers', 'database', 'shield', 'plug', 'check-circle', 'code'];
+const layerIcons: IconName[] = ['database', 'terminal', 'webhook', 'layers'];
+const skillIcons: IconName[] = ['layers', 'database', 'shield-check', 'plug', 'circle-check', 'code'];
 const layerColors = ['var(--c-layer-1)', 'var(--c-layer-2)', 'var(--c-layer-3)', 'var(--c-layer-4)'];
 ---
 <section id="skills" class="section-pad border-y border-line bg-page" aria-labelledby="skills-title"><div class="shell">

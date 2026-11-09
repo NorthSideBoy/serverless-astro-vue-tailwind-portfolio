@@ -38,6 +38,7 @@ export const fixtureDocuments = {
   technologies: [
     { id: 'typescript', name: 'TypeScript', tag: localized('Lenguaje'), href: 'https://www.typescriptlang.org/', icon: 'typescript', hoverColor: { dark: '#3178c6', light: '#3178c6' }, core: true, stackGroupId: 'backend', order: 0, type: 'technology' },
     { id: 'astro', name: 'Astro', tag: localized('Framework'), href: 'https://astro.build/', icon: 'astro', hoverColor: { dark: '#ff5d01', light: '#ff5d01' }, core: true, stackGroupId: 'backend', order: 1, type: 'technology' },
+    { id: 'fixture-custom', name: 'Fixture Custom', tag: localized('Custom'), href: 'https://example.com/custom', customIcon: '/images/tech-icons/fixture.svg', hoverColor: { dark: '#65C978', light: '#21783C' }, core: false, stackGroupId: 'backend', order: 2, type: 'technology' },
   ],
   experience: [{
     id: 'fixture-role', order: 0, org: 'Fixture Org', role: 'Developer', highlight: true,

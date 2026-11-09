@@ -601,7 +601,7 @@ function retryPhase(): void {
           class="grid gap-10 lg:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)] lg:items-start"
         >
           <div class="border border-line bg-panel/10 p-6 md:p-8">
-            <UiIcon name="check-circle" :size="28" class="text-status" />
+            <UiIcon name="circle-check" :size="28" class="text-status" />
             <h2
               id="review-status-title"
               tabindex="-1"

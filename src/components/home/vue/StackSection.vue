@@ -2,7 +2,7 @@
 import { computed } from 'vue'
 import { content, type Locale } from '@/data/content'
 import type { StackGroup } from '@/data/schemas/stackGroup'
-import type { Technology } from '@/data/schemas/technology'
+import type { StackTechnology } from '@/data/schemas/technology'
 import type { SiteSections } from '@/data/schemas/siteSection'
 import SectionHeader from '@/components/ui/vue/SectionHeader.vue'
 import PlateFrame from '@/components/ui/vue/PlateFrame.vue'
@@ -12,7 +12,7 @@ import UiIcon from '@/components/ui/vue/UiIcon.vue'
 const props = defineProps<{
   locale: Locale
   groups: StackGroup[]
-  technologies: Technology[]
+  technologies: StackTechnology[]
   section: SiteSections['stack']
 }>()
 const stack = computed(() =>
@@ -126,7 +126,9 @@ const grouped = computed(() =>
                     />
                     <div class="flex items-start justify-between gap-2">
                       <TechIcon
-                        :name="item.icon ?? ''"
+                        :name="item.icon ?? item.id"
+                        :path="item.resolvedIconPath"
+                        :custom-icon="item.customIcon"
                         :size="28"
                         class="stack-tile__icon h-7 w-7 text-icon transition-[transform,color,filter] duration-300 group-hover/tile:scale-110 group-focus-visible/tile:scale-110 motion-reduce:transition-none motion-reduce:group-hover/tile:scale-100 motion-reduce:group-focus-visible/tile:scale-100"
                       />

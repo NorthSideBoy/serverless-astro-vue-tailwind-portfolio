@@ -4,6 +4,7 @@ import type { PropType } from 'vue'
 import type { InlineNode, InlineTextNode } from '@/data/schemas/article'
 import { content, type Locale } from '@/data/content'
 import { isExternalArticleLink } from '@/components/blog/lib/link'
+import UiIcon from '@/components/ui/vue/UiIcon.vue'
 
 function textNode(node: InlineTextNode): VNodeChild {
   return (node.marks ?? []).reduce<VNodeChild>((child, mark) => {
@@ -50,20 +51,11 @@ export default defineComponent({
               ...parts(node.children),
               ...(external
                 ? [
-                    h(
-                      'svg',
-                      {
-                        width: 11,
-                        height: 11,
-                        viewBox: '0 0 24 24',
-                        fill: 'none',
-                        stroke: 'currentColor',
-                        'stroke-width': '1.6',
-                        class: 'mb-0.5 ml-0.5 inline-block',
-                        'aria-hidden': 'true',
-                      },
-                      [h('path', { d: 'M7 17 17 7M7 7h10v10' })],
-                    ),
+                    h(UiIcon, {
+                      name: 'arrow-up-right',
+                      size: 11,
+                      class: 'mb-0.5 ml-0.5 inline-block',
+                    }),
                     h(
                       'span',
                       { class: 'sr-only' },

@@ -16,6 +16,7 @@ import Testimonials from '@/components/islands/home/TestimonialsIsland.vue';
 import Contact from './ContactSection.astro';
 import Layout from '@/layouts/Layout.astro';
 import { loadContent } from '@/lib/server/content';
+import { resolveTechnologyIcon, verifyCustomIconUrl } from '@/lib/server/techIcons';
 import { content, type Locale } from '@/data/content';
 import { homeProjectSubset } from '@/data/projects';
 import { buildHomeGraph } from '@/lib/seo';
@@ -26,6 +27,40 @@ const data = await loadContent();
 const copy = content[locale];
 const site = Astro.site ?? new URL(Astro.url.origin);
 const homeProjects = homeProjectSubset(data.projects);
+const stackTechnologies = await Promise.all(
+  data.technologies.map(async (technology) => {
+    const match = technology.customIcon ? null : resolveTechnologyIcon(technology.icon);
+
+    if (technology.stackGroupId && technology.icon && !technology.customIcon) {
+      if (!match) {
+        console.warn(
+          `[tech-icons] No Simple Icons match for "${technology.id}" (${technology.icon})`,
+        );
+      } else if (match.score > 1) {
+        console.info(
+          `[tech-icons] "${technology.id}" (${technology.icon}) resolved to ${match.slug}`,
+        );
+      }
+    }
+
+    let customIcon = technology.customIcon;
+    if (customIcon && process.env.CONTENT_SOURCE !== 'fixture') {
+      const available = await verifyCustomIconUrl(customIcon);
+      if (!available) {
+        console.warn(
+          `[tech-icons] custom icon unavailable for "${technology.id}": ${customIcon}`,
+        );
+        customIcon = undefined;
+      }
+    }
+
+    return {
+      ...technology,
+      customIcon,
+      resolvedIconPath: customIcon ? null : match?.path ?? null,
+    };
+  }),
+);
 const knowsAbout = data.technologies
   .filter((technology) => technology.core)
   .map((technology) => technology.name);
@@ -40,7 +75,7 @@ const ready = { loading: false, error: null };
     <AboutSection locale={locale} />
     <ServicesSection locale={locale} />
     <Skills locale={locale} />
-    <StackSection locale={locale} groups={data.groups} technologies={data.technologies} section={data.sections.stack} />
+    <StackSection locale={locale} groups={data.groups} technologies={stackTechnologies} section={data.sections.stack} />
     <ExperienceSection locale={locale} entries={data.experience} projects={data.projects} reviews={data.reviews} section={data.sections.experience} />
     <Projects locale={locale} content={{ projects: homeProjects, experiences: data.experience, reviews: data.reviews, section: data.sections.projects, ...ready }} client:visible={{ rootMargin: '200px' }} />
     <EducationSection locale={locale} items={data.education} section={data.sections.education} />

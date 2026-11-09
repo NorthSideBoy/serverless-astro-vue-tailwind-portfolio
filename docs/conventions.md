@@ -216,10 +216,10 @@ src/components/islands/projects/ProjectsIndexIsland.vue  // client:load
 src/components/islands/blog/ArticleContent.vue           // no client directive
 ```
 
-### R-ISL-03 — Use `withIslandContext` for every entry
+### R-ISL-03 — Use `withIslandContext` for hydrated entries
 
-Every entry exports the view wrapped with `withIslandContext` from
-`src/lib/withIslandContext.ts`.
+Hydrated `*Island.vue` entries export the view wrapped with `withIslandContext`
+from `src/lib/withIslandContext.ts`.
 
 ```vue
 <script lang="ts">
@@ -228,6 +228,11 @@ import ProjectsIndex from '@/components/projects/vue/ProjectsIndex.vue'
 export default withIslandContext(ProjectsIndex)
 </script>
 ```
+
+SSR-only `*Content.vue` entries that receive all their content as props may
+export the view directly. `StackContent`, `ExperienceContent`, `EducationContent`
+and `CertificationsContent` are prop-driven and do not need preference or route
+context. `tests/architecture.test.ts` enforces the rule for `*Island.vue`.
 
 The wrapper provides locale, route and content context per island. Do not
 duplicate that setup in every feature.
@@ -579,6 +584,68 @@ Animations run under `@media (prefers-reduced-motion: no-preference)` or check
 the preference in script. Content must remain visible and usable when motion is
 disabled.
 
+### R-STYLE-05 — Route every UI glyph through `UiIcon`
+
+UI glyphs are Lucide icons rendered by the twin primitives
+`src/components/ui/astro/UiIcon.astro` and
+`src/components/ui/vue/UiIcon.vue`.
+
+- The public vocabulary lives in `src/components/ui/icon-names.ts`; names match
+  Lucide's kebab-case names.
+- Both wrappers expose the same set through their `icon-map.ts` files and are
+  checked against `UiIconName` (`Record` in Vue, `satisfies` in Astro), so a
+  missing or extra name fails `npm run check`.
+- `UiIcon` is decorative by contract: it always renders `aria-hidden="true"`
+  and `focusable="false"`. Put the accessible name on the control, or add an
+  `sr-only` span next to the icon.
+- Do not inline a new `<svg>` icon in a component. Add the name to
+  `icon-names.ts` and both maps instead.
+- An `.astro` file uses `components/ui/astro/UiIcon.astro`; a `.vue` file uses
+  `components/ui/vue/UiIcon.vue`. Do not import one framework's Lucide package
+  from the other framework.
+
+### R-STYLE-06 — Resolve brand and technology marks from Simple Icons
+
+Brand marks and technology marks come from Simple Icons, except custom marks
+declared with `customIcon` and served from R2.
+
+- `src/components/ui/brand-icons.ts` imports GitHub, Google and WhatsApp
+  directly from the package. These are static, expected marks; do not add a
+  generated file or a sync script for them.
+- Technology marks are resolved at build time by
+  `src/lib/server/techIcons.ts`: the technology `icon` key is normalized and
+  searched against Simple Icons slugs and titles, taking the first scored
+  match. The resolver has no per-key aliases. The build logs a warning when
+  there is no match and an info line for fuzzy matches; a wrong or ambiguous
+  mark belongs in `customIcon`, not in the resolver.
+- `node`, `fish`, `jwt` and `playwright` are examples that use `customIcon`
+  instead of a resolver exception. `playwright` has no Simple Icons mark;
+  `node`, `fish` and `jwt` do, but their first normalized match is not the
+  expected mark.
+- `simple-icons` is a dependency because the build resolver and the brand
+  module use it. Do not import `src/lib/server/techIcons.ts` from a client
+  component; only the server build should load the resolver.
+- `customIcon` is an optional lowercase relative path under `/images/` ending
+  in `.svg`, and only Stack technologies use it. It takes precedence over
+  `icon`. The build resolves it through `PUBLIC_MEDIA_URL`. The portfolio
+  renders it as a CSS mask (`mask-image`) so it inherits `currentColor` and the
+  stack tile's hover color. The mask uses the SVG alpha, so a custom mark
+  renders monochrome; the CMS that uploads it must sanitize the SVG and keep a
+  transparent background. The portfolio never inlines raw SVG markup.
+- The build HEAD-checks every `customIcon`. A missing object, a non-SVG
+  response, a CORS/network failure logs a warning and the tile falls back to
+  the generic `FileCode2` icon; the library `icon` is not used as a substitute
+  because the custom mark is authoritative.
+- R2 convention: key `images/tech-icons/<slug>.svg`, `Content-Type:
+  image/svg+xml`, `Cache-Control: public, max-age=31536000, immutable`; bucket
+  CORS must allow `GET`/`HEAD` from the site origin.
+- Simple Icons is CC0; brand marks remain trademarks of their respective
+  owners.
+- The old four-color Google exception no longer exists; Google is the
+  monochrome Simple Icons brand mark.
+
+For the operator workflow, see [guides/tech-icons.md](guides/tech-icons.md).
+
 ## 13. Accessibility
 
 ### R-A11Y-01 — Preserve keyboard access
@@ -660,6 +727,11 @@ output.
 - Using `v-if` for published content that must be in the initial HTML.
 - Adding a second `localStorage` key for the theme.
 - Hard-coding `/en/...` links inside a Vue component instead of using `toHref`.
+- Inlining a UI icon as `<svg>` instead of using `UiIcon`.
+- Importing the server-only `src/lib/server/techIcons.ts` resolver from a client component.
+- Adding a generated file or a sync script for brand marks that are imported directly from `simple-icons`.
+- Storing raw SVG markup in Firestore or rendering it with `v-html` / `set:html`.
+- Importing `@lucide/vue` from an `.astro` file or `@lucide/astro` from a `.vue` file.
 - Hydrating a local section merely to animate it; use CSS or a script.
 - Letting a static reveal script hide content inside `astro-island`.
 - Storing absolute R2 URLs in Firestore.
@@ -692,6 +764,9 @@ output.
 | Review pages and islands | `src/components/reviews/`, `src/components/islands/reviews/` |
 | Firestore security rules | `firestore.rules` |
 | Relations and anchors | `src/data/relations.ts`, `src/data/anchors.ts` |
+| Icon vocabulary and wrappers | `src/components/ui/icon-names.ts`, `src/components/ui/astro/`, `src/components/ui/vue/` |
+| Brand and technology icons | `src/components/ui/brand-icons.ts`, `src/lib/server/techIcons.ts`, `src/components/ui/vue/TechIcon.vue` |
+| Technology icon workflow | `docs/guides/tech-icons.md` |
 | Client scripts | `src/scripts/` |
 
 ## Appendix B — Browser contracts

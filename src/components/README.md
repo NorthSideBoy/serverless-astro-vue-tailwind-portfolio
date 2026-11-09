@@ -50,14 +50,49 @@ mundos. Actualmente son:
 - `PlateFrame`
 - `SealEyebrow`
 - `SectionHeader`
-- `UiIcon`
+- `UiIcon` (Lucide; vocabulario en `ui/icon-names.ts` y mapas gemelos en
+  `ui/astro/icon-map.ts` y `ui/vue/icon-map.ts`)
 - `Avatar` (foto o iniciales; solo Vue)
-- `GoogleMark` (marca de Google; solo Vue)
 
 Otras primitivas viven en un solo mundo:
 
-- `CodeBlock` y `TechIcon` solo existen en `ui/vue/`.
+- `CodeBlock` y `TechIcon` solo existen en `ui/vue/`. `TechIcon` recibe un
+  path resuelto de Simple Icons o un `customIcon` de R2 renderizado con
+  máscara.
 - `LayerPlate` solo existe en `ui/astro/`.
+
+## Iconografía
+
+- Los glifos de interfaz son Lucide y pasan siempre por `UiIcon`; no se
+  escribe un `<svg>` nuevo en una sección.
+- Para añadir un icono: agrega el nombre kebab-case a `ui/icon-names.ts`,
+  importa el componente en `ui/astro/icon-map.ts` y `ui/vue/icon-map.ts`, y
+  ejecuta `npm run check`.
+- `UiIcon` es decorativo (`aria-hidden="true"`); el nombre accesible va en el
+  control o en un `sr-only` hermano.
+- Las marcas GitHub, Google y WhatsApp se importan directamente desde
+  `simple-icons` en `ui/brand-icons.ts`; son estáticas y no se generan.
+- Los iconos de tecnología se resuelven en build con
+  `src/lib/server/techIcons.ts`: normalización y búsqueda por slug/título,
+  sin excepciones por clave. Las claves ambiguas usan `customIcon`.
+- `customIcon` es una ruta relativa en minúsculas `/images/...svg`, solo para
+  tecnologías de Stack, y tiene prioridad sobre `icon`. El portfolio la
+  renderiza con `mask-image`, así que hereda `currentColor` y el hover de
+  marca. La máscara usa el alpha del SVG: el icono se ve monocromo. El CMS
+  `/admin` futuro sube y sanitiza el SVG; el portfolio no inlinea SVG crudo.
+- El build hace un `HEAD` a cada `customIcon`; si el objeto no existe, no es
+  SVG, falla CORS o la red falla, avisa y el tile cae en `FileCode2` (no usa
+  `icon` como sustituto porque el custom es autoritativo).
+- Convención R2: key `images/tech-icons/<slug>.svg`, `Content-Type:
+  image/svg+xml`, `Cache-Control: public, max-age=31536000, immutable`; CORS
+  debe permitir `GET`/`HEAD`.
+- `node`, `fish`, `jwt` y `playwright` usan `customIcon` en R2 para evitar
+  depender del primer resultado del buscador. `playwright` además no existe
+  en Simple Icons 16.
+- Simple Icons es CC0; las marcas siguen siendo trademarks de sus dueños.
+- Guía operativa: [`docs/guides/tech-icons.md`](../../docs/guides/tech-icons.md).
+- `LayerPlate`, `IdentityPlateSheet`, los monogramas NSB/SL y el favicon son
+  arte, no iconos de UI.
 
 Si cambias la marca, los estilos o el comportamiento de una primitiva gemela,
 cambia también la otra. Los imports deben respetar el framework del consumidor:
