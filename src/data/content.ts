@@ -1,3 +1,6 @@
+import type { ReviewDraftIssue } from '@/data/reviews'
+import type { AuthErrorKey, PublishErrorKey } from '@/lib/reviews/errors'
+
 export type Locale = 'es' | 'en'
 
 interface NavLink {
@@ -211,6 +214,104 @@ export interface SiteContent {
     generalReview: string
     viewAll: string
     showLess: string
+  }
+  reviews: {
+    meta: {
+      accessTitle: string
+      accessDescription: string
+      panelTitle: string
+      panelDescription: string
+    }
+    invite: {
+      eyebrow: string
+      title: string
+      body: string
+      action: string
+      emptyEyebrow: string
+      emptyTitle: string
+      emptyBody: string
+    }
+    access: {
+      eyebrow: string
+      title: string
+      lead: string
+      back: string
+      steps: { index: string; title: string; body: string }[]
+      cardLabel: string
+      cardTitle: string
+      cardBody: string
+      google: string
+      googleLoading: string
+      signingIn: string
+      redirecting: string
+      note: string
+      noscript: string
+    }
+    panel: {
+      eyebrow: string
+      title: string
+      lead: string
+      back: string
+      checking: string
+      redirecting: string
+      noscript: string
+      sessionLabel: string
+      switchAccount: string
+      signOut: { title: string; body: string; cancel: string; confirm: string }
+      sections: { relations: string; testimonial: string; publish: string }
+      fields: {
+        rolesLabel: string
+        rolesHint: string
+        rolesPlaceholder: string
+        rolesRemove: string
+        rolesFull: string
+        rolesInvalid: string
+        relationLabel: string
+        relationHint: string
+        relationOptional: string
+        experienceGroup: string
+        projectGroup: string
+        relationMax: string
+        quoteLabel: string
+        quoteHint: string
+        quotePlaceholder: string
+      }
+      actions: {
+        publish: string
+        publishing: string
+        save: string
+        saving: string
+        discard: string
+        edit: string
+        home: string
+      }
+      preview: {
+        title: string
+        note: string
+        pending: string
+        placeholder: string
+        rolesPlaceholder: string
+        jump: string
+      }
+      status: {
+        pendingTitle: string
+        pendingBody: string
+        approvedTitle: string
+        approvedBody: string
+        approvedAction: string
+        submittedTitle: string
+        submittedBody: string
+        invalidTitle: string
+        errorTitle: string
+      }
+      errors: {
+        auth: Record<AuthErrorKey, string>
+        publish: Record<PublishErrorKey, string>
+        validation: Record<ReviewDraftIssue, string>
+      }
+      consent: string
+      contact: string
+    }
   }
   contact: {
     eyebrow: string
@@ -573,13 +674,175 @@ export const content: Record<Locale, SiteContent> = {
     },
     testimonials: {
       rolesLabel: 'Roles',
-      relatedProject: 'PROYECTO RELACIONADO',
-      relatedProjects: 'PROYECTOS RELACIONADOS',
-      relatedExperience: 'EXPERIENCIA LABORAL RELACIONADA',
-      relatedExperiences: 'EXPERIENCIAS LABORALES RELACIONADAS',
+      relatedProject: 'PROYECTO',
+      relatedProjects: 'PROYECTOS',
+      relatedExperience: 'EXPERIENCIA',
+      relatedExperiences: 'EXPERIENCIAS',
       generalReview: 'EXPERIENCIA GENERAL',
       viewAll: 'Ver todas las reseñas',
-      showLess: 'Mostrar menos reseñas',
+      showLess: 'Mostrar menos',
+    },
+    reviews: {
+      meta: {
+        accessTitle: 'Deja tu reseña — Said Lucena',
+        accessDescription:
+          'Inicia sesión con Google y deja una reseña.',
+        panelTitle: 'Tu reseña — Said Lucena',
+        panelDescription:
+          'Escribe y envía una reseña de tu trabajo con Said Lucena.',
+      },
+      invite: {
+        eyebrow: 'RESEÑAS ABIERTAS',
+        title: 'Cuéntame cómo fue.',
+        body: 'Deja una reseña y menciona el proyecto o la experiencia que quieras.',
+        action: 'Dejar una reseña',
+        emptyEyebrow: 'AÚN NO HAY RESEÑAS',
+        emptyTitle: 'Tu reseña puede ser la primera.',
+        emptyBody: 'Cuéntame en qué trabajamos y qué cambió.',
+      },
+      access: {
+        eyebrow: 'RESEÑAS',
+        title: 'Deja tu reseña',
+        lead: 'Cuéntame qué hicimos juntos y qué cambió.',
+        back: 'Volver al inicio',
+        steps: [
+          {
+            index: '01',
+            title: 'Entra con Google',
+            body: 'Tu información viene de Google.',
+          },
+          {
+            index: '02',
+            title: 'Escribe y revisa',
+            body: 'Cuéntame qué problema resolvimos y qué cambió.',
+          },
+          {
+            index: '03',
+            title: 'Envíala',
+            body: 'Envía tu reseña cuando estés conforme.',
+          },
+        ],
+        cardLabel: 'ACCESO · GOOGLE',
+        cardTitle: 'Cuéntame tu experiencia.',
+        cardBody: 'Solo te tomará un minuto.',
+        google: 'Continuar con Google',
+        googleLoading: 'Preparando acceso…',
+        signingIn: 'Esperando a Google…',
+        redirecting: 'Ya iniciaste sesión. Abriendo tu reseña…',
+        note: 'Al continuar, aceptas que tu información se muestre en el portfolio.',
+        noscript: 'Activa JavaScript para iniciar sesión con Google.',
+      },
+      panel: {
+        eyebrow: 'RESEÑAS',
+        title: 'Tu reseña',
+        lead: 'Escribe tu reseña, revísala en la vista previa y envíala.',
+        back: 'Volver a las reseñas',
+        checking: 'Comprobando sesión…',
+        redirecting: 'Redirigiendo al acceso…',
+        noscript:
+          'Activa JavaScript para comprobar tu sesión y enviar la reseña.',
+        sessionLabel: 'SESIÓN DE GOOGLE',
+        switchAccount: 'Cambiar cuenta',
+        signOut: {
+          title: '¿Salir de esta cuenta?',
+          body: 'Si tienes cambios sin enviar, se perderán.',
+          cancel: 'Seguir editando',
+          confirm: 'Salir de todos modos',
+        },
+        sections: {
+          relations: 'CONTEXTO',
+          testimonial: 'SOBRE TU EXPERIENCIA',
+          publish: 'ENVIAR',
+        },
+        fields: {
+          rolesLabel: 'TUS ROLES',
+          rolesHint: 'Por ejemplo: cliente, colega o líder de proyecto.',
+          rolesPlaceholder: 'Añade un rol y pulsa Enter',
+          rolesRemove: 'Eliminar rol',
+          rolesFull: 'Puedes añadir hasta 3 roles.',
+          rolesInvalid: 'Cada rol debe tener entre 2 y 60 caracteres.',
+          relationLabel: 'EXPERIENCIA O PROYECTO',
+          relationHint: 'Opcional. Selecciona el trabajo que quieres mencionar.',
+          relationOptional: 'También puedes dejar una reseña general.',
+          experienceGroup: 'Experiencia laboral',
+          projectGroup: 'Proyectos',
+          relationMax: 'Puedes seleccionar hasta 3.',
+          quoteLabel: 'TU RESEÑA',
+          quoteHint: 'Entre 40 y 400 caracteres.',
+          quotePlaceholder:
+            '¿Qué problema resolvimos? ¿Qué cambió? ¿Cómo fue trabajar juntos?',
+        },
+        actions: {
+          publish: 'Enviar reseña',
+          publishing: 'Enviando…',
+          save: 'Guardar cambios',
+          saving: 'Guardando…',
+          discard: 'Descartar cambios',
+          edit: 'Editar reseña',
+          home: 'Volver al inicio',
+        },
+        preview: {
+          title: 'VISTA PREVIA',
+          note: 'Así se verá tu reseña en el portfolio.',
+          pending: 'BORRADOR',
+          placeholder: 'Tu reseña aparecerá aquí.',
+          rolesPlaceholder: 'Tu rol',
+          jump: 'Ver vista previa',
+        },
+        status: {
+          pendingTitle: 'Reseña recibida',
+          pendingBody: 'La revisaré en breve. Mientras tanto, puedes editarla.',
+          approvedTitle: 'Tu reseña ya está publicada.',
+          approvedBody: 'Si necesitas corregir algo, escríbeme y lo actualizo.',
+          approvedAction: 'Ver las reseñas',
+          submittedTitle: 'Reseña enviada',
+          submittedBody: 'Gracias. La revisaré en breve.',
+          invalidTitle: 'Revisa los campos marcados.',
+          errorTitle: 'No pudimos enviar tu reseña.',
+        },
+        errors: {
+          auth: {
+            cancelled: '',
+            'popup-blocked':
+              'Tu navegador bloqueó la ventana de Google. Permite las ventanas emergentes e inténtalo de nuevo.',
+            'unauthorized-domain':
+              'El inicio de sesión no está disponible en este dominio.',
+            network:
+              'No pudimos conectar. Revisa tu conexión e inténtalo de nuevo.',
+            'unsupported-environment':
+              'Este navegador no permite el inicio de sesión. Abre el enlace en un navegador estándar.',
+            'storage-unsupported':
+              'Tu navegador bloqueó el almacenamiento necesario. Activa las cookies o usa una ventana normal.',
+            'provider-disabled': 'El acceso con Google no está habilitado.',
+            'email-missing': 'No pudimos obtener tu correo de Google.',
+            unknown: 'No pudimos iniciar sesión con Google. Inténtalo de nuevo.',
+          },
+          publish: {
+            'permission-denied': 'Inténtalo de nuevo.',
+            network:
+              'No pudimos conectar. Tu texto sigue aquí. Inténtalo de nuevo.',
+            quota:
+              'Hay demasiadas solicitudes ahora. Inténtalo en unos minutos.',
+            'invalid-document':
+              'No pudimos leer tu reseña guardada. Recarga la página o escríbeme.',
+            unknown:
+              'Tu texto sigue aquí. Inténtalo de nuevo.',
+          },
+          validation: {
+            'roles-required': 'Añade al menos un rol.',
+            'roles-max': 'Puedes añadir hasta 3 roles.',
+            'role-length': 'Cada rol debe tener entre 2 y 60 caracteres.',
+            'quote-min': 'Escribe al menos 40 caracteres.',
+            'quote-max': 'La reseña no puede superar los 400 caracteres.',
+            'relations-max': 'Puedes seleccionar hasta 3.',
+            'anchor-invalid': 'No pudimos preparar la reseña. Recarga la página.',
+            'locale-invalid': 'Elige un idioma para la reseña.',
+          },
+        },
+        consent:
+          'Al enviar, aceptas que tu información se muestre en el portfolio.',
+        contact: 'Escríbeme',
+      },
     },
     contact: {
       eyebrow: 'CONTACTO',
@@ -870,7 +1133,7 @@ export const content: Record<Locale, SiteContent> = {
       viewAll: 'View all projects',
       viewProject: 'View project',
       viewCase: 'View case',
-      relationsLabel: 'RELATIONS',
+      relationsLabel: 'LINKS',
       viewSnippet: 'View snippet',
       hideSnippet: 'Hide snippet',
       codeLabel: 'CODE',
@@ -940,13 +1203,171 @@ export const content: Record<Locale, SiteContent> = {
     },
     testimonials: {
       rolesLabel: 'Roles',
-      relatedProject: 'RELATED PROJECT',
-      relatedProjects: 'RELATED PROJECTS',
-      relatedExperience: 'RELATED WORK EXPERIENCE',
-      relatedExperiences: 'RELATED WORK EXPERIENCES',
+      relatedProject: 'PROJECT',
+      relatedProjects: 'PROJECTS',
+      relatedExperience: 'EXPERIENCE',
+      relatedExperiences: 'EXPERIENCES',
       generalReview: 'GENERAL EXPERIENCE',
       viewAll: 'View all reviews',
-      showLess: 'Show fewer reviews',
+      showLess: 'Show less',
+    },
+    reviews: {
+      meta: {
+        accessTitle: 'Leave a review — Said Lucena',
+        accessDescription:
+          'Sign in with Google and leave a review.',
+        panelTitle: 'Your review — Said Lucena',
+        panelDescription: 'Write and send a review of your work with Said Lucena.',
+      },
+      invite: {
+        eyebrow: 'REVIEWS OPEN',
+        title: 'Tell me how it went.',
+        body: 'Leave a review and mention the project or experience you want.',
+        action: 'Leave a review',
+        emptyEyebrow: 'NO REVIEWS YET',
+        emptyTitle: 'Your review can be the first.',
+        emptyBody: 'Tell me what we worked on and what changed.',
+      },
+      access: {
+        eyebrow: 'REVIEWS',
+        title: 'Leave your review',
+        lead: 'Tell me what we built together and what changed.',
+        back: 'Back to home',
+        steps: [
+          {
+            index: '01',
+            title: 'Sign in with Google',
+            body: 'Your information comes from Google.',
+          },
+          {
+            index: '02',
+            title: 'Write and review',
+            body: 'Tell me what problem we solved and what changed.',
+          },
+          {
+            index: '03',
+            title: 'Send it',
+            body: 'Send your review when you are happy with it.',
+          },
+        ],
+        cardLabel: 'ACCESS · GOOGLE',
+        cardTitle: 'Share your experience.',
+        cardBody: 'It will only take a minute.',
+        google: 'Continue with Google',
+        googleLoading: 'Preparing access…',
+        signingIn: 'Waiting for Google…',
+        redirecting: 'You are signed in. Opening your review…',
+        note: 'By continuing, you agree that your information will be shown on the portfolio.',
+        noscript: 'Enable JavaScript to sign in with Google.',
+      },
+      panel: {
+        eyebrow: 'REVIEWS',
+        title: 'Your review',
+        lead: 'Write your review, check the preview and send it.',
+        back: 'Back to reviews',
+        checking: 'Checking session…',
+        redirecting: 'Redirecting to sign-in…',
+        noscript:
+          'Enable JavaScript to check your session and send the review.',
+        sessionLabel: 'GOOGLE SESSION',
+        switchAccount: 'Switch account',
+        signOut: {
+          title: 'Sign out of this account?',
+          body: 'If you have unsent changes, they will be lost.',
+          cancel: 'Keep editing',
+          confirm: 'Sign out anyway',
+        },
+        sections: {
+          relations: 'CONTEXT',
+          testimonial: 'ABOUT YOUR EXPERIENCE',
+          publish: 'SEND',
+        },
+        fields: {
+          rolesLabel: 'YOUR ROLES',
+          rolesHint: 'For example: client, colleague or project lead.',
+          rolesPlaceholder: 'Add a role and press Enter',
+          rolesRemove: 'Remove role',
+          rolesFull: 'You can add up to 3 roles.',
+          rolesInvalid: 'Each role must be between 2 and 60 characters.',
+          relationLabel: 'EXPERIENCE OR PROJECT',
+          relationHint: 'Optional. Select the work you want to mention.',
+          relationOptional: 'You can also leave a general review.',
+          experienceGroup: 'Work experience',
+          projectGroup: 'Projects',
+          relationMax: 'You can select up to 3.',
+          quoteLabel: 'YOUR REVIEW',
+          quoteHint: 'Between 40 and 400 characters.',
+          quotePlaceholder:
+            'What problem did we solve? What changed? What was it like to work together?',
+        },
+        actions: {
+          publish: 'Send review',
+          publishing: 'Sending…',
+          save: 'Save changes',
+          saving: 'Saving…',
+          discard: 'Discard changes',
+          edit: 'Edit review',
+          home: 'Back to home',
+        },
+        preview: {
+          title: 'PREVIEW',
+          note: 'This is how your review will look on the portfolio.',
+          pending: 'DRAFT',
+          placeholder: 'Your review will appear here.',
+          rolesPlaceholder: 'Your role',
+          jump: 'View preview',
+        },
+        status: {
+          pendingTitle: 'Review received',
+          pendingBody: 'I will review it shortly. In the meantime, you can edit it.',
+          approvedTitle: 'Your review is published.',
+          approvedBody: 'If you need to correct something, write to me and I will update it.',
+          approvedAction: 'View reviews',
+          submittedTitle: 'Review sent',
+          submittedBody: 'Thank you. I will review it shortly.',
+          invalidTitle: 'Check the highlighted fields.',
+          errorTitle: 'We could not send your review.',
+        },
+        errors: {
+          auth: {
+            cancelled: '',
+            'popup-blocked':
+              'Your browser blocked the Google window. Allow pop-ups and try again.',
+            'unauthorized-domain': 'Sign-in is not available on this domain.',
+            network: 'We could not connect. Check your connection and try again.',
+            'unsupported-environment':
+              'This browser does not support sign-in. Open the link in a standard browser.',
+            'storage-unsupported':
+              'Your browser blocked the required storage. Enable cookies or use a normal window.',
+            'provider-disabled': 'Google sign-in is not enabled.',
+            'email-missing': 'We could not get your Google email.',
+            unknown: 'We could not sign in with Google. Please try again.',
+          },
+          publish: {
+            'permission-denied': 'Please try again.',
+            network:
+              'We could not connect. Your text is still here. Please try again.',
+            quota: 'There are too many requests right now. Try again in a few minutes.',
+            'invalid-document':
+              'We could not read your saved review. Reload the page or write to me.',
+            unknown:
+              'Your text is still here. Please try again.',
+          },
+          validation: {
+            'roles-required': 'Add at least one role.',
+            'roles-max': 'You can add up to 3 roles.',
+            'role-length': 'Each role must be between 2 and 60 characters.',
+            'quote-min': 'Write at least 40 characters.',
+            'quote-max': 'The review cannot exceed 400 characters.',
+            'relations-max': 'You can select up to 3.',
+            'anchor-invalid': 'We could not prepare the review. Reload the page.',
+            'locale-invalid': 'Choose a language for the review.',
+          },
+        },
+        consent:
+          'By sending, you agree that your information will be shown on the portfolio.',
+        contact: 'Write to me',
+      },
     },
     contact: {
       eyebrow: 'CONTACT',

@@ -32,7 +32,7 @@ The same record connects projects, experiences and reviews through stable refere
 - Personal site maintained as an Astro application with Vue islands, not a company or SaaS product.
 - Content is validated against typed schemas in `src/data/` and loaded from Firestore during the static build; there is no confirmed CMS or editorial team.
 - Spanish-first product with an English interface and English versions of substantive content.
-- Public routes: a single-page home with anchored sections, `/proyectos`, `/blog` and `/blog/:slug`.
+- Public routes: a single-page home with anchored sections, `/proyectos`, `/blog` and `/blog/:slug`. Visitor review routes `/resenas/` and `/resenas/panel/` are interactive, `noindex` utility pages, not public content.
 - The home file follows the order: hero, key figures, about, services, skills, stack, experience, projects, education, certifications, blog, reviews and contact.
 - The contact form collects name, email, subject and message in the browser. No receiver is configured, so the submit control is disabled; visitors reach Said through the email, WhatsApp and GitHub links beside it.
 - The CV is downloadable in Spanish at `/cv/said-lucena-cv.pdf`.
@@ -46,9 +46,10 @@ The same record connects projects, experiences and reviews through stable refere
 - Private systems must never be represented with fabricated screenshots or invented demos. Schematic art, code excerpts and repository names are the honest substitute.
 - SIPCAs and Colegio Simón Bolívar are private production systems. Public demo URLs for both are **undecided and not yet supplied**.
 - The MVC boilerplate is public on GitHub. Orinoco.io has a public product link and Cuantía.io a public Google Play listing.
-- Reviews are stored as testimonials from clients and collaborators, with an author profile, roles and quote. Editorial email addresses are removed before generating public HTML or island props.
+- Reviews are stored as testimonials from clients and collaborators, with an author profile, roles and quote. Visitors can now sign in with Google, write, preview and submit a review linked to an experience or project. Submitted reviews start unapproved and are published only after moderation.
+- Review author emails are shown with approved reviews. The Firestore document remains owner-read only, but the static build publishes the email in the review card for direct contact. Visitor emails are therefore public, not moderation-only.
 - The only confirmed CV is the Spanish PDF. An English CV is not confirmed.
-- No analytics, newsletter, user accounts or server-side contact handling are present. None should be implied.
+- No analytics, newsletter or server-side contact handling are present. Google-authenticated visitor reviews are the only user-account surface. None of the other absent capabilities should be implied.
 - No formal accessibility standard was recorded. The incumbent implementation includes keyboard navigation, visible focus, reduced-motion handling and both-theme contrast; future work should preserve those affordances.
 
 ## Brand Commitments
@@ -74,7 +75,7 @@ The same record connects projects, experiences and reviews through stable refere
 - **Technical writing**: published articles loaded from Firestore during the build, with dated publication entries and cited sources.
 - **CV**: Spanish PDF available at `/cv/said-lucena-cv.pdf`; it is the only confirmed CV asset.
 - **Identity and project artwork**: generated schematic plates, not screenshots of private products.
-- **Reviews**: profiles and quotes from clients and collaborators, linked to the projects and experiences they refer to.
+- **Reviews**: moderated testimonials from clients and collaborators, with an author profile, roles, quote and optional links to the projects and experiences they refer to. The published card shows the author's email as a `mailto:` link and a Google account badge. Visitor submissions remain pending until approved.
 
 ## Product Principles
 
@@ -82,7 +83,8 @@ The same record connects projects, experiences and reviews through stable refere
 2. **Two audiences, one conversation.** Recruiters and clients should both find enough proof to act without the site splitting into two competing narratives.
 3. **Make contact one step away.** Every project, experience and article should leave a clear path to the contact action without interrupting the reading experience.
 4. **Label the provenance.** Private work and generated artwork must be identifiable for what they are.
-5. **Keep the record maintainable.** Durable facts belong in typed data modules with stable identifiers; presentation changes should not require rewriting the professional record.
+5. **Moderate before publishing.** A review is visible only after explicit approval; never present a pending or self-approved submission as a testimonial.
+6. **Keep the record maintainable.** Durable facts belong in typed data modules with stable identifiers; presentation changes should not require rewriting the professional record.
 
 ## Accessibility & Inclusion
 

@@ -45,8 +45,11 @@ The boundary is also enforced by code:
 
 - `tests/architecture.test.ts` checks the Astro/Vue import boundary and the
   current provenance split.
+- `tests/reviews.test.ts` checks the review schema, public projection, draft
+  validation and Firebase error mapping.
 - `tests/browser.test.ts` checks the server-rendered HTML, hydration, deep
-  links, theme persistence, keyboard behaviour and locale navigation.
+  links, theme persistence, keyboard behaviour, locale navigation and review
+  shells.
 - `tests/islands.test.ts` checks per-island context and slot forwarding.
 
 `PRODUCT.md` and `DESIGN.md` remain the source of truth for product and visual
@@ -57,9 +60,13 @@ decisions. Engineering documents link to them instead of copying them.
 - **Local content** — copy and data that live in the repository, mainly
   `src/data/content.ts`.
 - **Managed content** — editorial records loaded from Firestore during the
-  build.
+  build, plus approved visitor reviews.
 - **Astro shell** — routes, layout, metadata and page composition rendered by
   Astro.
+- **Visitor review** — a Google-authenticated submission stored at
+  `reviews/{uid}` with `approved: false` until moderation.
+- **Auth island** — a hydrated Vue entry that lazily loads the Firebase web SDK
+  for sign-in and the owner-only review document.
 - **Island entry** — a Vue component under `src/components/islands/` that an
   Astro file is allowed to import.
 - **SSR-only entry** — an island entry rendered to HTML at build time with no

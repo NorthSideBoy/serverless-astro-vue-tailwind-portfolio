@@ -2,6 +2,7 @@ import { existsSync } from 'node:fs'
 import { resolve } from 'node:path'
 import { getFirestore } from 'firebase-admin/firestore'
 import { hasMediaPrefix } from '@/data/mediaPaths'
+import { sortReviewDocuments } from '@/data/reviews'
 import { validateContentGraph, type ContentGraph } from '@/data/schemas/graph'
 import { parseCollection, type CollectionName } from '@/data/schemas/registry'
 import {
@@ -11,10 +12,24 @@ import { getMediaBaseUrl } from './cloudflare'
 import { getFirebaseApp } from './firebase'
 import { loadFixtureContent } from './fixtures'
 
-const names = [
-  'siteSections', 'authors', 'stackGroups', 'technologies', 'experience',
-  'projects', 'education', 'certifications', 'articles', 'reviews',
-] as const satisfies readonly CollectionName[]
+type CollectionConfig = {
+  name: CollectionName
+  approvedOnly?: boolean
+  optional?: boolean
+}
+
+const collections = [
+  { name: 'siteSections' },
+  { name: 'authors' },
+  { name: 'stackGroups' },
+  { name: 'technologies' },
+  { name: 'experience' },
+  { name: 'projects' },
+  { name: 'education' },
+  { name: 'certifications' },
+  { name: 'articles' },
+  { name: 'reviews', approvedOnly: true, optional: true },
+] as const satisfies readonly CollectionConfig[]
 
 const reservedMediaDirectories = ['images', 'files'] as const
 
@@ -30,9 +45,16 @@ function assertNoLocalMediaDirectories() {
   }
 }
 
-async function fetchRaw(name: CollectionName): Promise<unknown[]> {
-  const snapshot = await getFirestore(getFirebaseApp(), '(default)').collection(name).get()
-  if (snapshot.empty) throw new Error(`Firestore collection ${name} is empty; refusing to publish an incomplete site`)
+async function fetchRaw({ name, approvedOnly, optional }: CollectionConfig): Promise<unknown[]> {
+  const collection = getFirestore(getFirebaseApp(), '(default)').collection(name)
+  const snapshot = approvedOnly
+    ? await collection.where('approved', '==', true).get()
+    : await collection.get()
+
+  if (snapshot.empty && !optional) {
+    throw new Error(`Firestore collection ${name} is empty; refusing to publish an incomplete site`)
+  }
+
   return snapshot.docs.map((doc) => {
     const data = doc.data()
     if (data.id !== doc.id) throw new Error(`${name}/${doc.id}: document id does not match data.id`)
@@ -73,8 +95,10 @@ async function readContent() {
   assertNoLocalMediaDirectories()
   const base = getMediaBaseUrl()
 
-  const raw = await Promise.all(names.map(fetchRaw))
-  const byName = Object.fromEntries(names.map((name, index) => [name, raw[index]]))
+  const raw = await Promise.all(collections.map(fetchRaw))
+  const byName = Object.fromEntries(
+    collections.map((collection, index) => [collection.name, raw[index]]),
+  )
   const graph: ContentGraph = {
     siteSections: parseCollection('siteSections', byName.siteSections),
     authors: parseCollection('authors', byName.authors),
@@ -100,7 +124,7 @@ async function readContent() {
     education: sort(graph.education).map(toEducation),
     certifications: sort(graph.certifications).map(toCertification),
     articles: sort(graph.articles).filter((item) => item.status === 'published').map((item) => toArticle(item, graph.authors)),
-    reviews: sort(graph.reviews).map(toPublicTestimonial),
+    reviews: sortReviewDocuments(graph.reviews).map(toPublicTestimonial),
   }
 
   // Firestore stores R2 object paths (/images/... and /files/...). The build

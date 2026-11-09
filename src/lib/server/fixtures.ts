@@ -1,6 +1,7 @@
 import type { ContentGraph } from '@/data/schemas/graph'
 import { validateContentGraph } from '@/data/schemas/graph'
 import { parseCollection } from '@/data/schemas/registry'
+import { sortReviewDocuments } from '@/data/reviews'
 import {
   toArticle, toCertification, toEducation, toExperience, toProject, toPublicTestimonial, toSiteSections,
 } from '@/data/mappers'
@@ -124,13 +125,22 @@ export const fixtureDocuments = {
     },
   }],
   reviews: [{
-    id: 'fixture-review', order: 0,
-    author: { provider: 'GitHub', firstName: 'Andrea', lastName: 'Rivas', email: 'andrea.rivas@example.com', photo: '/images/fixture/avatar.png', roles: ['Directora de operaciones', 'Cliente'] },
+    id: 'fixture-review', anchorId: 'andrea-rivas', source: 'editorial', authorUid: null, approved: true, order: 0,
+    locale: 'es', createdAt: '2024-01-01T00:00:00.000Z', updatedAt: '2024-01-02T00:00:00.000Z',
+    author: { provider: 'Google', name: 'Andrea Rivas', email: 'andrea.rivas@example.com', photo: '/images/fixture/avatar.png', roles: ['Directora de operaciones', 'Cliente'] },
     quote: 'El sistema nos permitió unificar el seguimiento de cada proceso y cerrar el mes con información confiable.', experienceIds: ['fixture-role'], projectSlugs: ['mvc-boilerplate'],
+  }, {
+    id: 'pending-review', anchorId: 'pending-review', source: 'visitor', authorUid: 'pending-review', approved: false,
+    locale: 'en', createdAt: '2024-02-01T00:00:00.000Z', updatedAt: '2024-02-01T00:00:00.000Z',
+    author: { provider: 'Google', name: 'Pending Reviewer', email: 'pending@example.com', photoUrl: 'https://lh3.googleusercontent.com/pending', roles: ['Client'] },
+    quote: 'This pending review must never reach the public build or the home page.', experienceIds: [], projectSlugs: [],
   }],
 }
 
 export function loadFixtureContent() {
+  const reviews = parseCollection('reviews', fixtureDocuments.reviews).filter(
+    (review) => review.approved,
+  )
   const graph: ContentGraph = {
     siteSections: parseCollection('siteSections', fixtureDocuments.siteSections),
     authors: parseCollection('authors', fixtureDocuments.authors),
@@ -141,7 +151,7 @@ export function loadFixtureContent() {
     education: parseCollection('education', fixtureDocuments.education),
     certifications: parseCollection('certifications', fixtureDocuments.certifications),
     articles: parseCollection('articles', fixtureDocuments.articles),
-    reviews: parseCollection('reviews', fixtureDocuments.reviews),
+    reviews,
   }
   const issues = validateContentGraph(graph)
   if (issues.length) throw new Error(`Fixture content is invalid:\n${issues.join('\n')}`)
@@ -155,6 +165,6 @@ export function loadFixtureContent() {
     education: sort(graph.education).map(toEducation),
     certifications: sort(graph.certifications).map(toCertification),
     articles: sort(graph.articles).filter((item) => item.status === 'published').map((item) => toArticle(item, graph.authors)),
-    reviews: sort(graph.reviews).map(toPublicTestimonial),
+    reviews: sortReviewDocuments(graph.reviews).map(toPublicTestimonial),
   }
 }

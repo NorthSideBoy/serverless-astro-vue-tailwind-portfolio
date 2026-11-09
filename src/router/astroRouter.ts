@@ -9,9 +9,16 @@ import {
   type InjectionKey,
 } from 'vue'
 import type { Locale } from '@/data/content'
-import { articlePath, blogPath, homePath, projectsPath } from '@/data/paths'
+import {
+  articlePath,
+  blogPath,
+  homePath,
+  projectsPath,
+  reviewPanelPath,
+  reviewsPath,
+} from '@/data/paths'
 
-type Page = 'home' | 'projects' | 'blog' | 'article' | 'not-found'
+type Page = 'home' | 'projects' | 'blog' | 'article' | 'reviews' | 'review-panel' | 'not-found'
 type Destination = string | {
   path?: string
   name?: Page
@@ -33,7 +40,11 @@ export function provideRoute(page: Page, locale: Locale, pagePath?: string) {
           ? projectsPath('es')
           : page === 'blog'
             ? blogPath('es')
-            : '/'
+            : page === 'reviews'
+              ? reviewsPath('es')
+              : page === 'review-panel'
+                ? reviewPanelPath('es')
+                : '/'
       : window.location.pathname)
   const hash = typeof window === 'undefined' ? '' : window.location.hash
   const route = reactive({ name: page, path, hash, fullPath: path + hash, query: {}, locale })
@@ -80,9 +91,13 @@ export function toHref(to: Destination, locale: Locale, currentPath: string): st
         ? blogPath(locale)
         : to.name === 'article' && to.slug
           ? articlePath(locale, to.slug)
-          : to.name === 'home'
-            ? homePath(locale)
-            : undefined
+          : to.name === 'reviews'
+            ? reviewsPath(locale)
+            : to.name === 'review-panel'
+              ? reviewPanelPath(locale)
+              : to.name === 'home'
+                ? homePath(locale)
+                : undefined
 
   const rawPath = to.path ?? namedPath ?? currentPath
   const localized = to.path

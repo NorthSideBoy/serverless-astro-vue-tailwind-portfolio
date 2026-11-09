@@ -13,6 +13,14 @@ export function projectsPath(locale: Locale): string {
   return locale === 'en' ? '/en/proyectos/' : '/proyectos/'
 }
 
+export function reviewsPath(locale: Locale): string {
+  return locale === 'en' ? '/en/resenas/' : '/resenas/'
+}
+
+export function reviewPanelPath(locale: Locale): string {
+  return locale === 'en' ? '/en/resenas/panel/' : '/resenas/panel/'
+}
+
 export function articlePath(locale: Locale, slug: string): string {
   return `${blogPath(locale)}${slug}/`
 }

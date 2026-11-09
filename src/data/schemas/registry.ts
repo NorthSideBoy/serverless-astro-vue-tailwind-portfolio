@@ -39,7 +39,7 @@ export type { Project } from './project'
 export type { EducationEntry } from './education'
 export type { CertificationEntry } from './certification'
 export type { Article } from './article'
-export type { Testimonial } from './review'
+export type { ReviewDocument } from './review'
 
 export function parseCollection<K extends CollectionName>(
   name: K,

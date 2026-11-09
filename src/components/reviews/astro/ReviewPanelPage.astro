@@ -1,0 +1,31 @@
+---
+import SiteHeader from '@/components/chrome/astro/SiteHeader.astro';
+import SiteFooter from '@/components/chrome/astro/SiteFooter.astro';
+import ReviewPanel from '@/components/islands/reviews/ReviewPanelIsland.vue';
+import Layout from '@/layouts/Layout.astro';
+import { content, type Locale } from '@/data/content';
+import { loadContent } from '@/lib/server/content';
+
+const { locale } = Astro.props as { locale: Locale };
+const path = Astro.url.pathname;
+const copy = content[locale];
+const data = await loadContent();
+const experiences = data.experience.map(({ id, org, role }) => ({ id, org, role }));
+const projects = data.projects.map(({ slug, title, context }) => ({ slug, title, context }));
+---
+<Layout
+  locale={locale}
+  title={copy.reviews.meta.panelTitle}
+  description={copy.reviews.meta.panelDescription}
+  indexable={false}
+>
+  <SiteHeader page="review-panel" locale={locale} path={path} />
+  <ReviewPanel
+    locale={locale}
+    page="review-panel"
+    path={path}
+    content={{ experiences, projects }}
+    client:load
+  />
+  <SiteFooter page="review-panel" locale={locale} path={path} />
+</Layout>

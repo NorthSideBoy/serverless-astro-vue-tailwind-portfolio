@@ -177,12 +177,11 @@ const home = computed(() => (props.locale === 'en' ? '/en/' : '/'))
                 <div class="mt-2 flex flex-wrap gap-2">
                   <a
                     v-for="review in entry.relatedReviews"
-                    :key="review.id"
-                    :href="`${home}#${reviewAnchor(review.id)}`"
+                    :key="review.anchorId"
+                    :href="`${home}#${reviewAnchor(review.anchorId)}`"
                     class="group inline-flex min-h-11 max-w-full items-center gap-2 border border-line-strong px-3 py-2 text-left text-[12px] leading-snug text-ink transition-colors hover:border-soft hover:text-soft"
                     ><span class="min-w-0"
-                      >{{ review.author.firstName }}
-                      {{ review.author.lastName }}
+                      >{{ review.author.name }}
                       <span class="text-muted"
                         >· {{ review.author.roles[0] }}</span
                       ></span

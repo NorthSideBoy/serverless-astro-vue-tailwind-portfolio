@@ -4,7 +4,7 @@ import type { CertificationDocument } from './certification'
 import type { EducationDocument } from './education'
 import type { ExperienceDocument } from './experience'
 import type { ProjectDocument } from './project'
-import type { Testimonial } from './review'
+import type { ReviewDocument } from './review'
 import { sectionIds, type SiteSectionDocument } from './siteSection'
 import type { StackGroup } from './stackGroup'
 import type { Technology } from './technology'
@@ -19,7 +19,7 @@ export interface ContentGraph {
   education: EducationDocument[]
   certifications: CertificationDocument[]
   articles: ArticleDocument[]
-  reviews: Testimonial[]
+  reviews: ReviewDocument[]
 }
 
 function checkTechnologyReferences(
@@ -45,8 +45,10 @@ function hasNestedArray(value: unknown): boolean {
   return false
 }
 
-function checkOrder(name: string, documents: { order: number }[], issues: string[]) {
-  const orders = documents.map((document) => document.order)
+function checkOrder(name: string, documents: { order?: number }[], issues: string[]) {
+  const orders = documents
+    .map((document) => document.order)
+    .filter((order): order is number => order !== undefined)
   if (new Set(orders).size !== orders.length) issues.push(`${name}: duplicate order values`)
 }
 
@@ -127,6 +129,11 @@ export function validateContentGraph(graph: ContentGraph): string[] {
         issues.push(`review ${review.id}: unknown projectSlug ${projectSlug}`)
       }
     }
+  }
+
+  const reviewAnchors = graph.reviews.map((review) => review.anchorId)
+  if (new Set(reviewAnchors).size !== reviewAnchors.length) {
+    issues.push('reviews: duplicate public anchor IDs')
   }
 
   const allDocuments = [

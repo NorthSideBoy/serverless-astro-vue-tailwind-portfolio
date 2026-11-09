@@ -11,4 +11,11 @@ describe('fixture content', () => {
     }
     expect(() => loadFixtureContent()).not.toThrow()
   })
+
+  it('publishes approved review emails and excludes pending reviews', () => {
+    const data = loadFixtureContent()
+    expect(data.reviews.map((review) => review.anchorId)).toEqual(['andrea-rivas'])
+    expect(JSON.stringify(data.reviews)).toContain('andrea.rivas@example.com')
+    expect(JSON.stringify(data.reviews)).not.toContain('pending@example.com')
+  })
 })

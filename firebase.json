@@ -4,5 +4,13 @@
     "location": "us-central1",
     "rules": "firestore.rules",
     "indexes": "firestore.indexes.json"
+  },
+  "auth": {
+    "providers": {
+      "googleSignIn": {
+        "oAuthBrandDisplayName": "NorthSideBoy Portfolio",
+        "supportEmail": "saidlucena519@gmail.com"
+      }
+    }
   }
 }

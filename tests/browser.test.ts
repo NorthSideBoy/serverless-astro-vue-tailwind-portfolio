@@ -120,6 +120,18 @@ describe('rendered portfolio', () => {
     expect(await page.locator('#education article').count()).toBeGreaterThan(0)
     expect(await page.locator('#certifications article').count()).toBeGreaterThan(0)
     expect(await page.locator('#blog [data-blog-card]').count()).toBeGreaterThan(0)
+    expect(await page.locator('#testimonials figure').count()).toBe(1)
+    expect(await page.locator('#testimonials a[href="/resenas/"]').count()).toBe(1)
+    expect(await page.locator('#testimonials a[href="/resenas/"]').textContent()).toContain(
+      'Dejar una reseña',
+    )
+    expect(
+      await page.locator('#testimonials a[href="mailto:andrea.rivas@example.com"]').count(),
+    ).toBe(1)
+    expect(await page.locator('#testimonials [data-review-google]').count()).toBe(1)
+    expect(await page.locator('#testimonials').textContent()).toContain(
+      'andrea.rivas@example.com',
+    )
     expect(await page.locator('#top h1').count()).toBe(1)
     expect(await page.locator('#top .identity-plate[role="img"]').count()).toBe(1)
     expect(await page.locator('[data-scramble]').count()).toBeGreaterThan(0)
@@ -132,6 +144,64 @@ describe('rendered portfolio', () => {
     expect(await page.locator('a.skip-link[href="#main"]').count()).toBe(1)
     await page.close()
   })
+
+  it('serves review access and panel shells without JavaScript', async () => {
+    const page = await openPage({ javaScriptEnabled: false })
+
+    await goto(page, '/resenas/')
+    expect(await page.locator('meta[name="robots"]').getAttribute('content')).toBe(
+      'noindex, follow',
+    )
+    expect(await page.locator('main#main').count()).toBe(1)
+    expect(await page.locator('h1').count()).toBe(1)
+    expect(await page.locator('h1').textContent()).toContain('Deja tu reseña')
+    const google = page.locator('main button[aria-busy]').first()
+    expect(await google.isDisabled()).toBe(true)
+    expect(await google.textContent()).toContain('Preparando acceso')
+    expect(await page.locator('noscript').count()).toBe(1)
+
+    await goto(page, '/resenas/panel/')
+    expect(await page.locator('meta[name="robots"]').getAttribute('content')).toBe(
+      'noindex, follow',
+    )
+    expect(await page.locator('main#main').count()).toBe(1)
+    expect(await page.locator('h1').textContent()).toContain('Tu reseña')
+    expect(await page.locator('main').textContent()).toContain('Comprobando sesión')
+    expect(await page.locator('noscript').count()).toBe(1)
+    await page.close()
+  })
+
+  it('does not ship Firebase to the public home', async () => {
+    const page = await openPage()
+    const requests: string[] = []
+    page.on('request', (request) => requests.push(request.url()))
+    await goto(page, '/')
+    await page.waitForTimeout(2_000)
+    expect(
+      requests.some((url) => /firebase|identitytoolkit|firestore\.googleapis/.test(url)),
+    ).toBe(false)
+    await page.close()
+  })
+
+  it('enables the Google control after the review access island hydrates', async () => {
+    const page = await openPage()
+    await goto(page, '/resenas/')
+    await waitForHydration(page)
+    const google = page.getByRole('button', { name: 'Continuar con Google' })
+    await expect.poll(() => google.isEnabled()).toBe(true)
+    await expect.poll(() => google.getAttribute('aria-busy')).toBe('false')
+    await page.close()
+  })
+
+  it('redirects an unauthenticated visitor from the panel to the access page', async () => {
+    const page = await openPage()
+    await goto(page, '/resenas/panel/')
+    await waitForHydration(page)
+    await page.waitForURL(`${base}/resenas/`)
+    expect(await page.locator('h1').textContent()).toContain('Deja tu reseña')
+    await page.close()
+  })
+
 
   it('keeps the static skills tabs and contact controls keyboard accessible', async () => {
     const page = await openPage()

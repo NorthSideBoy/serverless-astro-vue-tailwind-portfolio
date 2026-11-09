@@ -3,7 +3,7 @@ import type { Locale } from '@/data/content'
 import { providePreferences } from '@/composables/usePreferences'
 import { provideRoute } from '@/router/astroRouter'
 
-type Page = 'home' | 'projects' | 'blog' | 'article' | 'not-found'
+type Page = 'home' | 'projects' | 'blog' | 'article' | 'reviews' | 'review-panel' | 'not-found'
 
 /** Give each independently hydrated Vue root its own page context. */
 export function withIslandContext(view: Component) {

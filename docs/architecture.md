@@ -15,7 +15,11 @@ content model and delivery have several non-negotiable constraints:
 - Editorial content lives in Cloud Firestore and is read during the build.
 - Dynamic media is served from Cloudflare R2; static assets stay in the
   repository.
-- Every public route must be prerendered. There is no runtime data source.
+- Every public route must be prerendered. Public content has no runtime data
+  source.
+- Visitor reviews are the one runtime write and owner-only read surface:
+  Google sign-in, one `reviews/{uid}` write, and a read of that same document.
+  Approved public reviews are still resolved during the build.
 - The initial HTML must contain the managed content that search engines and
   readers need; content must not depend on a browser-side query.
 - JavaScript should be shipped only for behaviour that needs it.
@@ -42,8 +46,8 @@ hero text, service descriptions, skill definitions, form labels and UI strings.
 It lives in `src/data/content.ts` and is rendered by Astro.
 
 **Managed content** is editorial data: site sections, experience, projects,
-education, certifications, articles and reviews. It lives in Firestore, is
-validated at build time, and is rendered by Vue entries.
+education, certifications, articles and approved reviews. It lives in Firestore,
+is validated at build time, and is rendered by Vue entries.
 
 ### Static presentation and interactive presentation
 
@@ -65,6 +69,7 @@ The implementation therefore uses three rendering paths:
 | Astro component | Local content, page structure, metadata, chrome | `HomePage.astro`, `HeroSection.astro`, `SiteHeader.astro`, `Layout.astro` |
 | Vue SSR-only entry | Managed content that needs no client state | `StackContent.vue`, `ExperienceContent.vue`, `BlogIndexContent.vue`, `ArticleContent.vue` |
 | Hydrated Vue island | Managed or local content that needs client state or browser events | `ProjectsIndexIsland.vue` (`client:load`), `ProjectsIsland.vue` (`client:visible`), `TestimonialsIsland.vue` (`client:idle`) |
+| Hydrated review entry + Firebase client SDK | Google sign-in and visitor review submission | `ReviewsAccessIsland.vue`, `ReviewPanelIsland.vue` (`client:load`) |
 
 ## Build-time content flow
 
@@ -87,7 +92,7 @@ flowchart LR
 
 The main entry point is `loadContent()` in `src/lib/server/content.ts`. It:
 
-1. rejects an empty Firestore collection;
+1. rejects an empty Firestore collection, except the approved `reviews` set;
 2. parses every document against its Zod schema in `src/data/schemas/`;
 3. validates cross-collection references with `validateContentGraph`;
 4. maps documents to public models in `src/data/mappers.ts`;
@@ -98,7 +103,52 @@ Production builds reuse one validated snapshot for the whole build. Development
 reads Firestore on every request. `CONTENT_SOURCE=fixture` swaps the source for
 the deterministic fixture used by tests.
 
-The browser never receives Firestore credentials and never queries Firestore.
+The browser never receives server credentials. It only writes and reads the
+signed-in visitor's own review through the Firebase web SDK; public content
+never comes from a browser query.
+
+## Visitor reviews
+
+Visitor reviews are a deliberate, narrow exception to the build-only data
+model. They use Firebase Authentication and the Firestore Lite web SDK, and
+they never read public content from the browser.
+
+```mermaid
+flowchart LR
+  V[Visitor] --> A[Google sign-in]
+  A --> P[Review panel]
+  P -->|setDoc / updateDoc| R[(reviews/{uid}, approved=false)]
+  R -->|owner getDoc| P
+  M[Moderation: approved=true] --> B[Build / deploy]
+  B -->|loadContent where approved==true| H[Static home, projects, experience]
+```
+
+- **Document ID:** the Firebase Auth UID enforces one review per account.
+- **Public anchor:** a generated `anchorId` is used by `#review-...` links so
+  the UID is not exposed in the HTML.
+- **Approval:** clients always write `approved: false`; only the Admin
+  SDK/Console can set it to `true`. Firestore Rules validate every field,
+  reject self-approval and deny collection queries.
+- **Build:** `loadContent()` queries `reviews` with
+  `where('approved', '==', true)`. Pending reviews never enter the content
+  graph. The collection is allowed to be empty so the first deployment can
+  show the empty state and the review call to action.
+- **Rebuild:** approving a review makes it eligible, but it appears on the
+  static site only after the next build/deploy. The CMS/deploy hook is still a
+  future integration.
+- **Privacy:** the author email is stored in the review document and published
+  in the approved review card as a `mailto:` link. Firestore still allows only
+  the owner to read the document; the static build is what makes the email
+  public. Google profile photos are validated against
+  `*.googleusercontent.com`; URLs are capped at 4096 characters. Firestore
+  stores only the URL, so the binary is never uploaded; the `Avatar` falls back
+  to initials on load error.
+- **Editorial rows:** the existing sample reviews do not carry `approved`, so
+  the build query ignores them. No migration is required to hide them.
+
+The browser therefore performs exactly two Firestore operations: a write to
+its own `reviews/{uid}` document and a read of that same document. All public
+review output comes from the build.
 
 ## Astro shell
 
@@ -158,7 +208,7 @@ interaction wins:
 | Directive | Use it for | Current use |
 | --- | --- | --- |
 | none | HTML that needs no client state | Articles, blog index, stack, experience, education, certifications, blog teaser |
-| `client:load` | Interaction that must be ready immediately | Projects index filter |
+| `client:load` | Interaction that must be ready immediately | Projects index filter, review access and review panel |
 | `client:visible` | Interaction below the fold | Home projects carousel (capped at five) and details |
 | `client:idle` | Non-critical interaction after first paint | Reviews expansion and deep-link handling |
 | `client:only` | Not used | Avoid it: it gives up server HTML and SEO |
@@ -271,11 +321,22 @@ system and Vue's own reveal composables do not fight over the same element.
 - `parseCollection` validates a Firestore collection.
 - `validateContentGraph` checks stable references between records.
 - `src/data/mappers.ts` converts editorial documents into the public models
-  consumed by Astro and Vue.
+  consumed by Astro and Vue. `toPublicTestimonial` keeps the author email,
+  which is published in the review card, while stripping approval, ownership
+  and ordering fields.
+- `src/data/reviews.ts` shares review limits, draft validation, initials,
+  photo normalization and ordering between the browser and the build.
 - `src/data/relations.ts` resolves project, experience and review links in both
   directions.
-- `src/data/anchors.ts` defines the stable deep-link IDs.
+- `src/data/anchors.ts` defines the stable deep-link IDs. Reviews use the public
+  `anchorId`, not the Firebase UID.
 - `src/lib/server/fixtures.ts` supplies deterministic content for tests.
+- `src/lib/firebase/` contains the lazy browser SDK entry points.
+- `src/lib/reviews/` contains auth, the owner-only repository, error mapping and
+  the session/draft/submission composables.
+- `firestore.rules` is the security boundary for visitor writes. It documents
+  the review model and is deployed with `firebase deploy --only
+  firestore:rules`.
 
 Editorial contact details are validated but stripped by `toPublicTestimonial`
 before HTML or island props are generated.
@@ -296,6 +357,9 @@ before HTML or island props are generated.
 - `/projects` redirects to `/proyectos/`; the canonical public routes are
   `/`, `/proyectos/`, `/blog/` and `/blog/:slug/`, plus their `/en`
   counterparts.
+- `/resenas/` and `/resenas/panel/` (and `/en/resenas/...`) are interactive
+  utility routes. They are `noindex, follow`, are not in the sitemap and are
+  not treated as public content.
 - Article routes are generated only for the locales that have a translation, so
   an article cannot produce a fallback duplicate in the other language.
 - Blog indexes are scoped to their locale. An article without a translation
@@ -308,15 +372,18 @@ before HTML or island props are generated.
 
 The test suite mirrors the architecture:
 
-- `tests/architecture.test.ts` — import boundary, provenance split, naming and
-  no-hydration guarantees.
+- `tests/architecture.test.ts` — import boundary, provenance split, naming,
+  no-hydration guarantees, no Firebase in public content features and review
+  route sitemap exclusion.
+- `tests/reviews.test.ts` — review schema, public projection, draft validation,
+  helpers and Firebase error mapping.
 - `tests/browser.test.ts` — no-JavaScript HTML, hydration, project filters,
-  theme persistence, locale navigation, deep links, keyboard access and article
-  reading aids.
+  theme persistence, locale navigation, deep links, keyboard access, article
+  reading aids, review shells and the unauthenticated redirect.
 - `tests/islands.test.ts` — per-island context and slot forwarding.
 - `tests/navigation.test.ts` — localized link generation.
-- `tests/content.test.ts` and `tests/fixtures.test.ts` — public data contracts
-  and fixture validity.
+- `tests/content.test.ts` and `tests/fixtures.test.ts` — public data contracts,
+  approved-only review output and fixture validity.
 
 Browser tests build with `CONTENT_SOURCE=fixture` and `PUBLIC_MEDIA_URL`, then
 serve the static output. That build must not be deployed.
@@ -333,14 +400,22 @@ serve the static output. That build must not be deployed.
   the URL.
 - Local interactive surfaces use scripts instead of Vue. This avoids hydration
   cost, but the script must manage its own listeners and cleanup.
+- Visitor reviews add a browser-side Firebase SDK and make Firestore Rules a
+  security boundary. This is the cost of keeping the site static and avoiding
+  a custom server. The SDK is lazy-loaded only on the review routes.
+- Approval is asynchronous with respect to the static site: a review appears
+  after the next build/deploy.
 
 ### Non-goals
 
-- No runtime Firestore queries from the browser.
+- No runtime Firestore queries for public content.
 - No client-side content fetching for primary content.
 - No `client:only` rendering for public content.
 - No shared global Vue store across islands.
 - No automatic state synchronisation between every island.
+- No client read of another visitor's review and no client approval flag.
+- No admin/CMS review UI. Approval is a manual Firestore/Admin SDK operation
+  until the planned CMS exists.
 
 ## Future CMS and deploy hook
 
@@ -350,22 +425,27 @@ intention, not a current route or a dependency of the static site.
 The intended publishing flow is:
 
 ```text
-editor writes to Firestore
+visitor writes reviews/{uid} with approved=false
+        ↓
+editor reviews the pending document
+        ↓
+editor sets approved=true (and optionally order)
         ↓
 CMS calls the hosting deploy hook
         ↓
 the hosting provider rebuilds the Astro site
         ↓
-loadContent() reads and validates Firestore
+loadContent() queries approved reviews and validates the graph
         ↓
 new static HTML is published
 ```
 
-This keeps the browser free of Firestore credentials, keeps the public site
+This keeps the browser free of public Firestore reads, keeps the public site
 static and makes the build the only place where editorial data is resolved. Any
 future `/admin` implementation must preserve that boundary: it may write to
 Firestore and trigger a build, but it must not turn public pages into runtime
-data consumers.
+data consumers. Until then, approval is a manual Firestore Console step
+documented in the README.
 
 `src/lib/server/r2.ts` is server-only scaffolding for a future media CRUD. It is
 not used by the current build and should not be imported from client code.

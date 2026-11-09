@@ -5,6 +5,7 @@ import { experienceAnchor, reviewAnchor } from '@/data/anchors'
 import type { ExperienceEntry } from '@/data/experience'
 import type { Testimonial } from '@/data/testimonials'
 import UiIcon from '@/components/ui/vue/UiIcon.vue'
+import Avatar from '@/components/ui/vue/Avatar.vue'
 
 defineProps<{
   experiences: ExperienceEntry[]
@@ -13,17 +14,13 @@ defineProps<{
 
 const { copy } = usePreferences()
 
-function reviewName(review: Testimonial) {
-  return `${review.author.firstName} ${review.author.lastName}`
-}
-
 function experienceLabel(entry: ExperienceEntry) {
   return `${copy.value.projects.experienceLabel}: ${entry.org}, ${entry.role}`
 }
 
 function reviewLabel(review: Testimonial) {
   const role = review.author.roles[0]
-  return `${copy.value.projects.reviewLabel}: ${reviewName(review)}${role ? `, ${role}` : ''}`
+  return `${copy.value.projects.reviewLabel}: ${review.author.name}${role ? `, ${role}` : ''}`
 }
 </script>
 
@@ -56,21 +53,13 @@ function reviewLabel(review: Testimonial) {
 
     <RouterLink
       v-for="review in reviews"
-      :key="review.id"
-      :to="{ name: 'home', hash: `#${reviewAnchor(review.id)}` }"
+      :key="review.anchorId"
+      :to="{ name: 'home', hash: `#${reviewAnchor(review.anchorId)}` }"
       :aria-label="reviewLabel(review)"
       class="group/link inline-flex min-h-8 max-w-full items-center gap-1.5 text-[11.5px] leading-snug text-soft transition hover:text-ink"
     >
-      <img
-        :src="review.author.photo"
-        alt=""
-        width="20"
-        height="20"
-        loading="lazy"
-        decoding="async"
-        class="h-5 w-5 shrink-0 rounded-full border border-line-strong object-cover"
-      />
-      <span class="min-w-0 break-words">{{ review.author.firstName }}</span>
+      <Avatar :name="review.author.name" :photo="review.author.photo" :size="20" />
+      <span class="min-w-0 break-words">{{ review.author.name }}</span>
       <UiIcon
         name="arrow-down"
         :size="11"

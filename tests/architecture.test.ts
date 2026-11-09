@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest'
 import fs from 'node:fs'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
+import { sitemapEntries } from '../src/lib/sitemap'
 
 const here = path.dirname(fileURLToPath(import.meta.url))
 const srcDir = path.resolve(here, '../src')
@@ -111,7 +112,94 @@ describe('component architecture', () => {
     expect(projects).toContain('components/islands/projects/ProjectsIndexIsland.vue')
     expect(projects).toMatch(/<ProjectsIndex[^>]*client:load/)
     const reviews = fs.readFileSync(path.join(componentsDir, 'home/vue/TestimonialsSection.vue'), 'utf8')
-    expect(reviews).toContain('v-for="(review, index) in reviews"')
+    expect(reviews).toContain('v-for="(review, index) in items"')
     expect(reviews).toContain(':hidden="!showAll && index >= initialCount"')
+    expect(reviews).toContain('components/reviews/vue/ReviewCard.vue')
+  })
+
+  it('routes review pages through islands and keeps them out of search', () => {
+    const access = fs.readFileSync(
+      path.join(componentsDir, 'reviews/astro/ReviewsAccessPage.astro'),
+      'utf8',
+    )
+    const panel = fs.readFileSync(
+      path.join(componentsDir, 'reviews/astro/ReviewPanelPage.astro'),
+      'utf8',
+    )
+
+    expect(access).toContain('components/islands/reviews/ReviewsAccessIsland.vue')
+    expect(panel).toContain('components/islands/reviews/ReviewPanelIsland.vue')
+    expect(access).toContain('indexable={false}')
+    expect(panel).toContain('indexable={false}')
+
+    const entries = sitemapEntries({
+      site: new URL('https://example.test'),
+      articles: [],
+    })
+    expect(entries.some((entry) => entry.loc.includes('/resenas/'))).toBe(false)
+  })
+
+  it('keeps the Firebase web SDK out of the public content features', () => {
+    const publicFeatures = ['home', 'projects', 'blog'].flatMap((feature) =>
+      walk(path.join(componentsDir, feature)),
+    )
+    const violations = publicFeatures.filter((file) =>
+      importsOf(file).some(
+        (specifier) =>
+          specifier === 'firebase' ||
+          specifier.startsWith('firebase/') ||
+          specifier.startsWith('@/lib/firebase'),
+      ),
+    )
+    expect(violations.map((file) => path.relative(srcDir, file))).toEqual([])
+  })
+
+  it('never imports firebase-admin from client-facing review code', () => {
+    const clientFiles = [
+      ...walk(path.join(componentsDir, 'reviews')),
+      ...walk(path.join(srcDir, 'lib/reviews')),
+      ...walk(path.join(srcDir, 'lib/firebase')),
+      path.join(srcDir, 'composables/useReviewSession.ts'),
+      path.join(srcDir, 'composables/useReviewDraft.ts'),
+      path.join(srcDir, 'composables/useReviewSubmission.ts'),
+    ]
+    const violations = clientFiles.filter((file) =>
+      importsOf(file).some((specifier) => specifier === 'firebase-admin' || specifier.startsWith('firebase-admin/')),
+    )
+    expect(violations.map((file) => path.relative(srcDir, file))).toEqual([])
+  })
+
+  it('keeps the review locale silent and inherited from the portfolio', () => {
+    const panel = fs.readFileSync(
+      path.join(componentsDir, 'reviews/vue/ReviewPanel.vue'),
+      'utf8',
+    )
+    const draft = fs.readFileSync(
+      path.join(srcDir, 'composables/useReviewDraft.ts'),
+      'utf8',
+    )
+    const card = fs.readFileSync(
+      path.join(componentsDir, 'reviews/vue/ReviewCard.vue'),
+      'utf8',
+    )
+
+    expect(panel).not.toContain('draft.locale =')
+    expect(panel).not.toContain('languageLabel')
+    expect(draft).toContain('locale: options.locale')
+    expect(card).not.toContain('review.locale.toUpperCase()')
+  })
+
+  it('renders publication errors next to the publish action', () => {
+    const panel = fs.readFileSync(
+      path.join(componentsDir, 'reviews/vue/ReviewPanel.vue'),
+      'utf8',
+    )
+    const publishSection = panel.indexOf('copy.reviews.panel.sections.publish')
+    const errorBlock = panel.indexOf('id="review-publish-error"')
+
+    expect(publishSection).toBeGreaterThan(-1)
+    expect(errorBlock).toBeGreaterThan(publishSection)
+    expect(panel).toContain("alert?.focus({ preventScroll: true })")
+    expect(panel).toContain('scrollIntoView')
   })
 })

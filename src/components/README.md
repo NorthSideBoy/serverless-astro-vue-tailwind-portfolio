@@ -9,8 +9,9 @@ components/
 ├── home/       Página y secciones de la home
 ├── projects/   Índice, tarjetas y carrusel (máx. 5 en la home)
 ├── blog/       Índice, artículo y renderers editoriales
+├── reviews/    Acceso, panel, tarjeta e invitación de reseñas
 ├── ui/         Primitivas compartidas
-└── islands/    Entradas Vue que Astro importa
+└── islands/    Entradas Vue que Astro importa (incluye reviews/)
 ```
 
 Cada feature usa las mismas subcarpetas:
@@ -50,6 +51,8 @@ mundos. Actualmente son:
 - `SealEyebrow`
 - `SectionHeader`
 - `UiIcon`
+- `Avatar` (foto o iniciales; solo Vue)
+- `GoogleMark` (marca de Google; solo Vue)
 
 Otras primitivas viven en un solo mundo:
 
@@ -64,9 +67,10 @@ cambia también la otra. Los imports deben respetar el framework del consumidor:
 
 ## Dependencias entre features
 
-`home` importa el teaser del blog desde `blog` porque la home muestra ese
-contenido. Es la única dependencia cruzada prevista; para todo lo demás, una
-feature solo depende de `ui`, `chrome` o `islands`.
+`home` importa el teaser del blog desde `blog` y la tarjeta/invitación de
+reseñas desde `reviews` porque la home muestra ese contenido. Son las únicas
+dependencias cruzadas previstas; para todo lo demás, una feature solo depende
+de `ui`, `chrome` o `islands`.
 
 La arquitectura y las reglas completas están en
 [`docs/architecture.md`](../../docs/architecture.md) y

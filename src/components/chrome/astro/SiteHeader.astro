@@ -3,7 +3,7 @@ import LocaleSwitch from './LocaleSwitch.astro';
 import ThemeToggle from './ThemeToggle.astro';
 import UiIcon from '@/components/ui/astro/UiIcon.astro';
 import { content, type Locale } from '@/data/content';
-interface Props { locale: Locale; page?: 'home' | 'projects' | 'blog' | 'article' | 'not-found'; path: string }
+interface Props { locale: Locale; page?: 'home' | 'projects' | 'blog' | 'article' | 'reviews' | 'review-panel' | 'not-found'; path: string }
 const { locale, page = 'home', path } = Astro.props;
 const copy = content[locale];
 const home = locale === 'en' ? '/en/' : '/';

@@ -3,14 +3,19 @@ import { reviewSchema } from '../src/data/schemas/review'
 import { toPublicTestimonial } from '../src/data/mappers'
 
 describe('editorial content published on the site', () => {
-  it('validates editorial emails without publishing them in HTML or island props', () => {
+  it('publishes the author email in the public review model', () => {
     const editorial = reviewSchema.parse({
       id: 'review-1',
-      order: 0,
+      anchorId: 'review-1',
+      source: 'editorial',
+      authorUid: null,
+      approved: true,
+      locale: 'en',
+      createdAt: '2024-01-01T00:00:00.000Z',
+      updatedAt: '2024-01-02T00:00:00.000Z',
       author: {
-        provider: 'GitHub',
-        firstName: 'Andrea',
-        lastName: 'Rivas',
+        provider: 'Google',
+        name: 'Andrea Rivas',
         email: 'private@example.com',
         photo: '/images/reviews/andrea.png',
         roles: ['Directora de operaciones', 'Cliente'],
@@ -21,8 +26,10 @@ describe('editorial content published on the site', () => {
     })
 
     const publicReview = toPublicTestimonial(editorial)
-    expect(publicReview.author).not.toHaveProperty('email')
-    expect(JSON.stringify(publicReview)).not.toContain('private@example.com')
-    expect(publicReview.author.firstName).toBe('Andrea')
+    expect(publicReview.author.email).toBe('private@example.com')
+    expect(JSON.stringify(publicReview)).toContain('private@example.com')
+    expect(publicReview.author.name).toBe('Andrea Rivas')
+    expect(publicReview.author.initials).toBe('AR')
+    expect(publicReview.anchorId).toBe('review-1')
   })
 })

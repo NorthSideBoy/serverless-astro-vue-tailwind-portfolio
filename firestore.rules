@@ -2,11 +2,169 @@ rules_version = '2';
 
 service cloud.firestore {
   match /databases/{database}/documents {
-    // Assumed model: siteSections, authors, stackGroups, technologies,
-    // experience, projects, education, certifications, articles and reviews
-    // are editorial documents keyed by their `id`. The static build and
-    // import scripts use the Admin SDK; browsers never query this database.
-    // Server credentials bypass Security Rules and must stay private.
+    // ===============================================================
+    // Assumed data model
+    // ===============================================================
+    //
+    // Collection: reviews
+    // Document ID: Firebase Auth UID for visitor reviews; a slug for
+    //              editorial rows created with the Admin SDK.
+    // Fields:
+    //   - id: string (required, equals the document ID)
+    //   - anchorId: string (required, public slug, immutable)
+    //   - source: 'visitor' | 'editorial' (required)
+    //   - authorUid: string | null (required; equals the UID for visitors)
+    //   - approved: boolean (required; always false from clients)
+    //   - order: int >= 0 (optional; admin-only editorial ordering)
+    //   - locale: 'es' | 'en' (required)
+    //   - author: map (required):
+    //       provider: 'Google' (clients only)
+    //       name: string 1..80
+    //       email: string, published in the approved review card
+    //       photoUrl: string | null, Google-hosted https URL (max 4096 chars)
+    //       roles: list 1..3 of strings 2..60
+    //   - quote: string 40..400 (plain text)
+    //   - experienceIds: list 0..3 of strings 1..80
+    //   - projectSlugs: list 0..3 of strings 1..80
+    //   - createdAt: timestamp (immutable)
+    //   - updatedAt: timestamp
+    //
+    // Public reads happen at build time with the Admin SDK, which bypasses
+    // these rules. The browser only reads the signed-in user's own review and
+    // writes visitor reviews. Every other collection stays closed.
+    //
+    // ===============================================================
+
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isVerifiedGoogleUser() {
+      return isSignedIn()
+        && request.auth.token.email_verified == true
+        && request.auth.token.email is string
+        && request.auth.token.email.size() > 0;
+    }
+
+    function validString(value, minLength, maxLength) {
+      return value is string
+        && value.size() >= minLength
+        && value.size() <= maxLength;
+    }
+
+    function hasOnlyAllowedFields(data) {
+      return data.keys().hasOnly([
+        'id', 'anchorId', 'source', 'authorUid', 'approved', 'order', 'locale',
+        'author', 'quote', 'experienceIds', 'projectSlugs', 'createdAt', 'updatedAt'
+      ]);
+    }
+
+    function hasRequiredFields(data) {
+      return data.keys().hasAll([
+        'id', 'anchorId', 'source', 'authorUid', 'approved', 'locale',
+        'author', 'quote', 'experienceIds', 'projectSlugs', 'createdAt', 'updatedAt'
+      ]);
+    }
+
+    function isValidRoleList(roles) {
+      return roles is list
+        && roles.size() >= 1
+        && roles.size() <= 3
+        && validString(roles[0], 2, 60)
+        && (roles.size() < 2 || validString(roles[1], 2, 60))
+        && (roles.size() < 3 || validString(roles[2], 2, 60))
+        && roles.toSet().size() == roles.size();
+    }
+
+    function isValidAuthor(author) {
+      return author is map
+        && author.keys().hasAll(['provider', 'name', 'email', 'photoUrl', 'roles'])
+        && author.keys().hasOnly(['provider', 'name', 'email', 'photoUrl', 'roles'])
+        && author.provider == 'Google'
+        && validString(author.name, 1, 80)
+        && validString(author.email, 3, 254)
+        && author.email.matches('^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$')
+        && (author.photoUrl == null || (
+             author.photoUrl is string
+             && author.photoUrl.size() <= 4096
+             && author.photoUrl.matches('^https://[a-z0-9-]+\\.googleusercontent\\.com/.*$')
+           ))
+        && isValidRoleList(author.roles);
+    }
+
+    function isValidRelationIds(list) {
+      return list is list
+        && list.size() <= 3
+        && (list.size() < 1 || validString(list[0], 1, 80))
+        && (list.size() < 2 || validString(list[1], 1, 80))
+        && (list.size() < 3 || validString(list[2], 1, 80))
+        && list.toSet().size() == list.size();
+    }
+
+    function isValidAnchor(anchorId) {
+      return validString(anchorId, 3, 40)
+        && anchorId.matches('^[a-z0-9]+(-[a-z0-9]+)*$');
+    }
+
+    function isValidReviewData(data, reviewId) {
+      return hasRequiredFields(data)
+        && hasOnlyAllowedFields(data)
+        && data.id == reviewId
+        && data.authorUid == request.auth.uid
+        && data.source == 'visitor'
+        && data.approved == false
+        && (data.locale == 'es' || data.locale == 'en')
+        && isValidAnchor(data.anchorId)
+        && isValidAuthor(data.author)
+        && data.author.email == request.auth.token.email
+        && validString(data.quote, 40, 400)
+        && isValidRelationIds(data.experienceIds)
+        && isValidRelationIds(data.projectSlugs)
+        && data.experienceIds.size() + data.projectSlugs.size() <= 3
+        && data.createdAt is timestamp
+        && data.updatedAt is timestamp
+        && (!('order' in data) || (data.order is int && data.order >= 0));
+    }
+
+    function isRecent(value) {
+      return value is timestamp
+        && value > request.time - duration.value(10, 'm')
+        && value < request.time + duration.value(1, 'm');
+    }
+
+    function orderIsUnchanged(data, existing) {
+      return (!('order' in data) && !('order' in existing))
+        || (('order' in data) && ('order' in existing) && data.order == existing.order);
+    }
+
+    match /reviews/{reviewId} {
+      // The owner can read their own review, including its private email.
+      allow get: if isSignedIn() && reviewId == request.auth.uid;
+
+      // No collection queries from the browser.
+      allow list: if false;
+
+      allow create: if isVerifiedGoogleUser()
+        && reviewId == request.auth.uid
+        && isValidReviewData(request.resource.data, reviewId)
+        && !('order' in request.resource.data)
+        && isRecent(request.resource.data.createdAt)
+        && isRecent(request.resource.data.updatedAt);
+
+      allow update: if isVerifiedGoogleUser()
+        && reviewId == request.auth.uid
+        && resource.data.authorUid == request.auth.uid
+        && resource.data.source == 'visitor'
+        && resource.data.approved == false
+        && request.resource.data.approved == false
+        && isValidReviewData(request.resource.data, reviewId)
+        && request.resource.data.createdAt == resource.data.createdAt
+        && orderIsUnchanged(request.resource.data, resource.data)
+        && isRecent(request.resource.data.updatedAt);
+
+      allow delete: if false;
+    }
+
     match /{document=**} {
       allow read, write: if false;
     }

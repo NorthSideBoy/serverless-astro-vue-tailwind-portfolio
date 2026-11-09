@@ -42,13 +42,17 @@ src/components/
 │   ├── astro/
 │   ├── lib/
 │   └── vue/
+├── reviews/
+│   ├── astro/
+│   └── vue/
 ├── ui/
 │   ├── astro/
 │   └── vue/
 └── islands/
     ├── blog/
     ├── home/
-    └── projects/
+    ├── projects/
+    └── reviews/
 ```
 
 - `astro/` — components rendered entirely during the build.
@@ -66,9 +70,10 @@ src/components/
 ### R-LAYOUT-03 — Keep cross-feature dependencies explicit and rare
 
 A feature may depend on `ui`, `chrome` or an island entry. The only planned
-cross-feature content dependency is the home page using the blog teaser. Add a
-new cross-feature import only when the composition genuinely belongs to the
-consuming page.
+cross-feature content dependencies are the home page using the blog teaser and
+the home review section using the shared review card/invite from `reviews`.
+Add a new cross-feature import only when the composition genuinely belongs to
+the consuming page.
 
 ## 2. Astro conventions
 
@@ -181,10 +186,15 @@ The reviews section is the reference example: all review cards are in the HTML,
 and cards after the fourth are hidden until the visitor expands the list or
 follows a deep link.
 
-### R-VUE-07 — Do not query Firestore from Vue
+### R-VUE-07 — Keep public content out of client Firestore queries
 
-Vue receives validated data through props. Firestore is a build-time source
-only.
+Vue receives validated public content through props. Firestore remains a
+build-time source for the home, projects, experience, blog and review lists.
+
+The visitor review flow is the only exception: it may read and write the
+signed-in visitor's own `reviews/{uid}` document through `src/lib/reviews/`.
+It **MUST NOT** read another visitor's review, list the collection or approve a
+review from the browser.
 
 ## 4. Islands and hydration
 
@@ -369,6 +379,10 @@ card.
 Translated titles, excerpts, categories, article bodies and labels carry the
 correct `lang` attribute. The document language is set in `Layout.astro`.
 
+Visitor reviews are not translated. Each review stores the portfolio locale at
+publish time and renders its quote with `lang`; the locale is silent in the UI
+(no selector and no badge).
+
 ### R-I18N-03 — Preserve the fragment across locale changes
 
 The `LocaleSwitch.astro` link flow, completed by `src/scripts/site-chrome.ts`,
@@ -402,7 +416,9 @@ alternates for pages available in both locales. Do not add URLs that are
 ### R-DATA-01 — Validate at the build boundary
 
 Every Firestore collection is parsed with its Zod schema. The content graph is
-validated before pages are generated. An empty collection is a build error.
+validated before pages are generated. An empty collection is a build error,
+except `reviews`: a new site has no approved reviews and must still build to
+show the empty state and the review call to action.
 
 ### R-DATA-02 — Use stable identifiers
 
@@ -410,10 +426,12 @@ Projects, experiences and reviews relate through stable IDs and slugs. Use the
 helpers in `src/data/relations.ts` and the anchors in `src/data/anchors.ts`
 rather than constructing IDs by hand.
 
-### R-DATA-03 — Keep editorial data out of public output
+### R-DATA-03 — Keep non-public review fields out of public output
 
-Public models strip editorial contact fields. `toPublicTestimonial` is the
-reference: private emails must not appear in HTML or island props.
+Public models expose only what the review card renders. `toPublicTestimonial`
+keeps the author name, roles, photo and email, and strips `approved`,
+`authorUid`, `source` and `order`. The email is intentionally public in the
+approved review; do not add other private fields to the public model.
 
 ### R-DATA-04 — Keep media paths relative in Firestore
 
@@ -429,7 +447,77 @@ public path.
 Tests and local verification use `CONTENT_SOURCE=fixture`. Do not deploy a
 fixture build.
 
-## 10. Client scripts
+### R-DATA-06 — Treat visitor reviews as untrusted input
+
+Visitor reviews are validated twice: Zod at the build boundary and Firestore
+Rules at the write boundary. Limits live in `REVIEW_LIMITS` (40–400 characters,
+1–3 roles, up to 3 relations); the rules repeat the numbers because they cannot
+import TypeScript. Render review text as text interpolation, never `v-html`.
+
+### R-DATA-07 — Publish only approved reviews
+
+The build queries `reviews` with `where('approved', '==', true)`. Pending
+reviews never enter the content graph. `approved` defaults to `false` on every
+client write; only the Admin SDK/Console can set it to `true`. After approval,
+a new build/deploy is required for the review to appear.
+
+### R-DATA-08 — Publish the review author identity intentionally
+
+`author.email` is stored in the review document and published in the approved
+review card as a `mailto:` link. Firestore Rules still allow only the owner and
+the Admin SDK to read the stored document; the static build is the only place
+that exposes the email. It is PII and therefore scrapeable. The access and
+publish screens do not carry a dedicated public-email warning; the preview
+shows the email in the card. Do not add other private fields to the public
+model. Google profile photos
+must match `*.googleusercontent.com`; the URL is capped at 4096 characters.
+Firestore stores only the URL, not the binary; the `Avatar` falls back to
+initials on load error. A future upload/proxy path should enforce the 10 MB
+byte limit on the image itself.
+
+### R-DATA-09 — Keep review identity immutable
+
+Clients write `id`, `authorUid`, `source`, `anchorId` and `createdAt` once.
+`id` equals the UID, `anchorId` is the public slug, `source` is `visitor`, and
+`approved` remains `false`. Updates may change only the author metadata, roles,
+quote, locale, relations and `updatedAt`.
+
+## 10. Visitor review authentication
+
+### R-AUTH-01 — Keep the Firebase web SDK out of SSR and public features
+
+The Firebase web SDK is browser-only. It lives behind `src/lib/firebase/` and is
+imported dynamically from `onMounted` or event handlers. A static import in a
+component that Astro renders on the server is forbidden. The home, projects and
+blog features must never import it.
+
+### R-AUTH-02 — Only Google, only the owner
+
+The login page exposes Google only. The browser may `get` its own
+`reviews/{uid}` document and may create/update that document while
+`approved == false`. It must not list the collection, read another document,
+delete its document or change the approval flag.
+
+### R-AUTH-03 — Keep auth pages out of search
+
+`/resenas/` and `/resenas/panel/` are `noindex, follow`, have no canonical or
+alternate metadata and are absent from the sitemap. Do not add them to
+`robots.txt` as disallowed; the noindex meta is the signal.
+
+### R-AUTH-04 — Keep personalized data out of static HTML
+
+The review pages are prerendered. Their initial HTML must contain only the
+neutral shell: no user name, email, photo, review content or approval state.
+The island resolves the session after hydration.
+
+### R-STATE-06 — Review draft storage
+
+The review panel may persist a draft in `sessionStorage["sl-review-draft"]`
+with the owner UID, a version and a timestamp. Never store the email. Clear the
+draft on publish, sign-out and when an approved review is loaded. Guard every
+storage access like R-STATE-05.
+
+## 11. Client scripts
 
 ### R-SCRIPT-01 — Scripts enhance, they do not render primary content
 
@@ -460,7 +548,7 @@ reduced motion is requested, skip or immediately settle the animation.
 Vue owns hydrated subtrees. Static reveal or navigation scripts must ignore
 elements inside `astro-island`; `src/scripts/reveal.ts` is the reference.
 
-## 11. Styling, theme and motion
+## 12. Styling, theme and motion
 
 ### R-STYLE-01 — Use semantic theme tokens
 
@@ -491,7 +579,7 @@ Animations run under `@media (prefers-reduced-motion: no-preference)` or check
 the preference in script. Content must remain visible and usable when motion is
 disabled.
 
-## 12. Accessibility
+## 13. Accessibility
 
 ### R-A11Y-01 — Preserve keyboard access
 
@@ -515,7 +603,7 @@ Do not use ARIA to simulate a state the DOM does not have.
 Every page has one `main#main` and the global skip link targets it. Do not add a
 second main landmark.
 
-## 13. Testing and verification
+## 14. Testing and verification
 
 ### R-TEST-01 — Protect the boundary with architecture tests
 
@@ -549,7 +637,7 @@ npm run test:browser
 `npm run build:fixture` is also useful when changing Astro routes or Vue SSR
 output.
 
-## 14. Naming
+## 15. Naming
 
 | Kind | Convention | Example |
 | --- | --- | --- |
@@ -562,7 +650,7 @@ output.
 | Storage key | `sl-` prefix | `sl-theme`, `sl-locale-scroll` |
 | Anchor ID | domain prefix | `project-...`, `experience-...`, `review-...` |
 
-## 15. Anti-patterns
+## 16. Anti-patterns
 
 - Importing `components/home/vue/HeroSection.vue` directly from an `.astro`
   file instead of an island entry.
@@ -575,7 +663,12 @@ output.
 - Hydrating a local section merely to animate it; use CSS or a script.
 - Letting a static reveal script hide content inside `astro-island`.
 - Storing absolute R2 URLs in Firestore.
-- Publishing editorial email addresses in HTML or island props.
+- Publishing private review fields other than the intentionally public name, photo, roles and email.
+- Letting the browser read or list reviews other than its own.
+- Writing `approved: true` from client code.
+- Importing the Firebase web SDK during SSR or from public content features.
+- Rendering visitor review text with `v-html`.
+- Adding `/resenas/` to the sitemap or treating it as indexable public content.
 
 ## Appendix A — Canonical files
 
@@ -594,6 +687,10 @@ output.
 | Structured data and social metadata | `src/lib/seo.ts` |
 | Sitemap | `src/lib/sitemap.ts`, `src/pages/sitemap-0.xml.ts`, `src/pages/sitemap-index.xml.ts` |
 | Schemas | `src/data/schemas/` |
+| Review contract and helpers | `src/data/reviews.ts`, `src/data/schemas/review.ts` |
+| Review auth and repository | `src/lib/firebase/`, `src/lib/reviews/` |
+| Review pages and islands | `src/components/reviews/`, `src/components/islands/reviews/` |
+| Firestore security rules | `firestore.rules` |
 | Relations and anchors | `src/data/relations.ts`, `src/data/anchors.ts` |
 | Client scripts | `src/scripts/` |
 
@@ -605,6 +702,7 @@ output.
 | Theme DOM state | `<html data-theme="dark|light">` |
 | Locale | `/` and `/en/...` |
 | Locale scroll handoff | `sessionStorage["sl-locale-scroll"]` |
+| Review draft | `sessionStorage["sl-review-draft"]` |
 | Section hash | `window.location.hash` |
 | Theme toggle hook | `[data-theme-toggle]` |
 | Mobile menu hook | `[data-menu-toggle]`, `#mobile-menu` |
@@ -619,6 +717,8 @@ output.
 | Projects index | `ProjectsIndexIsland.vue` | `client:load` |
 | Home projects | `ProjectsIsland.vue` | `client:visible` |
 | Reviews | `TestimonialsIsland.vue` | `client:idle` |
+| Review access | `ReviewsAccessIsland.vue` | `client:load` |
+| Review panel | `ReviewPanelIsland.vue` | `client:load` |
 | Stack | `StackContent.vue` | none |
 | Experience | `ExperienceContent.vue` | none |
 | Education | `EducationContent.vue` | none |
