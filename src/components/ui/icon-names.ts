@@ -38,7 +38,7 @@ export const uiIconNames = [
 
 export type UiIconName = (typeof uiIconNames)[number]
 
-/** Brand marks are filled paths generated from Simple Icons, not Lucide. */
+/** Brand marks are imported directly from Simple Icons, not Lucide. */
 export const brandIconNames = ['github', 'google', 'whatsapp'] as const
 
 export type BrandIconName = (typeof brandIconNames)[number]
