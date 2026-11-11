@@ -15,7 +15,7 @@ const { locale, items, section } = defineProps<{
 <template>
   <section
     id="certifications"
-    class="section-pad border-t border-line bg-section"
+    class="section-pad-sm border-t border-line bg-section"
     aria-labelledby="certifications-title"
   >
     <div class="shell">
@@ -25,58 +25,53 @@ const { locale, items, section } = defineProps<{
         :title="section[locale].title"
         :lead="section[locale].lead"
         title-id="certifications-title"
+        density="compact"
       />
       <div class="border-t border-line">
         <article
           v-for="(item, index) in items"
           :key="item.id"
           data-certification-item
-          class="certification-item relative grid grid-cols-[44px_minmax(0,1fr)] gap-x-4 gap-y-2 border-b border-line py-4 md:grid-cols-[44px_minmax(0,1fr)_auto] md:items-start md:gap-6 md:py-6"
+          class="certification-item relative grid gap-x-6 gap-y-2 border-b border-line py-4 md:grid-cols-[160px_minmax(0,1fr)_auto] md:items-start md:py-5"
           :style="{ '--reveal-order': index }"
         >
           <span class="certification-item__trace" aria-hidden="true" />
-          <span
-            class="row-span-2 inline-flex h-9 w-9 items-center justify-center self-start rounded-md border border-line font-mono text-[10px] md:row-span-1 md:h-auto md:w-auto md:justify-start md:border-0"
+          <div
+            class="flex items-baseline gap-3 font-mono text-[10.5px] uppercase tracking-[0.1em]"
             :class="index === 0 ? 'text-soft' : 'text-muted'"
-            >{{ String(index + 1).padStart(2, '0') }}</span
           >
-          <div>
+            <span>{{ String(index + 1).padStart(2, '0') }}</span>
+            <span class="text-muted">{{ item.date[locale] }}</span>
+          </div>
+          <div class="min-w-0">
             <h3
-              class="font-display text-[18px] font-semibold leading-snug text-ink md:text-[20px]"
+              class="font-display text-[17px] font-semibold leading-snug text-ink md:text-[19px]"
             >
               {{ item.title }}
             </h3>
             <p
-              class="mt-1.5 font-mono text-[10.5px] uppercase tracking-[0.06em] text-muted"
+              class="mt-1 font-mono text-[10.5px] uppercase tracking-[0.06em] text-muted"
             >
               {{ item.provider }}
             </p>
           </div>
-          <div
-            class="col-start-2 flex flex-wrap items-center gap-x-5 gap-y-2 md:col-start-3 md:row-start-1 md:flex-col md:items-end md:gap-1.5 md:text-right"
-          >
-            <p
-              class="font-mono text-[10.5px] uppercase tracking-[0.06em] text-muted"
-            >
-              {{ item.date[locale] }}
-            </p>
-            <a
-              :href="item.href"
-              target="_blank"
-              rel="noopener noreferrer"
-              class="group inline-flex min-h-11 max-w-full items-center gap-1 break-all font-mono text-[11px] tracking-[0.02em] text-soft transition hover:text-ink"
-              >{{ item.credentialId }}
-              <UiIcon
-                name="arrow-up-right"
-                :size="11"
-                class="shrink-0 transition group-hover:-translate-y-0.5 group-hover:translate-x-0.5"
-            /></a>
-          </div>
+          <a
+            :href="item.href"
+            target="_blank"
+            rel="noopener noreferrer"
+            class="group inline-flex min-h-11 max-w-full items-center gap-1 break-all font-mono text-[11px] tracking-[0.02em] text-soft transition hover:text-ink md:justify-end md:text-right"
+            >{{ item.credentialId }}
+            <UiIcon
+              name="arrow-up-right"
+              :size="11"
+              class="shrink-0 transition group-hover:-translate-y-0.5 group-hover:translate-x-0.5"
+          /></a>
         </article>
       </div>
     </div>
   </section>
 </template>
+
 <style scoped>
 .certification-item__trace {
   position: absolute;

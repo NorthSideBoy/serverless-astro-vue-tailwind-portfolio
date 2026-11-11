@@ -14,41 +14,42 @@ const { locale, items, section } = defineProps<{
 <template>
   <section
     id="education"
-    class="dot-field dot-field--quiet dot-field--quiet-brief section-pad relative overflow-hidden bg-section"
+    class="dot-field dot-field--mark relative overflow-hidden section-pad-sm bg-section"
     aria-labelledby="education-title"
   >
-    <div class="shell relative">
+    <div class="shell">
       <SectionHeader
         seal="七"
         :eyebrow="section[locale].eyebrow"
         :title="section[locale].title"
         :lead="section[locale].lead"
         title-id="education-title"
+        density="compact"
       />
-      <div class="grid gap-10 md:grid-cols-2 md:gap-16">
+      <div class="border-t border-line">
         <article
           v-for="(item, index) in items"
           :key="item.id"
           data-education-item
-          class="education-item relative border-t pt-6"
-          :class="index === 0 ? 'border-soft/60' : 'border-line'"
+          class="education-item relative grid gap-x-6 gap-y-3 border-b border-line py-6 md:grid-cols-[160px_minmax(0,1fr)] md:py-7"
           :style="{ '--reveal-order': index }"
         >
           <span class="education-item__trace" aria-hidden="true" />
-          <div class="education-item__inner">
-            <p
-              class="font-mono text-[11px] uppercase tracking-[0.1em]"
-              :class="index === 0 ? 'text-soft' : 'text-muted'"
-            >
-              {{ item.period[locale] }}
-            </p>
+          <div
+            class="font-mono text-[10.5px] uppercase tracking-[0.1em]"
+            :class="index === 0 ? 'text-soft' : 'text-muted'"
+          >
+            <p>{{ item.period[locale] }}</p>
+            <p class="mt-1.5">{{ item.location[locale] }}</p>
+          </div>
+          <div class="min-w-0">
             <h3
-              class="mt-3 font-display text-[21px] font-semibold leading-tight tracking-[-0.02em] text-ink md:text-[24px]"
+              class="font-display text-[20px] font-semibold leading-tight tracking-[-0.02em] text-ink md:text-[22px]"
             >
               {{ item.title[locale] }}
             </h3>
             <p
-              class="mt-2 font-mono text-[11px] uppercase tracking-[0.06em] text-muted"
+              class="mt-2 font-mono text-[10.5px] uppercase tracking-[0.06em] text-muted"
             >
               <a
                 v-if="item.institutionHref"
@@ -59,10 +60,9 @@ const { locale, items, section } = defineProps<{
                 >{{ item.institution }}</a
               >
               <template v-else>{{ item.institution }}</template>
-              <span aria-hidden="true"> · </span>{{ item.location[locale] }}
             </p>
             <p
-              class="mt-3 max-w-[480px] text-[13.5px] leading-[1.7] text-muted"
+              class="mt-2.5 max-w-[68ch] text-[13px] leading-[1.7] text-muted md:text-[13.5px]"
             >
               {{ item.description[locale] }}
             </p>
@@ -72,10 +72,11 @@ const { locale, items, section } = defineProps<{
     </div>
   </section>
 </template>
+
 <style scoped>
 .education-item__trace {
   position: absolute;
-  top: -1px;
+  top: 0;
   right: 0;
   left: 0;
   height: 1px;
@@ -90,13 +91,13 @@ const { locale, items, section } = defineProps<{
   );
 }
 @media (prefers-reduced-motion: no-preference) {
-  .education-item__inner {
+  .education-item > *:not(.education-item__trace) {
     transition:
       opacity 480ms cubic-bezier(0.16, 1, 0.3, 1),
       transform 480ms cubic-bezier(0.16, 1, 0.3, 1);
     transition-delay: calc(var(--reveal-order, 0) * 70ms);
   }
-  .education-item.is-armed .education-item__inner {
+  .education-item.is-armed > *:not(.education-item__trace) {
     opacity: 0;
     transform: translate3d(0, 9px, 0);
     transition: none;

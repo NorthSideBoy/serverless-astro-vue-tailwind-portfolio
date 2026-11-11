@@ -63,9 +63,11 @@ function metaLine(project: Project) {
 <template>
   <section
     id="projects"
-    class="home-feature dot-field section-pad relative isolate overflow-hidden border-y border-line bg-page"
+    class="home-feature dot-field dot-field--peak dot-field--echo dot-field--body section-pad-lg relative isolate overflow-hidden border-y border-line bg-page"
     aria-labelledby="projects-title"
   >
+    <span class="dot-extra" style="--dot-extra-focus: 0% 50%" aria-hidden="true" />
+    <span class="dot-extra" style="--dot-extra-top: 80%; --dot-extra-height: 760px; --dot-field-strength: 48%" aria-hidden="true" />
     <div class="shell relative">
       <SectionHeader
         seal="六"
@@ -74,6 +76,7 @@ function metaLine(project: Project) {
         :lead="section[locale].lead"
         title-id="projects-title"
         signal
+        density="feature"
       />
 
       <ContentState
@@ -88,8 +91,11 @@ function metaLine(project: Project) {
           :id="projectAnchor(entry.project.slug)"
           :key="entry.project.slug"
           data-featured-project
-          class="featured-project group grid scroll-mt-28 grid-cols-[minmax(0,1fr)] gap-8 md:grid-cols-[minmax(0,0.8fr)_minmax(0,1.2fr)] md:items-start md:gap-8 lg:grid-cols-2 lg:gap-12 xl:gap-16"
+          class="featured-project group grid scroll-mt-28 grid-cols-[minmax(0,1fr)] gap-8 md:items-start md:gap-8 lg:gap-12 xl:gap-16"
           :class="[
+            index === 0
+              ? 'md:grid-cols-[minmax(0,1.1fr)_minmax(0,0.9fr)] lg:grid-cols-[minmax(0,1.15fr)_minmax(0,0.85fr)]'
+              : 'md:grid-cols-[minmax(0,0.8fr)_minmax(0,1.2fr)] lg:grid-cols-2',
             index > 0 ? 'mt-14 border-t border-line pt-14 md:mt-20 md:pt-20' : '',
             { 'is-armed': featuredArmed[index] },
           ]"
@@ -103,14 +109,20 @@ function metaLine(project: Project) {
           />
 
           <div class="featured-copy min-w-0" :class="index % 2 === 1 ? 'md:order-1' : ''">
-            <ProjectBadges
-              :project="entry.project"
-              variant="featured"
-              class="featured-copy__badges"
-            />
+            <div class="flex flex-wrap items-center justify-between gap-3">
+              <ProjectBadges
+                :project="entry.project"
+                variant="featured"
+                class="featured-copy__badges"
+              />
+              <span class="font-mono text-[10px] tracking-[0.12em] text-muted" aria-hidden="true">
+                {{ String(index + 1).padStart(2, '0') }} / {{ String(featuredProjects.length).padStart(2, '0') }}
+              </span>
+            </div>
 
             <h3
-              class="featured-copy__title mt-4 font-display text-[24px] font-semibold leading-[1.15] tracking-[-0.025em] text-ink md:text-[28px]"
+              class="featured-copy__title mt-4 font-display font-semibold leading-[1.15] tracking-[-0.025em] text-ink"
+              :class="index === 0 ? 'text-[26px] md:text-[34px] xl:text-[38px]' : 'text-[24px] md:text-[28px]'"
             >
               {{ entry.project.title[locale] }}
             </h3>
@@ -123,7 +135,8 @@ function metaLine(project: Project) {
             </p>
 
             <p
-              class="featured-copy__description mt-4 text-[14px] leading-[1.72] text-muted md:text-[15px]"
+              class="featured-copy__description mt-4 max-w-[64ch] leading-[1.72] text-muted"
+              :class="index === 0 ? 'text-[15px] md:text-[16px]' : 'text-[14px] md:text-[15px]'"
             >
               {{ (entry.project.description ?? entry.project.summary)[locale] }}
             </p>

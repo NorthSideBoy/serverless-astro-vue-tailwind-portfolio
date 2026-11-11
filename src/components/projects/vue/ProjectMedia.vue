@@ -36,7 +36,7 @@ onMounted(() => {
 <template>
   <figure
     ref="root"
-    class="project-media"
+    class="project-media dot-surface"
     :class="[
       variant === 'featured'
         ? 'relative min-w-0 overflow-hidden border border-line bg-sunken'

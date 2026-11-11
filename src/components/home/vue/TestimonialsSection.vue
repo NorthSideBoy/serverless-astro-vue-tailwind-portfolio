@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue'
+import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { useRoute } from '@/router/astroRouter'
 import { prefersReducedMotion, scrollControl } from '@/router/scrollControl'
 import { usePreferences } from '@/composables/usePreferences'
@@ -29,6 +29,14 @@ defineEmits<{ retry: [] }>()
 
 const initialCount = 4
 const showAll = ref(false)
+
+// A lone review can carry the section; two reviews read best as a pair; three
+// or more get one lead testimony and a calmer comparison grid below it.
+const featuredIndex = computed(() => (props.items.length === 2 ? -1 : 0))
+const closingSpans = computed(() => {
+  const rest = props.items.length - (featuredIndex.value === 0 ? 1 : 0)
+  return rest % 2 === 1
+})
 
 async function revealReviewFromHash(hash: string) {
   const anchor = hash.replace(/^#/, '')
@@ -81,9 +89,10 @@ watch([() => route.hash, () => props.items], ([hash]) => {
 <template>
   <section
     id="testimonials"
-    class="dot-field dot-field--quiet section-pad relative overflow-hidden border-y border-line bg-page"
+    class="dot-field dot-field--quiet dot-field--body section-pad relative overflow-hidden border-y border-line bg-page"
     aria-labelledby="testimonials-title"
   >
+    <span class="dot-extra" style="--dot-extra-focus: 0% 50%; --dot-extra-top: 62%; --dot-extra-height: 520px" aria-hidden="true" />
     <div class="shell relative">
       <SectionHeader
         seal="十"
@@ -91,6 +100,7 @@ watch([() => route.hash, () => props.items], ([hash]) => {
         :title="section[locale].title"
         :lead="section[locale].lead"
         title-id="testimonials-title"
+        :density="items.length ? 'default' : 'compact'"
       />
 
       <ContentState
@@ -113,8 +123,14 @@ watch([() => route.hash, () => props.items], ([hash]) => {
             :review="review"
             :experiences="experiences"
             :projects="projects"
+            :featured="index === featuredIndex"
             :hidden="!showAll && index >= initialCount"
-            :class="{ 'is-entering': showAll && index >= initialCount }"
+            :class="[
+              index === featuredIndex ? 'md:col-span-2' : '',
+              items.length === 1 ? 'mx-auto w-full max-w-[980px]' : '',
+              closingSpans && index === items.length - 1 ? 'md:col-span-2' : '',
+              { 'is-entering': showAll && index >= initialCount },
+            ]"
             :style="{ '--review-order': Math.min(Math.max(index - initialCount, 0), 3) }"
           />
         </div>

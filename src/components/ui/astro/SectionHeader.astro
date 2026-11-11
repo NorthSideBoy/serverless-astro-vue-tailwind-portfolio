@@ -1,15 +1,39 @@
 ---
 import SealEyebrow from './SealEyebrow.astro';
-interface Props { eyebrow: string; seal?: string; title: string; lead?: string; titleId?: string; signal?: boolean }
-const { eyebrow, seal, title, lead, titleId, signal = false } = Astro.props;
+interface Props {
+  eyebrow: string;
+  seal?: string;
+  title: string;
+  lead?: string;
+  titleId?: string;
+  signal?: boolean;
+  density?: 'default' | 'compact' | 'feature';
+}
+const { eyebrow, seal, title, lead, titleId, signal = false, density = 'default' } = Astro.props;
+const spacing =
+  density === 'compact'
+    ? 'mb-6 md:mb-8 xl:mb-10'
+    : density === 'feature'
+      ? 'mb-10 md:mb-12 xl:mb-16'
+      : 'mb-8 md:mb-12 xl:mb-[100px]';
+const titleSize =
+  density === 'compact'
+    ? 'text-[26px] md:text-[30px] xl:text-[36px]'
+    : density === 'feature'
+      ? 'text-[32px] md:text-[42px] xl:text-[54px]'
+      : 'text-[30px] md:text-[36px] xl:text-[46px]';
+const leadSize =
+  density === 'compact'
+    ? 'mt-3 max-w-[640px] text-[14px] leading-[1.6] md:text-[15px]'
+    : 'mt-4 max-w-[760px] text-[15px] leading-[1.65] md:text-base';
 ---
-<header class:list={['section-marker mb-8 md:mb-12 xl:mb-[100px]', signal ? 'section-signal' : '']}>
+<header class:list={['section-marker', spacing, signal ? 'section-signal' : '']}>
   <div class="section-marker__meta flex items-center gap-4">
     <p class:list={['mono-label shrink-0', signal ? 'text-soft' : 'text-muted']}><SealEyebrow seal={seal} label={eyebrow} /></p>
     <span class="section-marker__rule h-px flex-1 bg-line" aria-hidden="true" />
   </div>
-  <h2 id={titleId} class="section-marker__title mt-5 font-display text-[30px] font-bold leading-[1.05] tracking-[-0.025em] text-ink md:text-[36px] xl:text-[46px]">{title}</h2>
-  {lead && <p class="section-marker__lead mt-4 max-w-[760px] text-[15px] leading-[1.65] text-muted md:text-base">{lead}</p>}
+  <h2 id={titleId} class:list={['section-marker__title mt-5 font-display font-bold leading-[1.05] tracking-[-0.025em] text-ink', titleSize]}>{title}</h2>
+  {lead && <p class:list={['section-marker__lead text-muted', leadSize]}>{lead}</p>}
 </header>
 <style>
   .section-marker__rule { transform-origin: left center; }

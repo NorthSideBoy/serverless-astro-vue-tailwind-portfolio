@@ -1,26 +1,50 @@
 <script setup lang="ts">
-import { ref } from 'vue'
+import { computed, ref } from 'vue'
 import { useRevealCycle } from '@/composables/useRevealCycle'
 import SealEyebrow from './SealEyebrow.vue'
 
-defineProps<{
-  eyebrow: string
-  seal?: string
-  title: string
-  lead?: string
-  titleId?: string
-  signal?: boolean
-}>()
+const props = withDefaults(
+  defineProps<{
+    eyebrow: string
+    seal?: string
+    title: string
+    lead?: string
+    titleId?: string
+    signal?: boolean
+    density?: 'default' | 'compact' | 'feature'
+  }>(),
+  { density: 'default' },
+)
 
 const root = ref<HTMLElement | null>(null)
-const { armed } = useRevealCycle(root)
+const { armed } = useRevealCycle(root, { once: true })
+
+const spacing = computed(() =>
+  props.density === 'compact'
+    ? 'mb-6 md:mb-8 xl:mb-10'
+    : props.density === 'feature'
+      ? 'mb-10 md:mb-12 xl:mb-16'
+      : 'mb-8 md:mb-12 xl:mb-[100px]',
+)
+const titleSize = computed(() =>
+  props.density === 'compact'
+    ? 'text-[26px] md:text-[30px] xl:text-[36px]'
+    : props.density === 'feature'
+      ? 'text-[32px] md:text-[42px] xl:text-[54px]'
+      : 'text-[30px] md:text-[36px] xl:text-[46px]',
+)
+const leadSize = computed(() =>
+  props.density === 'compact'
+    ? 'mt-3 max-w-[640px] text-[14px] leading-[1.6] md:text-[15px]'
+    : 'mt-4 max-w-[760px] text-[15px] leading-[1.65] md:text-base',
+)
 </script>
 
 <template>
   <header
     ref="root"
-    class="section-marker mb-8 md:mb-12 xl:mb-[100px]"
-    :class="[signal ? 'section-signal' : '', armed ? 'is-armed' : '']"
+    class="section-marker"
+    :class="[spacing, signal ? 'section-signal' : '', armed ? 'is-armed' : '']"
   >
     <div class="section-marker__meta flex items-center gap-4">
       <p class="mono-label shrink-0" :class="signal ? 'text-soft' : 'text-muted'">
@@ -30,13 +54,15 @@ const { armed } = useRevealCycle(root)
     </div>
     <h2
       :id="titleId"
-      class="section-marker__title mt-5 font-display text-[30px] font-bold leading-[1.05] tracking-[-0.025em] text-ink md:text-[36px] xl:text-[46px]"
+      class="section-marker__title mt-5 font-display font-bold leading-[1.05] tracking-[-0.025em] text-ink"
+      :class="titleSize"
     >
       {{ title }}
     </h2>
     <p
       v-if="lead"
-      class="section-marker__lead mt-4 max-w-[760px] text-[15px] leading-[1.65] text-muted md:text-base"
+      class="section-marker__lead text-muted"
+      :class="leadSize"
     >
       {{ lead }}
     </p>

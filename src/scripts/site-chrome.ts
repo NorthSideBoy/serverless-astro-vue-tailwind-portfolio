@@ -123,13 +123,16 @@ function updateNav() {
   if (!home) return
   const marker = Math.max(window.innerHeight * 0.35, 160)
   let section = ''
-  let nav = ''
   for (const item of sections) {
     if (item.getBoundingClientRect().top > marker) continue
     section = item.id
-    if ([...navLinks].some((link) => link.dataset.navId === item.id))
-      nav = item.id
   }
+  // Only light a destination when the visible chapter is that destination.
+  // Annex chapters (Education, Certifications, Reviews) have no nav entry;
+  // carrying the previous highlight into them misreports where the visitor is.
+  const nav = [...navLinks].some((link) => link.dataset.navId === section)
+    ? section
+    : ''
   navLinks.forEach((link) => {
     const active = link.dataset.navId === nav
     link.classList.toggle('text-soft', active)

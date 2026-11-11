@@ -15,7 +15,8 @@ const [titleLead, ...titleRest] = copy.about.title.split(',');
 const titleTail = titleRest.join(',').trim();
 const home = locale === 'en' ? '/en/' : '/';
 ---
-<section id="about" class="section-pad bg-section" aria-labelledby="about-title">
+<section id="about" class="dot-field--body relative section-pad bg-section" aria-labelledby="about-title">
+  <span class="dot-extra" style="--dot-extra-top: 58%; --dot-field-strength: 42%;" aria-hidden="true" />
   <div class="shell">
     <div class="mb-12 flex items-center gap-4 md:mb-16 xl:mb-[100px]">
       <p class="mono-label shrink-0 text-soft"><SealEyebrow seal="一" label={copy.about.eyebrow} /></p>
@@ -24,8 +25,8 @@ const home = locale === 'en' ? '/en/' : '/';
 
     <div class="grid items-start gap-12 lg:grid-cols-[minmax(0,0.72fr)_minmax(0,1.28fr)] lg:gap-16 xl:grid-cols-[minmax(0,0.62fr)_minmax(0,1.38fr)] xl:gap-24">
       <div class="min-w-0 lg:sticky lg:top-32">
-        <PlateFrame class="overflow-hidden">
-          <div class="about-plate dot-surface flex aspect-[8/10] w-full flex-col bg-page/20 p-6 md:p-8">
+        <PlateFrame class="mx-auto w-full max-w-[400px] overflow-hidden lg:max-w-none">
+          <div class="about-plate dot-surface flex aspect-[4/5] w-full flex-col bg-page/20 p-6 md:p-8">
             <div class="flex items-start justify-between gap-3 border-b border-line pb-4 font-mono text-[10px] tracking-[0.1em] text-muted">
               <span class="flex items-center gap-2"><span>{plate.header}</span><span class="seal-glyph text-[22px] leading-none text-soft" aria-hidden="true">構</span></span>
               <span class="hidden md:inline">CCS · VE</span>
@@ -58,13 +59,13 @@ const home = locale === 'en' ? '/en/' : '/';
       </div>
 
       <div data-about-copy class="section-marker section-signal min-w-0 max-w-[640px] lg:pt-1 xl:pt-3">
-        <h2 id="about-title" class="font-display text-[clamp(50px,6.6vw,86px)] font-bold leading-[0.94] tracking-[-0.045em] text-ink">
+        <h2 id="about-title" class="font-display text-[clamp(42px,5.2vw,68px)] font-bold leading-[0.98] tracking-[-0.04em] text-ink">
           <span class="about-title__part about-title__part--lead">{titleLead},</span>{' '}
           {titleTail && <span class="about-title__part about-title__part--tail">{titleTail}</span>}
         </h2>
         <p class="about-copy__name mt-5 text-[clamp(18px,1.35vw,22px)] leading-[1.55] text-ink/80 md:mt-6">{copy.about.name}</p>
         <div class="mt-9 space-y-6 text-[16px] leading-[1.8] text-muted md:mt-12 md:text-[17px]">
-          {copy.about.paragraphs.map((paragraph, index) => <p class="about-copy__paragraph" style={`--about-delay:${640 + Math.min(index * 60, 180)}ms`}>{paragraph}</p>)}
+          {copy.about.paragraphs.map((paragraph) => <p class="about-copy__paragraph">{paragraph}</p>)}
         </div>
         <div class="about-copy__actions mt-10 flex flex-wrap gap-x-8 gap-y-4 border-t border-line pt-7 md:mt-12">
           <a href={`${home}#projects`} class="inline-flex items-center gap-2 text-[14px] font-medium text-soft underline decoration-line-strong underline-offset-4 transition-colors hover:decoration-soft">{copy.hero.primary} <UiIcon name="arrow-right" size={16} /></a>
@@ -73,24 +74,24 @@ const home = locale === 'en' ? '/en/' : '/';
       </div>
     </div>
 
-    <div class="mt-20 md:mt-28 xl:mt-36">
+    <div class="mt-14 md:mt-20">
       <p class="mono-label text-muted">{copy.about.recordLabel}</p>
       <dl class="mt-6 grid gap-px border-y border-line bg-line sm:grid-cols-2 lg:grid-cols-3">
-        {copy.about.facts.map((fact, index) => <div data-about-fact class="about-fact min-w-0 bg-section px-5 py-5 md:px-6" style={`--reveal-order:${Math.min(index, 5)}`}>
+        {copy.about.facts.map((fact, index) => <div class="about-fact min-w-0 bg-section px-4 py-4 md:px-5">
           <dt class="font-mono text-[10px] uppercase tracking-[0.08em] text-muted">{String(index + 1).padStart(2, '0')} · {fact.label}</dt>
-          <dd class="mt-3 break-words text-[13.5px] font-medium leading-relaxed text-ink">{fact.value}</dd>
+          <dd class="mt-2.5 break-words text-[13px] font-medium leading-relaxed text-ink">{fact.value}</dd>
         </div>)}
       </dl>
     </div>
 
-    <div class="mt-14 md:mt-16 xl:mt-20">
+    <div class="mt-10 md:mt-12">
       <p class="mono-label text-muted">{copy.about.rolesLabel}</p>
       <div class="mt-6 grid gap-px border-y border-line bg-line sm:grid-cols-2 md:grid-cols-3">
-        {copy.about.roles.map((role, index) => <article data-about-role class="about-role bg-section px-5 py-6 md:px-6" style={`--reveal-order:${Math.min(index, 4)}`}>
+        {copy.about.roles.map((role, index) => <article class="about-role bg-section px-4 py-5 md:px-5">
           <div class="about-role__inner">
-            <span class="font-mono text-[11px] text-muted">{String(index + 1).padStart(2, '0')}</span>
-            <h3 class="mt-3 font-display text-[17px] font-semibold tracking-[-0.01em] text-ink">{role.title}</h3>
-            <p class="mt-1.5 text-[13.5px] leading-relaxed text-muted">{role.description}</p>
+            <span class="font-mono text-[10.5px] text-muted">{String(index + 1).padStart(2, '0')}</span>
+            <h3 class="mt-2.5 font-display text-[16px] font-semibold tracking-[-0.01em] text-ink">{role.title}</h3>
+            <p class="mt-1.5 text-[13px] leading-relaxed text-muted">{role.description}</p>
           </div>
         </article>)}
       </div>
@@ -102,14 +103,7 @@ const home = locale === 'en' ? '/en/' : '/';
   .about-glyph { font-family: var(--font-serif); font-size: 230px; font-weight: 900; letter-spacing: -0.05em; }
   .about-title__part { position: relative; z-index: 1; display: inline-block; }
   @media (prefers-reduced-motion: no-preference) {
-    .about-copy__name, .about-copy__paragraph, .about-copy__actions { transition: opacity 520ms cubic-bezier(0.16,1,0.3,1), transform 520ms cubic-bezier(0.16,1,0.3,1); }
-    .about-copy__name { transition-delay: 560ms; }
-    .about-copy__paragraph { transition-delay: var(--about-delay, 640ms); }
-    .about-copy__actions { transition-delay: 860ms; }
-    .is-armed .about-copy__name, .is-armed .about-copy__paragraph, .is-armed .about-copy__actions { opacity: 0; transform: translate3d(0, 8px, 0); transition: none; }
-    .about-fact, .about-role__inner { transition: opacity 460ms cubic-bezier(0.16,1,0.3,1), transform 460ms cubic-bezier(0.16,1,0.3,1); transition-delay: calc(var(--reveal-order, 0) * 55ms); }
-    .about-fact.is-armed, .about-role.is-armed .about-role__inner { opacity: 0; transform: translate3d(0, 8px, 0); transition: none; }
-    h2::after { transition: opacity 420ms ease 860ms; }
+    h2::after { transition: opacity 420ms ease 520ms; }
     .is-armed h2::after { opacity: 0; }
     .is-armed .about-title__part { opacity: 0; }
     .is-shown .about-title__part--lead { animation: about-title-lead 620ms cubic-bezier(0.16,1,0.3,1) 80ms both; }

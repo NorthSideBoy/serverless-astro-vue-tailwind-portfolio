@@ -35,9 +35,11 @@ const home = computed(() => (props.locale === 'en' ? '/en/' : '/'))
 <template>
   <section
     id="experience"
-    class="dot-field dot-field--quiet section-pad relative overflow-hidden border-t border-line bg-section"
+    class="dot-field dot-field--quiet dot-field--echo dot-field--body section-pad relative overflow-hidden border-t border-line bg-section"
     aria-labelledby="experience-title"
   >
+    <span class="dot-extra" aria-hidden="true" />
+    <span class="dot-extra" style="--dot-extra-top: 20%; --dot-extra-focus: 0% 50%; --dot-extra-height: 640px; --dot-field-strength: 46%" aria-hidden="true" />
     <div class="shell relative">
       <SectionHeader
         seal="五"
@@ -96,14 +98,14 @@ const home = computed(() => (props.locale === 'en' ? '/en/' : '/'))
             <p
               data-experience-block
               style="--block-delay: 110ms"
-              class="mt-4 max-w-[900px] text-[15px] leading-[1.7] text-ink/90 md:text-base"
+              class="mt-4 max-w-[72ch] text-[15px] leading-[1.7] text-ink/90 md:text-base"
             >
               {{ entry.summary[locale] }}
             </p>
             <ul
               data-experience-block
               style="--block-delay: 160ms"
-              class="mt-4 space-y-2.5"
+              class="mt-4 max-w-[72ch] space-y-2.5"
             >
               <li
                 v-for="bullet in entry.bullets[locale]"

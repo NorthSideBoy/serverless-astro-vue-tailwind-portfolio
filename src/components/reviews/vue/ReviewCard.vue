@@ -13,8 +13,9 @@ const props = withDefaults(
     experiences: ReviewExperience[]
     projects: ReviewProject[]
     preview?: boolean
+    featured?: boolean
   }>(),
-  { preview: false },
+  { preview: false, featured: false },
 )
 
 const { copy, locale } = usePreferences()
@@ -48,8 +49,11 @@ const rolesArePlaceholder = computed(() => props.review.author.roles.length === 
 
 <template>
   <figure
-    class="review-card-item flex min-w-0 flex-col border border-line bg-panel/15 p-5 transition-colors md:p-7"
-    :class="preview ? 'review-card-item--preview' : 'hover:border-line-strong'"
+    class="review-card-item flex min-w-0 flex-col border border-line transition-colors"
+    :class="[
+      preview ? 'review-card-item--preview' : 'hover:border-line-strong',
+      props.featured ? 'bg-panel/20 p-6 md:p-9 xl:p-10' : 'bg-panel/15 p-5 md:p-7',
+    ]"
   >
     <figcaption class="min-w-0">
       <div class="flex min-w-0 items-center gap-3.5">
@@ -91,8 +95,13 @@ const rolesArePlaceholder = computed(() => props.review.author.roles.length === 
     </figcaption>
 
     <blockquote
-      class="mt-6 flex-1 border-l-2 border-soft/60 pl-5 text-[15.5px] leading-[1.75] md:text-[16.5px]"
-      :class="quoteIsPlaceholder ? 'text-muted' : 'text-ink'"
+      class="mt-6 flex-1 border-l-2 border-soft/60 pl-5"
+      :class="[
+        quoteIsPlaceholder ? 'text-muted' : 'text-ink',
+        props.featured
+          ? 'max-w-[72ch] text-[17px] leading-[1.7] md:text-[21px] md:leading-[1.65]'
+          : 'max-w-[72ch] text-[15.5px] leading-[1.75] md:text-[16.5px]',
+      ]"
       :lang="review.locale"
     >
       <span class="font-serif text-[27px] leading-none text-soft" aria-hidden="true">“</span>

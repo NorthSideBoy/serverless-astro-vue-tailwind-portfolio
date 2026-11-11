@@ -98,10 +98,9 @@ html[data-theme='light'] .stack-tile {
   --c-on-action: #041014;
   --c-status: #00e5d0;
   --c-danger: #ff8a93;
-  --tex-dot-core: #4a4c4d;
-  --tex-dot-edge: #313435;
-  --tex-dot-halo: #080b0d;
   --dot-grid: 16px;
+  /* One printed texture, two papers: light paper needs less pigment per dot. */
+  --dot-field-weight: 1;
 }
 
 :root[data-theme='light'] {
@@ -131,9 +130,7 @@ html[data-theme='light'] .stack-tile {
   --c-on-action: #f7fbfc;
   --c-status: #00806f;
   --c-danger: #b4232f;
-  --tex-dot-core: #e5edf0;
-  --tex-dot-edge: #d8e0e4;
-  --tex-dot-halo: #d1dadf;
+  --dot-field-weight: 0.85;
 }
 
 @layer base {
@@ -216,53 +213,192 @@ html[data-theme='light'] .stack-tile {
 }
 
 @layer components {
-  .dot-field::before {
-    content: '';
-    position: absolute;
-    inset: 0 0 auto 0;
-    height: var(--dot-field-height, 640px);
-    pointer-events: none;
-    background-image:
+  /*
+   * The dot field is one texture at four scales. Every variant shares the same
+   * 16px grid, the same stamped core/edge/halo and the same radial falloff;
+   * they differ only in reach and intensity. Opening fields live in the margin
+   * beside the chapter header, so the motif travels down the file without ever
+   * running under the reading column.
+   */
+  .dot-field,
+  .dot-extra {
+    --dot-field-height: 520px;
+    --dot-field-strength: 76%;
+    --dot-field-focus: 100% 0%;
+    --dot-field-reach: 58% 100%;
+    --dot-field-fade: 78%;
+    --tex-dot-core: var(--c-muted);
+    --tex-dot-edge: var(--c-line-strong);
+    --tex-dot-halo: var(--c-page);
+    --dot-field-paint:
       radial-gradient(
         circle 0.5px at 8.5px 7.5px,
-        color-mix(in srgb, var(--tex-dot-core) var(--dot-field-strength, 40%), transparent) 0 0.5px,
+        color-mix(in srgb, var(--tex-dot-core) calc(var(--dot-field-strength) * var(--dot-field-weight, 1)), transparent) 0 0.5px,
         transparent 0.5px
       ),
       radial-gradient(
         circle 1.2px at 8.5px 7.5px,
-        color-mix(in srgb, var(--tex-dot-edge) var(--dot-field-strength, 40%), transparent) 0 1.2px,
+        color-mix(in srgb, var(--tex-dot-edge) calc(var(--dot-field-strength) * var(--dot-field-weight, 1)), transparent) 0 1.2px,
         transparent 1.2px
       ),
       radial-gradient(
         circle 1.8px at 8.5px 7.5px,
-        color-mix(in srgb, var(--tex-dot-halo) var(--dot-field-strength, 40%), transparent) 0 1.8px,
+        color-mix(in srgb, var(--tex-dot-halo) calc(var(--dot-field-strength) * var(--dot-field-weight, 1)), transparent) 0 1.8px,
         transparent 1.8px
       );
+  }
+
+  .dot-field::before {
+    content: '';
+    position: absolute;
+    inset: 0 0 auto 0;
+    height: var(--dot-field-height);
+    pointer-events: none;
+    background-image: var(--dot-field-paint);
     background-position: center top;
     background-size: var(--dot-grid) var(--dot-grid);
     mask-image: var(
       --dot-field-mask,
-      linear-gradient(to bottom, black 0%, black 25%, transparent 100%)
+      radial-gradient(
+        ellipse var(--dot-field-reach) at var(--dot-field-focus),
+        rgb(0 0 0 / 1) 0%,
+        rgb(0 0 0 / 0.52) 46%,
+        rgb(0 0 0 / 0) var(--dot-field-fade)
+      )
     );
   }
 
-  .dot-field--quiet {
-    --dot-field-height: 300px;
-    --dot-field-strength: 38%;
-    --dot-field-mask: radial-gradient(ellipse at 88% 0%, black 0%, transparent 62%);
-    --tex-dot-core: var(--c-muted);
-    --tex-dot-edge: var(--c-line-strong);
-    --tex-dot-halo: var(--c-page);
+  /* The cover: wider and stronger, stretched over the whole opening and fading
+   * out before the identity plate takes over. */
+  .dot-field--lead {
+    --dot-field-height: 100%;
+    --dot-field-strength: 74%;
+    --dot-field-focus: 30% 2%;
+    --dot-field-reach: 92% 94%;
+    --dot-field-fade: 80%;
   }
 
-  .dot-field--quiet-brief {
-    --dot-field-height: 220px;
-    --dot-field-strength: 42%;
+  /* The peak: one step above a standard opening, still a margin field. */
+  .dot-field--peak {
+    --dot-field-height: 640px;
+    --dot-field-strength: 82%;
+    --dot-field-focus: 100% 0%;
+    --dot-field-reach: 64% 100%;
+  }
+
+  /* Quiet chapters keep the motif at annex scale instead of dropping it. */
+  .dot-field--quiet {
+    --dot-field-height: 440px;
+    --dot-field-strength: 68%;
+    --dot-field-focus: 100% 0%;
+    --dot-field-reach: 56% 100%;
+  }
+
+  /* A compact chapter mark for sections whose content starts early. */
+  .dot-field--mark {
+    --dot-field-height: 260px;
+    --dot-field-strength: 68%;
+    --dot-field-focus: 100% 0%;
+    --dot-field-reach: 50% 100%;
+  }
+
+  /* Closing echo: a localized band in the chapter's bottom air, mirroring the
+   * opening field without ever crossing the reading column. */
+  .dot-field--echo {
+    isolation: isolate;
+  }
+
+  .dot-field--echo::after {
+    content: '';
+    position: absolute;
+    inset: auto 0 0 0;
+    z-index: -1;
+    height: var(--dot-field-echo-height, 180px);
+    pointer-events: none;
+    background-image: var(--dot-field-paint);
+    background-position: center bottom;
+    background-size: var(--dot-grid) var(--dot-grid);
+    mask-image: radial-gradient(
+      ellipse var(--dot-field-echo-reach, 78% 136%) at var(--dot-field-echo-focus, 100% 100%),
+      rgb(0 0 0 / 1) 0%,
+      rgb(0 0 0 / 0.42) 40%,
+      rgb(0 0 0 / 0) 76%
+    );
   }
 
   @media (max-width: 767px) {
-    .dot-field--quiet::before {
-      display: none;
+    .dot-field {
+      --dot-field-height: 360px;
+      --dot-field-strength: 64%;
+      --dot-field-reach: 68% 100%;
+    }
+
+    .dot-field--lead {
+      --dot-field-height: 100%;
+      --dot-field-strength: 56%;
+      --dot-field-focus: 38% 0%;
+      --dot-field-reach: 96% 58%;
+      --dot-field-fade: 80%;
+    }
+
+    .dot-field--peak {
+      --dot-field-height: 480px;
+      --dot-field-strength: 74%;
+      --dot-field-reach: 70% 100%;
+    }
+
+    .dot-field--quiet {
+      --dot-field-height: 300px;
+      --dot-field-strength: 56%;
+      --dot-field-reach: 58% 100%;
+    }
+
+    .dot-field--mark {
+      --dot-field-height: 220px;
+      --dot-field-strength: 58%;
+      --dot-field-reach: 56% 100%;
+    }
+
+    .dot-field--echo::after {
+      --dot-field-echo-height: 120px;
+    }
+  }
+
+  /*
+   * Body field. The same stamped dots, released at mid-chapter instead of only
+   * at the opening and closing edges. It sits beneath the plates and reading
+   * columns, so it surfaces in the air around them rather than tinting copy,
+   * and it adds no height to the section.
+   */
+  .dot-field--body {
+    isolation: isolate;
+  }
+
+  .dot-extra {
+    --dot-field-strength: 50%;
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: var(--dot-extra-top, 52%);
+    height: var(--dot-extra-height, 720px);
+    transform: translateY(-50%);
+    z-index: -1;
+    pointer-events: none;
+    background-image: var(--dot-field-paint);
+    background-size: var(--dot-grid) var(--dot-grid);
+    mask-image: radial-gradient(
+      ellipse var(--dot-extra-reach, 50% 94%) at var(--dot-extra-focus, 100% 50%),
+      rgb(0 0 0 / 1) 0%,
+      rgb(0 0 0 / 0.42) 46%,
+      rgb(0 0 0 / 0) 80%
+    );
+  }
+
+  @media (max-width: 767px) {
+    .dot-extra {
+      --dot-field-strength: 42%;
+      --dot-extra-height: 480px;
+      --dot-extra-reach: 68% 92%;
     }
   }
 
@@ -353,19 +489,49 @@ html[data-theme='light'] .stack-tile {
     }
   }
 
+  /*
+   * Section rhythm is a hierarchy, not a constant: peaks (Projects) get more
+   * air, annexes (Education, Certifications) get less, and the standard
+   * chapters keep the dossier's original cadence. The shell and the hairlines
+   * stay identical, so the page reads as one file with different chapters.
+   */
   .section-pad {
     padding-block: 56px;
+  }
+
+  .section-pad-lg {
+    padding-block: 64px;
+  }
+
+  .section-pad-sm {
+    padding-block: 44px;
   }
 
   @media (min-width: 768px) {
     .section-pad {
       padding-block: 76px;
     }
+
+    .section-pad-lg {
+      padding-block: 96px;
+    }
+
+    .section-pad-sm {
+      padding-block: 60px;
+    }
   }
 
   @media (min-width: 1280px) {
     .section-pad {
       padding-block: 120px;
+    }
+
+    .section-pad-lg {
+      padding-block: 144px;
+    }
+
+    .section-pad-sm {
+      padding-block: 84px;
     }
   }
 
@@ -493,11 +659,12 @@ html[data-theme='light'] .stack-tile {
   .contact-pill {
     display: flex;
     width: 100%;
+    min-height: 48px;
     align-items: center;
     gap: 0.75rem;
     border: 1px solid var(--c-line);
     border-radius: 9999px;
-    padding: 0.68rem 1.1rem;
+    padding: 0.78rem 1.15rem;
     font-family: var(--font-mono);
     font-size: 11.5px;
     line-height: 1.4;

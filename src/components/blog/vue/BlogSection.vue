@@ -4,12 +4,15 @@ import { content, type Locale } from '@/data/content'
 import type { Article } from '@/data/schemas/article'
 import type { SiteSections } from '@/data/schemas/siteSection'
 import {
+  articleCoverAlt,
+  articleCoverSrc,
   articleReadTime,
   articlesForLocale,
   availableArticleLanguages,
   formatArticleDate,
   resolveArticleTranslation,
 } from '@/data/articleUtils'
+import { hasThemeVariant } from '@/data/themeMedia'
 import { toHref } from '@/router/astroRouter'
 import SectionHeader from '@/components/ui/vue/SectionHeader.vue'
 import UiIcon from '@/components/ui/vue/UiIcon.vue'
@@ -36,13 +39,22 @@ const latest = computed(() => {
 })
 const articleHref = (slug: string, lang: 'es' | 'en') =>
   toHref({ name: 'article', slug }, lang, '')
+const lead = computed(() => latest.value[0])
+const rest = computed(() => latest.value.slice(1))
+const leadHasThemeVariant = computed(() =>
+  lead.value
+    ? hasThemeVariant(lead.value.post.cover.src, lead.value.post.cover.darkSrc)
+    : false,
+)
 </script>
 <template>
   <section
     id="blog"
-    class="section-pad border-t border-line bg-section"
+    class="dot-field dot-field--body relative overflow-hidden section-pad border-t border-line bg-section"
     aria-labelledby="blog-title"
   >
+    <span class="dot-extra" aria-hidden="true" />
+    <span class="dot-extra" style="--dot-extra-top: 86%; --dot-extra-focus: 0% 50%; --dot-extra-height: 520px; --dot-field-strength: 44%" aria-hidden="true" />
     <div class="shell">
       <SectionHeader
         seal="九"
@@ -52,72 +64,195 @@ const articleHref = (slug: string, lang: 'es' | 'en') =>
         title-id="blog-title"
         signal
       />
-      <div class="grid gap-4 md:grid-cols-3 md:gap-5">
+      <div
+        v-if="latest.length"
+        class="grid gap-4 lg:grid-cols-[minmax(0,1.15fr)_minmax(0,0.85fr)] lg:gap-5"
+      >
         <a
-          v-for="({ post, translation }, index) in latest"
-          :key="post.slug"
-          :href="articleHref(post.slug, translation.lang)"
+          v-if="lead"
+          :href="articleHref(lead.post.slug, lead.translation.lang)"
           data-blog-card
-          class="blog-card group relative flex flex-col overflow-hidden border border-line bg-panel/15 p-5 hover:border-line-strong md:p-6"
-          :class="index === 0 ? 'dot-corner' : ''"
-          :style="{ '--reveal-order': index }"
+          class="blog-card group relative flex flex-col overflow-hidden border border-line bg-panel/15 transition-colors hover:border-line-strong"
+          :style="{ '--reveal-order': 0 }"
         >
           <span
-            class="pointer-events-none absolute inset-x-0 top-0 h-px origin-left scale-x-0 bg-gradient-to-r from-soft/70 via-aqua/60 to-transparent transition-transform duration-300 group-hover:scale-x-100"
+            class="pointer-events-none absolute inset-x-0 top-0 z-10 h-px origin-left scale-x-0 bg-gradient-to-r from-soft/70 via-aqua/60 to-transparent transition-transform duration-300 group-hover:scale-x-100"
             aria-hidden="true"
           /><span class="blog-card__register" aria-hidden="true" />
-          <div class="flex flex-wrap items-center justify-between gap-2">
-            <p
-              class="font-mono text-[11px] uppercase tracking-[0.08em] text-muted"
-            >
-              {{ formatArticleDate(post.publishedAt, locale) }} ·
-              {{ articleReadTime(translation) }} {{ copy.blog.minLabel }}
-            </p>
-            <p
-              class="flex flex-wrap items-center gap-2 font-mono text-[11px] uppercase tracking-[0.08em] text-muted"
-            >
-              <span :lang="translation.lang">{{ translation.category }}</span
-              ><span
-                v-if="post.featured"
-                class="border border-soft/40 px-1.5 py-0.5 text-[10px] text-soft"
-                >{{ copy.blogPage.highlighted }}</span
-              ><span
-                class="inline-flex flex-wrap gap-1"
-                :aria-label="
-                  locale === 'es'
-                    ? 'Idiomas disponibles'
-                    : 'Available languages'
-                "
-                ><span
-                  v-for="language in availableArticleLanguages(post)"
-                  :key="language"
-                  class="border border-line px-1.5 py-0.5 font-mono text-[11px] font-medium uppercase tracking-[0.08em] text-muted"
-                  >{{ language.toUpperCase() }}</span
-                ></span
-              >
-            </p>
-          </div>
-          <h3
-            class="mt-6 font-display text-[18px] font-semibold leading-[1.35] tracking-[-0.01em] text-ink transition group-hover:text-soft md:text-[19px]"
+          <figure
+            class="dot-surface relative overflow-hidden border-b border-line bg-sunken"
           >
-            <span :lang="translation.lang">{{ translation.title }}</span>
-          </h3>
-          <p class="mt-3 line-clamp-3 text-[13px] leading-[1.65] text-muted">
-            <span :lang="translation.lang">{{ translation.excerpt }}</span>
-          </p>
-          <div
-            class="mt-auto flex items-center justify-between gap-2 border-t border-line pt-4 md:mt-8"
-          >
-            <span
-              class="font-mono text-[10px] uppercase tracking-[0.08em] text-muted"
-              >{{ copy.blog.readMore }}</span
-            ><UiIcon
-              name="arrow-right"
-              :size="14"
-              class="text-muted transition group-hover:translate-x-1 group-hover:text-soft"
+            <template v-if="leadHasThemeVariant">
+              <img
+                :src="articleCoverSrc(lead.post.cover, 'dark')"
+                :alt="articleCoverAlt(lead.post.cover, lead.translation.lang)"
+                :lang="lead.translation.lang"
+                :width="lead.post.cover.width ?? 1200"
+                :height="lead.post.cover.height ?? 750"
+                loading="lazy"
+                decoding="async"
+                class="theme-media-dark aspect-[16/10] w-full object-cover transition duration-500 group-hover:scale-[1.015]"
+              />
+              <img
+                :src="articleCoverSrc(lead.post.cover, 'light')"
+                :alt="articleCoverAlt(lead.post.cover, lead.translation.lang)"
+                :lang="lead.translation.lang"
+                :width="lead.post.cover.width ?? 1200"
+                :height="lead.post.cover.height ?? 750"
+                loading="lazy"
+                decoding="async"
+                class="theme-media-light aspect-[16/10] w-full object-cover transition duration-500 group-hover:scale-[1.015]"
+              />
+            </template>
+            <img
+              v-else
+              :src="articleCoverSrc(lead.post.cover, 'light')"
+              :alt="articleCoverAlt(lead.post.cover, lead.translation.lang)"
+              :lang="lead.translation.lang"
+              :width="lead.post.cover.width ?? 1200"
+              :height="lead.post.cover.height ?? 750"
+              loading="lazy"
+              decoding="async"
+              class="aspect-[16/10] w-full object-cover transition duration-500 group-hover:scale-[1.015]"
             />
+          </figure>
+          <div class="flex flex-1 flex-col p-5 md:p-7">
+            <div class="flex flex-wrap items-center justify-between gap-2">
+              <p
+                class="font-mono text-[11px] uppercase tracking-[0.08em] text-muted"
+              >
+                {{ formatArticleDate(lead.post.publishedAt, locale) }} ·
+                {{ articleReadTime(lead.translation) }}
+                {{ copy.blog.minLabel }}
+              </p>
+              <p
+                class="flex flex-wrap items-center gap-2 font-mono text-[11px] uppercase tracking-[0.08em] text-muted"
+              >
+                <span :lang="lead.translation.lang">{{
+                  lead.translation.category
+                }}</span
+                ><span
+                  v-if="lead.post.featured"
+                  class="border border-soft/40 px-1.5 py-0.5 text-[10px] text-soft"
+                  >{{ copy.blogPage.highlighted }}</span
+                ><span
+                  class="inline-flex flex-wrap gap-1"
+                  :aria-label="
+                    locale === 'es'
+                      ? 'Idiomas disponibles'
+                      : 'Available languages'
+                  "
+                  ><span
+                    v-for="language in availableArticleLanguages(lead.post)"
+                    :key="language"
+                    class="border border-line px-1.5 py-0.5 font-mono text-[11px] font-medium uppercase tracking-[0.08em] text-muted"
+                    >{{ language.toUpperCase() }}</span
+                  ></span
+                >
+              </p>
+            </div>
+            <h3
+              class="mt-4 font-display text-[22px] font-semibold leading-[1.2] tracking-[-0.02em] text-ink transition group-hover:text-soft md:text-[26px] xl:text-[28px]"
+            >
+              <span :lang="lead.translation.lang">{{
+                lead.translation.title
+              }}</span>
+            </h3>
+            <p class="mt-3 line-clamp-3 max-w-[68ch] text-[13.5px] leading-[1.7] text-muted md:text-[14px]">
+              <span :lang="lead.translation.lang">{{
+                lead.translation.excerpt
+              }}</span>
+            </p>
+            <div
+              class="mt-auto flex items-center justify-between gap-2 border-t border-line pt-4 md:mt-6"
+            >
+              <span
+                class="font-mono text-[10px] uppercase tracking-[0.08em] text-muted"
+                >{{ copy.blog.readMore }}</span
+              ><UiIcon
+                name="arrow-right"
+                :size="14"
+                class="text-muted transition group-hover:translate-x-1 group-hover:text-soft"
+              />
+            </div>
           </div>
         </a>
+
+        <div
+          class="grid self-start gap-px border border-line bg-line"
+        >
+          <a
+            v-for="({ post, translation }, index) in rest"
+            :key="post.slug"
+            :href="articleHref(post.slug, translation.lang)"
+            data-blog-card
+            class="blog-card group relative flex flex-col justify-between bg-section p-5 transition-colors hover:bg-panel/15 md:p-6"
+            :style="{ '--reveal-order': index + 1 }"
+          >
+            <span
+              class="pointer-events-none absolute inset-x-0 top-0 h-px origin-left scale-x-0 bg-gradient-to-r from-soft/70 via-aqua/60 to-transparent transition-transform duration-300 group-hover:scale-x-100"
+              aria-hidden="true"
+            /><span class="blog-card__register" aria-hidden="true" />
+            <div>
+              <p
+                class="flex flex-wrap items-center gap-x-3 gap-y-1 font-mono text-[10.5px] uppercase tracking-[0.08em] text-muted"
+              >
+                <span>{{ formatArticleDate(post.publishedAt, locale) }}</span>
+                <span :lang="translation.lang">{{ translation.category }}</span>
+                <span
+                  v-if="post.featured"
+                  class="border border-soft/40 px-1.5 py-0.5 text-[10px] text-soft"
+                  >{{ copy.blogPage.highlighted }}</span
+                >
+                <span
+                  class="inline-flex flex-wrap gap-1"
+                  :aria-label="
+                    locale === 'es'
+                      ? 'Idiomas disponibles'
+                      : 'Available languages'
+                  "
+                  ><span
+                    v-for="language in availableArticleLanguages(post)"
+                    :key="language"
+                    class="border border-line px-1.5 py-0.5 text-[10px] text-muted"
+                    >{{ language.toUpperCase() }}</span
+                  ></span
+                >
+              </p>
+              <h3
+                class="mt-3 font-display text-[18px] font-semibold leading-[1.3] tracking-[-0.01em] text-ink transition group-hover:text-soft md:text-[20px]"
+              >
+                <span :lang="translation.lang">{{ translation.title }}</span>
+              </h3>
+              <p class="mt-2 line-clamp-2 text-[13px] leading-[1.65] text-muted">
+                <span :lang="translation.lang">{{ translation.excerpt }}</span>
+              </p>
+            </div>
+            <div
+              class="mt-4 flex items-center justify-between gap-2 font-mono text-[10px] uppercase tracking-[0.08em] text-muted"
+            >
+              <span>{{ copy.blog.readMore }}</span>
+              <UiIcon
+                name="arrow-right"
+                :size="13"
+                class="transition group-hover:translate-x-1 group-hover:text-soft"
+              />
+            </div>
+          </a>
+          <a
+            :href="blog"
+            data-blog-card
+            class="blog-card group flex min-h-12 items-center justify-between gap-3 bg-section p-5 font-mono text-[10.5px] uppercase tracking-[0.08em] text-soft transition-colors hover:bg-panel/15 hover:text-ink md:p-6"
+            :style="{ '--reveal-order': rest.length + 1 }"
+          >
+            <span>{{ copy.blog.viewAll }}</span>
+            <UiIcon
+              name="arrow-right"
+              :size="14"
+              class="transition group-hover:translate-x-1"
+            />
+          </a>
+        </div>
       </div>
       <p
         v-if="!latest.length"
@@ -126,14 +261,10 @@ const articleHref = (slug: string, lang: 'es' | 'en') =>
       >
         {{ copy.ui.emptyContent }}
       </p>
-      <div v-if="latest.length" class="mt-10 flex justify-end">
-        <a :href="blog" class="btn-ghost"
-          >{{ copy.blog.viewAll }} <UiIcon name="arrow-right" :size="15"
-        /></a>
-      </div>
     </div>
   </section>
 </template>
+
 <style scoped>
 .blog-card__register {
   position: absolute;
@@ -158,7 +289,8 @@ const articleHref = (slug: string, lang: 'es' | 'en') =>
         calc(var(--reveal-order, 0) * 70ms),
       transform 480ms cubic-bezier(0.16, 1, 0.3, 1)
         calc(var(--reveal-order, 0) * 70ms),
-      border-color 180ms ease;
+      border-color 180ms ease,
+      background-color 180ms ease;
   }
   .blog-card.is-armed {
     opacity: 0;

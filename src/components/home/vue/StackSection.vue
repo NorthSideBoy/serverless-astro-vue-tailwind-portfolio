@@ -32,9 +32,11 @@ const grouped = computed(() =>
 <template>
   <section
     id="stack"
-    class="section-pad bg-section"
+    class="dot-field dot-field--mark dot-field--body relative overflow-hidden section-pad-sm bg-section"
     aria-labelledby="stack-title"
   >
+    <span class="dot-extra" style="--dot-extra-focus: 0% 50%" aria-hidden="true" />
+    <span class="dot-extra" style="--dot-extra-top: 80%; --dot-extra-height: 560px; --dot-field-strength: 44%" aria-hidden="true" />
     <div class="shell">
       <SectionHeader
         seal="四"
@@ -42,6 +44,7 @@ const grouped = computed(() =>
         :title="section[locale].title"
         :lead="section[locale].lead"
         title-id="stack-title"
+        density="compact"
       />
       <PlateFrame>
         <div class="p-5 md:p-8 xl:p-9">
@@ -70,7 +73,7 @@ const grouped = computed(() =>
               >
             </div>
           </div>
-          <div class="mt-8 space-y-9 xl:mt-10 xl:space-y-11">
+          <div class="mt-7 space-y-7 xl:mt-8 xl:space-y-8">
             <section
               v-for="(group, groupIndex) in grouped"
               :key="group.id"
@@ -81,9 +84,12 @@ const grouped = computed(() =>
               <header
                 class="stack-group__header lg:border-r lg:border-line lg:pr-8"
               >
+                <p class="font-mono text-[10px] tracking-[0.12em] text-soft" aria-hidden="true">
+                  {{ String(groupIndex + 1).padStart(2, '0') }}
+                </p>
                 <h3
                   :id="`stack-group-${group.id}`"
-                  class="font-display text-[17px] font-semibold uppercase tracking-[0.03em] text-ink md:text-[18px]"
+                  class="mt-1.5 font-display text-[17px] font-semibold uppercase tracking-[0.03em] text-ink md:text-[18px]"
                 >
                   {{ group.name[locale] }}
                 </h3>
@@ -108,7 +114,7 @@ const grouped = computed(() =>
                     :href="item.href || undefined"
                     target="_blank"
                     rel="noopener noreferrer"
-                    class="stack-tile group/tile relative flex min-h-[112px] flex-col justify-between overflow-hidden border bg-section p-3.5 transition-[transform,border-color,background-color,box-shadow] duration-300 ease-out hover:-translate-y-0.5 hover:bg-panel/35 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-soft motion-reduce:transition-none motion-reduce:hover:translate-y-0"
+                    class="stack-tile group/tile relative flex min-h-[96px] flex-col justify-between overflow-hidden border bg-section p-3 transition-[transform,border-color,background-color,box-shadow] duration-300 ease-out hover:-translate-y-0.5 hover:bg-panel/35 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-soft motion-reduce:transition-none motion-reduce:hover:translate-y-0"
                     :class="[
                       item.core ? 'border-soft/40' : 'border-line',
                       groupIndex === 0 && itemIndex === 0 ? 'dot-corner' : '',
@@ -129,8 +135,8 @@ const grouped = computed(() =>
                         :name="item.icon ?? item.id"
                         :path="item.resolvedIconPath"
                         :custom-icon="item.customIcon"
-                        :size="28"
-                        class="stack-tile__icon h-7 w-7 text-icon transition-[transform,color,filter] duration-300 group-hover/tile:scale-110 group-focus-visible/tile:scale-110 motion-reduce:transition-none motion-reduce:group-hover/tile:scale-100 motion-reduce:group-focus-visible/tile:scale-100"
+                        :size="24"
+                        class="stack-tile__icon h-6 w-6 text-icon transition-[transform,color,filter] duration-300 group-hover/tile:scale-110 group-focus-visible/tile:scale-110 motion-reduce:transition-none motion-reduce:group-hover/tile:scale-100 motion-reduce:group-focus-visible/tile:scale-100"
                       />
                       <div class="flex items-center gap-2">
                         <span
@@ -139,19 +145,19 @@ const grouped = computed(() =>
                           aria-hidden="true"
                         /><UiIcon
                           name="arrow-up-right"
-                          :size="14"
+                          :size="13"
                           class="stack-tile__arrow text-muted transition-[color,transform] duration-300 motion-reduce:transition-none"
                         />
                       </div>
                     </div>
                     <div class="min-w-0">
                       <p
-                        class="break-words text-[12px] font-medium leading-tight text-ink md:text-[13px]"
+                        class="break-words text-[12.5px] font-medium leading-tight text-ink"
                       >
                         {{ item.name }}
                       </p>
                       <p
-                        class="mt-1 font-mono text-[11px] uppercase tracking-[0.06em] text-muted"
+                        class="mt-0.5 font-mono text-[10.5px] uppercase tracking-[0.06em] text-muted"
                       >
                         {{ item.tag[locale] }}
                       </p>

@@ -16,6 +16,8 @@ interface RevealOptions {
   rootMargin?: string
   /** How much of the target must be visible before it reveals. */
   threshold?: number
+  /** Reveal once. The target never re-arms after its first entrance. */
+  once?: boolean
   /** Lets a component opt out without mounting an observer. */
   enabled?: boolean
 }
@@ -60,7 +62,9 @@ function isOnScreen(element: HTMLElement) {
  * mounts armed; if it is already in view it mounts settled, so content never
  * flashes in after paint. Once it has been fully out of view for `resetDelay`
  * it arms again, and the next entry releases it exactly once. The observer
- * stays mounted for the lifetime of the component.
+ * stays mounted for the lifetime of the component. Pass `once` for chapter
+ * headers and similar markers that should register the first time and then
+ * stay settled.
  */
 export function useRevealCycle(target: Ref<HTMLElement | null>, options: RevealOptions = {}) {
   const {
@@ -72,6 +76,7 @@ export function useRevealCycle(target: Ref<HTMLElement | null>, options: RevealO
     mountThreshold = 1,
     rootMargin = '0px 0px -6% 0px',
     threshold = 0.05,
+    once = false,
     enabled = true,
   } = options
 
@@ -98,7 +103,7 @@ export function useRevealCycle(target: Ref<HTMLElement | null>, options: RevealO
     }
 
     visible = false
-    if (armed.value) return
+    if (armed.value || once) return
 
     clearReset()
     resetTimer = window.setTimeout(() => {

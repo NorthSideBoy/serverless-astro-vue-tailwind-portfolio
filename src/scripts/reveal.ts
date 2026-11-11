@@ -19,6 +19,7 @@ type RevealKind = 'header' | 'copy' | 'stagger' | 'experience' | 'record'
 interface RevealTarget {
   el: HTMLElement
   kind: RevealKind
+  once: boolean
   timer: number
   shown: boolean
 }
@@ -62,11 +63,12 @@ function collect(
   kind: RevealKind,
   targets: RevealTarget[],
   seen: Set<HTMLElement>,
+  once = false,
 ) {
   document.querySelectorAll<HTMLElement>(selector).forEach((el) => {
     if (seen.has(el) || el.closest('astro-island')) return
     seen.add(el)
-    targets.push({ el, kind, timer: 0, shown: false })
+    targets.push({ el, kind, once, timer: 0, shown: false })
   })
 }
 
@@ -78,16 +80,15 @@ export function initReveals() {
 
   // The About plate's header is also its copy block: it owns both the marker
   // and the staged title, so it needs the copy treatment before the generic
-  // `.section-marker` selector claims it.
-  collect('[data-about-copy]', 'copy', targets, seen)
-  collect('.section-marker', 'header', targets, seen)
-  collect('[data-about-fact]', 'stagger', targets, seen)
-  collect('[data-about-role]', 'stagger', targets, seen)
+  // `.section-marker` selector claims it. Chapter headers register once; a
+  // return visit should find the file already open, not replay every chapter.
+  collect('[data-about-copy]', 'copy', targets, seen, true)
+  collect('.section-marker', 'header', targets, seen, true)
   collect('[data-service]', 'stagger', targets, seen)
   collect('[data-stack-group]', 'stagger', targets, seen)
   collect('.experience-entry', 'experience', targets, seen)
-  collect('.education-item', 'record', targets, seen)
-  collect('.certification-item', 'record', targets, seen)
+  collect('[data-education-item]', 'record', targets, seen)
+  collect('[data-certification-item]', 'record', targets, seen)
   collect('[data-blog-card]', 'record', targets, seen)
   collect('[data-contact-panel]', 'stagger', targets, seen)
   collect('.capabilities', 'stagger', targets, seen)
@@ -110,7 +111,7 @@ export function initReveals() {
         continue
       }
 
-      if (!target.shown || target.timer) continue
+      if (!target.shown || target.timer || target.once) continue
 
       target.timer = window.setTimeout(() => {
         target.timer = 0
