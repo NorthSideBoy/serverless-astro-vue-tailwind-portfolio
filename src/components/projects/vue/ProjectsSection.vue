@@ -67,7 +67,7 @@ function metaLine(project: Project) {
     aria-labelledby="projects-title"
   >
     <span class="dot-extra" style="--dot-extra-focus: 0% 50%" aria-hidden="true" />
-    <span class="dot-extra" style="--dot-extra-top: 80%; --dot-extra-height: 760px; --dot-field-strength: 48%" aria-hidden="true" />
+    <span class="dot-extra" style="--dot-extra-top: 80%; --dot-extra-height: 760px; --dot-field-strength: 62%" aria-hidden="true" />
     <div class="shell relative">
       <SectionHeader
         seal="六"

@@ -130,7 +130,7 @@ html[data-theme='light'] .stack-tile {
   --c-on-action: #f7fbfc;
   --c-status: #00806f;
   --c-danger: #b4232f;
-  --dot-field-weight: 0.85;
+  --dot-field-weight: 0.92;
 }
 
 @layer base {
@@ -223,7 +223,7 @@ html[data-theme='light'] .stack-tile {
   .dot-field,
   .dot-extra {
     --dot-field-height: 520px;
-    --dot-field-strength: 76%;
+    --dot-field-strength: 90%;
     --dot-field-focus: 100% 0%;
     --dot-field-reach: 58% 100%;
     --dot-field-fade: 78%;
@@ -262,7 +262,7 @@ html[data-theme='light'] .stack-tile {
       radial-gradient(
         ellipse var(--dot-field-reach) at var(--dot-field-focus),
         rgb(0 0 0 / 1) 0%,
-        rgb(0 0 0 / 0.52) 46%,
+        rgb(0 0 0 / 0.6) 46%,
         rgb(0 0 0 / 0) var(--dot-field-fade)
       )
     );
@@ -272,7 +272,7 @@ html[data-theme='light'] .stack-tile {
    * out before the identity plate takes over. */
   .dot-field--lead {
     --dot-field-height: 100%;
-    --dot-field-strength: 74%;
+    --dot-field-strength: 84%;
     --dot-field-focus: 30% 2%;
     --dot-field-reach: 92% 94%;
     --dot-field-fade: 80%;
@@ -281,7 +281,7 @@ html[data-theme='light'] .stack-tile {
   /* The peak: one step above a standard opening, still a margin field. */
   .dot-field--peak {
     --dot-field-height: 640px;
-    --dot-field-strength: 82%;
+    --dot-field-strength: 92%;
     --dot-field-focus: 100% 0%;
     --dot-field-reach: 64% 100%;
   }
@@ -289,7 +289,7 @@ html[data-theme='light'] .stack-tile {
   /* Quiet chapters keep the motif at annex scale instead of dropping it. */
   .dot-field--quiet {
     --dot-field-height: 440px;
-    --dot-field-strength: 68%;
+    --dot-field-strength: 82%;
     --dot-field-focus: 100% 0%;
     --dot-field-reach: 56% 100%;
   }
@@ -297,7 +297,7 @@ html[data-theme='light'] .stack-tile {
   /* A compact chapter mark for sections whose content starts early. */
   .dot-field--mark {
     --dot-field-height: 260px;
-    --dot-field-strength: 68%;
+    --dot-field-strength: 80%;
     --dot-field-focus: 100% 0%;
     --dot-field-reach: 50% 100%;
   }
@@ -321,7 +321,7 @@ html[data-theme='light'] .stack-tile {
     mask-image: radial-gradient(
       ellipse var(--dot-field-echo-reach, 78% 136%) at var(--dot-field-echo-focus, 100% 100%),
       rgb(0 0 0 / 1) 0%,
-      rgb(0 0 0 / 0.42) 40%,
+      rgb(0 0 0 / 0.52) 40%,
       rgb(0 0 0 / 0) 76%
     );
   }
@@ -329,13 +329,13 @@ html[data-theme='light'] .stack-tile {
   @media (max-width: 767px) {
     .dot-field {
       --dot-field-height: 360px;
-      --dot-field-strength: 64%;
+      --dot-field-strength: 78%;
       --dot-field-reach: 68% 100%;
     }
 
     .dot-field--lead {
       --dot-field-height: 100%;
-      --dot-field-strength: 56%;
+      --dot-field-strength: 68%;
       --dot-field-focus: 38% 0%;
       --dot-field-reach: 96% 58%;
       --dot-field-fade: 80%;
@@ -343,19 +343,19 @@ html[data-theme='light'] .stack-tile {
 
     .dot-field--peak {
       --dot-field-height: 480px;
-      --dot-field-strength: 74%;
+      --dot-field-strength: 86%;
       --dot-field-reach: 70% 100%;
     }
 
     .dot-field--quiet {
       --dot-field-height: 300px;
-      --dot-field-strength: 56%;
+      --dot-field-strength: 70%;
       --dot-field-reach: 58% 100%;
     }
 
     .dot-field--mark {
       --dot-field-height: 220px;
-      --dot-field-strength: 58%;
+      --dot-field-strength: 72%;
       --dot-field-reach: 56% 100%;
     }
 
@@ -375,7 +375,7 @@ html[data-theme='light'] .stack-tile {
   }
 
   .dot-extra {
-    --dot-field-strength: 50%;
+    --dot-field-strength: 64%;
     position: absolute;
     left: 0;
     right: 0;
@@ -389,14 +389,14 @@ html[data-theme='light'] .stack-tile {
     mask-image: radial-gradient(
       ellipse var(--dot-extra-reach, 50% 94%) at var(--dot-extra-focus, 100% 50%),
       rgb(0 0 0 / 1) 0%,
-      rgb(0 0 0 / 0.42) 46%,
+      rgb(0 0 0 / 0.52) 46%,
       rgb(0 0 0 / 0) 80%
     );
   }
 
   @media (max-width: 767px) {
     .dot-extra {
-      --dot-field-strength: 42%;
+      --dot-field-strength: 54%;
       --dot-extra-height: 480px;
       --dot-extra-reach: 68% 92%;
     }

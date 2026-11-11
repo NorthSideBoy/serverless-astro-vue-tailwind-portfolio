@@ -36,7 +36,7 @@ const grouped = computed(() =>
     aria-labelledby="stack-title"
   >
     <span class="dot-extra" style="--dot-extra-focus: 0% 50%" aria-hidden="true" />
-    <span class="dot-extra" style="--dot-extra-top: 80%; --dot-extra-height: 560px; --dot-field-strength: 44%" aria-hidden="true" />
+    <span class="dot-extra" style="--dot-extra-top: 80%; --dot-extra-height: 560px; --dot-field-strength: 58%" aria-hidden="true" />
     <div class="shell">
       <SectionHeader
         seal="四"

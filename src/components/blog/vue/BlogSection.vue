@@ -54,7 +54,7 @@ const leadHasThemeVariant = computed(() =>
     aria-labelledby="blog-title"
   >
     <span class="dot-extra" aria-hidden="true" />
-    <span class="dot-extra" style="--dot-extra-top: 86%; --dot-extra-focus: 0% 50%; --dot-extra-height: 520px; --dot-field-strength: 44%" aria-hidden="true" />
+    <span class="dot-extra" style="--dot-extra-top: 86%; --dot-extra-focus: 0% 50%; --dot-extra-height: 520px; --dot-field-strength: 58%" aria-hidden="true" />
     <div class="shell">
       <SectionHeader
         seal="九"

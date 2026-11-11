@@ -39,7 +39,7 @@ const home = computed(() => (props.locale === 'en' ? '/en/' : '/'))
     aria-labelledby="experience-title"
   >
     <span class="dot-extra" aria-hidden="true" />
-    <span class="dot-extra" style="--dot-extra-top: 20%; --dot-extra-focus: 0% 50%; --dot-extra-height: 640px; --dot-field-strength: 46%" aria-hidden="true" />
+    <span class="dot-extra" style="--dot-extra-top: 20%; --dot-extra-focus: 0% 50%; --dot-extra-height: 640px; --dot-field-strength: 60%" aria-hidden="true" />
     <div class="shell relative">
       <SectionHeader
         seal="五"
