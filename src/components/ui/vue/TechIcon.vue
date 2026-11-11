@@ -23,6 +23,7 @@ defineProps<{
   />
   <svg
     v-else-if="path"
+    class="tech-icon"
     :width="size ?? 32"
     :height="size ?? 32"
     viewBox="0 0 24 24"
@@ -44,6 +45,12 @@ defineProps<{
 </template>
 
 <style scoped>
+/* An svg clips its own viewport by default, which slices off glows, shadows and
+   scales a consumer adds around the mark. The icon box itself stays fixed. */
+.tech-icon {
+  overflow: visible;
+}
+
 .tech-icon-mask {
   display: inline-block;
   background-color: currentColor;
