@@ -100,14 +100,21 @@ async function submit(): Promise<void> {
     return
   }
 
+  const message = toContactMessage(draft.value)
   const ok = await runSubmission(async () => {
     // The SDK and the repository are imported on submit only: visiting the
     // page must not download or call Firebase.
-    const [{ createContactMessage }, { getFirestoreDatabase }] = await Promise.all([
-      import('@/lib/forms/repository'),
-      import('@/lib/firebase/client'),
-    ])
-    await createContactMessage(await getFirestoreDatabase(), toContactMessage(draft.value))
+    const [{ createContactMessage }, { getFirestoreDatabase }, { notifyContactMessage }] =
+      await Promise.all([
+        import('@/lib/forms/repository'),
+        import('@/lib/firebase/client'),
+        import('@/lib/notifications/emailjs'),
+      ])
+    await createContactMessage(await getFirestoreDatabase(), message)
+
+    // The message is stored: success no longer depends on the notification.
+    // A failed or slow email is reported as neither an error nor a retry.
+    await notifyContactMessage(message)
   })
 
   if (!ok) {

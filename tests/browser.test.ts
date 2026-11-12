@@ -312,7 +312,7 @@ describe('rendered portfolio', () => {
     await page.close()
   })
 
-  it('validates the contact form before calling Firebase', async () => {
+  it('validates the contact form before calling Firebase or EmailJS', async () => {
     const page = await openPage()
     const requests: string[] = []
     page.on('request', (request) => requests.push(request.url()))
@@ -332,7 +332,9 @@ describe('rendered portfolio', () => {
     ).toBe(true)
     expect(await page.locator('#contact-name').getAttribute('aria-invalid')).toBe('true')
     expect(
-      requests.some((url) => /firebase|identitytoolkit|firestore\.googleapis/.test(url)),
+      requests.some((url) =>
+        /firebase|identitytoolkit|firestore\.googleapis|emailjs/.test(url),
+      ),
     ).toBe(false)
     await page.close()
   })

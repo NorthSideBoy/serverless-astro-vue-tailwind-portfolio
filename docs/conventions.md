@@ -502,6 +502,23 @@ them. `forms` is append-only from the browser: no read, list, update or delete.
 The static site never renders a stored message. Zod constrains the payload but
 does not rate-limit; spam control belongs to App Check and usage alerts.
 
+### R-DATA-11 — Send email notifications after the write, best effort
+
+Contact and new-review emails are sent with EmailJS from the browser, only
+after Firestore confirms the write. `src/lib/notifications/emailjs.ts` owns the
+template variables and is imported dynamically on submit; no page loads EmailJS
+at startup.
+
+- Only the EmailJS public key, service and template IDs are used. The private
+  key is never shipped and no server function exists.
+- Notifications happen on creation only: a review edit or approval must not
+  notify again.
+- A failed, skipped or slow send must not repeat the write, reject the
+  submission or turn the success state into an error. Firestore remains the
+  record of truth.
+- Visitor content and provider responses are never logged. The recipient is
+  fixed inside EmailJS, never taken from browser input.
+
 ## 10. Visitor review authentication
 
 ### R-AUTH-01 — Keep the Firebase web SDK out of SSR and public features
@@ -757,6 +774,8 @@ output.
 - Importing the Firebase web SDK during SSR or from public content features.
 - Statically importing the Firebase SDK or `src/lib/forms/` in the contact form; both load on submit.
 - Rendering a stored contact message in the static site or logging its body.
+- Loading EmailJS at page startup or sending the notification before Firestore confirms the write.
+- Notifying again when a review is edited or approved, or logging notification payloads.
 - Rendering visitor review text with `v-html`.
 - Adding `/resenas/` to the sitemap or treating it as indexable public content.
 
@@ -780,6 +799,7 @@ output.
 | Review contract and helpers | `src/data/reviews.ts`, `src/data/schemas/review.ts` |
 | Review auth and repository | `src/lib/firebase/`, `src/lib/reviews/` |
 | Contact contract, form and repository | `src/data/contact.ts`, `src/components/home/vue/ContactForm.vue`, `src/lib/forms/` |
+| Email notifications | `src/lib/notifications/emailjs.ts` |
 | Review pages and islands | `src/components/reviews/`, `src/components/islands/reviews/` |
 | Firestore security rules | `firestore.rules` |
 | Relations and anchors | `src/data/relations.ts`, `src/data/anchors.ts` |

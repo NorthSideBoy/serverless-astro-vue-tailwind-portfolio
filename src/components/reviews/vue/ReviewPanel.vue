@@ -31,7 +31,7 @@ import ReviewCard from '@/components/reviews/vue/ReviewCard.vue'
 import RoleTagsInput from '@/components/reviews/vue/RoleTagsInput.vue'
 import RelationPicker from '@/components/reviews/vue/RelationPicker.vue'
 
-defineProps<{
+const props = defineProps<{
   experiences: ReviewExperience[]
   projects: ReviewProject[]
 }>()
@@ -364,8 +364,27 @@ async function publish(): Promise<void> {
   const wasEdited = Boolean(existing)
   const ok = await runSubmission(async () => {
     const db = await getFirestoreDatabase()
-    if (wasEdited) await updateReview(db, currentUser, draft.value)
-    else await createReview(db, currentUser, draft.value)
+    if (wasEdited) {
+      await updateReview(db, currentUser, draft.value)
+      return
+    }
+
+    await createReview(db, currentUser, draft.value)
+
+    // Notify once, on creation only. The review is already stored, so the
+    // outcome never changes the success state or repeats the write.
+    const { notifyNewReview } = await import('@/lib/notifications/emailjs')
+    await notifyNewReview({
+      authorName: currentUser.displayName,
+      authorEmail: currentUser.email,
+      roles: draft.value.roles,
+      locale: draft.value.locale,
+      experienceIds: draft.value.experienceIds,
+      projectSlugs: draft.value.projectSlugs,
+      quote: draft.value.quote,
+      experiences: props.experiences,
+      projects: props.projects,
+    })
   })
 
   if (ok) {

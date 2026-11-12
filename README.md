@@ -96,6 +96,7 @@ credenciales descritas abajo o Application Default Credentials.
 | `R2_ACCOUNT_ID`, `R2_ACCESS_KEY_ID`, `R2_SECRET_ACCESS_KEY`, `R2_BUCKET` | Credenciales server-only para el futuro CRUD de medios en R2. No se usan en el build estático. |
 | `FIREBASE_PROJECT_ID`, `FIREBASE_CLIENT_EMAIL`, `FIREBASE_PRIVATE_KEY` | Credenciales de la cuenta de servicio para leer Firestore en build sin archivo JSON. Si no se definen, se usa Application Default Credentials. |
 | `PUBLIC_FIREBASE_API_KEY`, `PUBLIC_FIREBASE_AUTH_DOMAIN`, `PUBLIC_FIREBASE_PROJECT_ID`, `PUBLIC_FIREBASE_APP_ID` | Configuración web pública de Firebase para el login con Google y las escrituras de reseñas. No son secretos; se obtienen con `npx firebase-tools apps:sdkconfig web`. |
+| `PUBLIC_EMAILJS_PUBLIC_KEY`, `PUBLIC_EMAILJS_SERVICE_ID`, `PUBLIC_EMAILJS_CONTACT_TEMPLATE_ID`, `PUBLIC_EMAILJS_REVIEW_TEMPLATE_ID` | Avisos por correo de contacto y reseñas con EmailJS. Son identificadores públicos de navegador, no secretos: la Private Key no se usa. Si falta un valor, esa notificación se omite. El destinatario se configura dentro de EmailJS. |
 | `CONTENT_SOURCE=fixture` | Solo pruebas locales: genera el sitio con contenido de prueba sin Firestore. No desplegar ese build. |
 
 `.env` y las claves de servicio están ignoradas por Git. Las reglas de Firestore
@@ -154,6 +155,31 @@ Si el hosting envía `Cross-Origin-Opener-Policy`, usa
 permitir `identitytoolkit.googleapis.com`, `securetoken.googleapis.com`,
 `firestore.googleapis.com`, `northsideboy-portfolio.firebaseapp.com`,
 `accounts.google.com` y `*.googleusercontent.com`.
+
+## Avisos por correo (EmailJS)
+
+Los dos formularios guardan primero en Firestore y después avisan por EmailJS
+desde el navegador. No hay Cloud Functions ni backend: la integración funciona
+con el plan gratuito de Firebase.
+
+- `src/lib/notifications/emailjs.ts` construye las variables de plantilla y
+  llama a EmailJS. Se importa dinámicamente al enviar, así que ninguna página
+  descarga EmailJS al cargarse.
+- Contacto notifica tras crear el documento en `forms`; reseñas notifican solo
+  al crear `reviews/{uid}`, nunca al editar ni al aprobar.
+- Las plantillas reciben `name`, `email`, `subject`, `locale` y `message` en
+  contacto, y `author_name`, `author_email`, `roles`, `locale`, `relations` y
+  `quote` en reseñas. Las listas se envían como texto legible.
+- El destinatario se fija en EmailJS, no en el navegador. Solo se usa la Public
+  Key; la Private Key no se necesita y no debe exponerse nunca.
+- Un fallo o una demora de EmailJS no repite la escritura ni cambia el estado
+  de éxito: el mensaje o la reseña ya están guardados y siguen disponibles en
+  Firestore. Por el mismo motivo, un documento puede quedar guardado sin aviso
+  si el visitante cierra la pestaña justo después de enviar.
+
+Antes de desplegar, añade el dominio del sitio y `localhost` a los orígenes
+permitidos de EmailJS. Si el hosting aplica CSP, debe permitir
+`https://api.emailjs.com` en `connect-src`.
 
 ## Medios
 

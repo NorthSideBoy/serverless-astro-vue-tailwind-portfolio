@@ -162,6 +162,19 @@ describe('component architecture', () => {
     expect(violations.map((file) => path.relative(srcDir, file))).toEqual([])
   })
 
+  it('keeps EmailJS out of the initial bundle of the public content features', () => {
+    const publicFeatures = ['home', 'projects', 'blog'].flatMap((feature) =>
+      walk(path.join(componentsDir, feature)),
+    )
+    const violations = publicFeatures.filter((file) =>
+      importsOf(file).some(
+        (specifier) =>
+          specifier === '@emailjs/browser' || specifier.startsWith('@/lib/notifications'),
+      ),
+    )
+    expect(violations.map((file) => path.relative(srcDir, file))).toEqual([])
+  })
+
   it('loads the contact Firebase SDK only after an explicit submit', () => {
     const form = fs.readFileSync(path.join(componentsDir, 'home/vue/ContactForm.vue'), 'utf8')
     const staticImports = importsOf(path.join(componentsDir, 'home/vue/ContactForm.vue'))
