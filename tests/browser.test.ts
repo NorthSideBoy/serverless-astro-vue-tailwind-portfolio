@@ -145,7 +145,7 @@ describe('rendered portfolio', () => {
     expect(await page.locator('#top h1').count()).toBe(1)
     expect(await page.locator('#top .identity-plate[role="img"]').count()).toBe(1)
     expect(await page.locator('[data-scramble]').count()).toBeGreaterThan(0)
-    expect(await page.locator('#skills [role="tab"]').count()).toBe(4)
+    expect(await page.locator('#skills [role="tab"]').count()).toBe(5)
     expect(await page.locator('#contact a[href^="mailto:"]').count()).toBe(1)
     expect(await page.locator('header nav a').count()).toBeGreaterThan(0)
     expect(await page.locator('footer nav a').count()).toBeGreaterThan(0)
@@ -280,10 +280,19 @@ describe('rendered portfolio', () => {
     await tabs.nth(1).focus()
     await tabs.nth(1).press('ArrowRight')
     expect(await tabs.nth(2).getAttribute('aria-selected')).toBe('true')
-    expect(await page.locator('#skills-layer-detail').getAttribute('aria-labelledby')).toBe('skills-layer-tab-2')
+    expect(await tabs.nth(2).getAttribute('data-state')).toBe('active')
+    expect(await page.locator('#skills-area-detail').getAttribute('aria-labelledby')).toBe('skills-area-tab-2')
     await tabs.nth(2).press('Home')
     expect(await tabs.nth(0).getAttribute('aria-selected')).toBe('true')
-    expect(await page.locator('#skills-layer-detail [data-layer-detail]:visible').count()).toBe(1)
+    expect(await page.locator('#skills-area-detail [data-area-detail]:visible').count()).toBe(1)
+    expect(
+      await page.locator('#skills-area-detail [data-area-detail]:visible').textContent(),
+    ).toContain('Cómo se usa el sistema')
+    await tabs.nth(0).press('End')
+    expect(await tabs.nth(4).getAttribute('aria-selected')).toBe('true')
+    expect(
+      await page.locator('#skills-area-detail [data-area-detail]:visible').textContent(),
+    ).toContain('Cómo se organiza el conjunto')
     expect(await page.locator('#contact button[type="submit"]').isDisabled()).toBe(true)
     const copy = page.locator('[data-copy-email]')
     await copy.click()

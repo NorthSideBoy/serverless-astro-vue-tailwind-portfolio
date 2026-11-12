@@ -59,7 +59,6 @@ Otras primitivas viven en un solo mundo:
 - `CodeBlock` y `TechIcon` solo existen en `ui/vue/`. `TechIcon` recibe un
   path resuelto de Simple Icons o un `customIcon` de R2 renderizado con
   máscara.
-- `LayerPlate` solo existe en `ui/astro/`.
 
 ## Iconografía
 
@@ -91,8 +90,8 @@ Otras primitivas viven en un solo mundo:
   en Simple Icons 16.
 - Simple Icons es CC0; las marcas siguen siendo trademarks de sus dueños.
 - Guía operativa: [`docs/guides/tech-icons.md`](../../docs/guides/tech-icons.md).
-- `LayerPlate`, `IdentityPlateSheet`, los monogramas NSB/SL y el favicon son
-  arte, no iconos de UI.
+- `IdentityPlateSheet`, los monogramas NSB/SL y el favicon son arte, no iconos
+  de UI.
 
 Si cambias la marca, los estilos o el comportamiento de una primitiva gemela,
 cambia también la otra. Los imports deben respetar el framework del consumidor:

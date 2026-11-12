@@ -61,7 +61,7 @@ If the section needs a small behaviour, add a script file in `src/scripts/` and
 import it from the Astro component:
 
 ```astro
-<script>import '@/scripts/skills-layers';</script>
+<script>import '@/scripts/skills-areas';</script>
 ```
 
 ## 3. Add a managed Vue SSR-only section

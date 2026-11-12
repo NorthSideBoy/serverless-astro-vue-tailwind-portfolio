@@ -2,52 +2,237 @@
 import { content, type Locale } from '@/data/content';
 import SectionHeader from '@/components/ui/astro/SectionHeader.astro';
 import PlateFrame from '@/components/ui/astro/PlateFrame.astro';
-import LayerPlate from '@/components/ui/astro/LayerPlate.astro';
 import UiIcon from '@/components/ui/astro/UiIcon.astro';
 import type { IconName } from '@/components/ui/icon-names';
 const { locale } = Astro.props as { locale: Locale };
 const skills = content[locale].skills;
-const layerIcons: IconName[] = ['database', 'terminal', 'webhook', 'layers'];
-const skillIcons: IconName[] = ['layers', 'database', 'shield-check', 'plug', 'circle-check', 'code'];
-const layerColors = ['var(--c-layer-1)', 'var(--c-layer-2)', 'var(--c-layer-3)', 'var(--c-layer-4)'];
+const home = locale === 'en' ? '/en/' : '/';
+/* Domain is the default area: it sits at the centre of the route. */
+const selectedArea = 2;
+const areaColors = ['var(--c-layer-4)', 'var(--c-layer-3)', 'var(--c-layer-2)', 'var(--c-layer-1)', 'var(--c-soft)'];
+const practiceIcons: IconName[] = ['shield-check', 'plug', 'circle-check'];
+const areaState = (index: number) => (index === selectedArea ? 'active' : 'idle');
 ---
 <section id="skills" class="dot-field dot-field--body relative overflow-hidden section-pad border-y border-line bg-page" aria-labelledby="skills-title">
   <span class="dot-extra" aria-hidden="true" />
   <span class="dot-extra" style="--dot-extra-top: 78%; --dot-extra-focus: 0% 50%; --dot-extra-height: 640px; --dot-field-strength: 60%;" aria-hidden="true" />
   <div class="shell">
-  <SectionHeader seal="三" eyebrow={skills.eyebrow} title={skills.title} lead={skills.lead} titleId="skills-title" signal />
-  <PlateFrame><div class="p-5 md:p-8 xl:p-10">
-    <section aria-labelledby="skills-layers-title">
-      <div class="grid gap-4 md:grid-cols-[230px_minmax(0,1fr)] md:items-end md:gap-12">
-        <div><h3 id="skills-layers-title" class="mono-label text-soft">{skills.layersLabel}</h3><p class="mt-3 text-[13px] leading-[1.7] text-muted md:text-[14px]">{skills.layersNote}</p></div>
-        <p id="skills-layers-hint" class="font-mono text-[10px] text-muted md:text-right">{skills.layersHint}</p>
+    <SectionHeader seal="三" eyebrow={skills.eyebrow} title={skills.title} lead={skills.lead} titleId="skills-title" signal />
+
+    <PlateFrame>
+      <div>
+        <div class="flex items-baseline justify-between gap-6 border-b border-line px-5 py-3.5 md:px-6">
+          <h3 id="skills-areas-title" class="mono-label text-soft">{skills.areasLabel}</h3>
+          <p id="skills-areas-keys" class="sr-only">{skills.areasKeys}</p>
+        </div>
+
+        <div
+          class="architecture-flow"
+          role="tablist"
+          aria-labelledby="skills-areas-title"
+          aria-describedby="skills-areas-keys"
+          aria-orientation="horizontal"
+          data-areas-flow
+        >
+          {skills.areas.map((area, index) => (
+            <button
+              type="button"
+              role="tab"
+              id={`skills-area-tab-${index}`}
+              aria-selected={index === selectedArea}
+              aria-controls="skills-area-detail"
+              tabindex={index === selectedArea ? 0 : -1}
+              data-area-tab={index}
+              data-state={areaState(index)}
+              class="architecture-stage"
+            >
+              <span class="stage-node" aria-hidden="true" />
+              <span class="stage-index">{area.index}</span>
+              <span class="stage-label">{area.label}</span>
+              <span class="stage-detail">{area.detail}</span>
+            </button>
+          ))}
+        </div>
+
+        <div
+          id="skills-area-detail"
+          role="tabpanel"
+          tabindex="-1"
+          aria-labelledby={`skills-area-tab-${selectedArea}`}
+          class="architecture-detail"
+          data-area-panel
+        >
+          {skills.areas.map((area, index) => (
+            <div data-area-detail={index} hidden={index !== selectedArea} class="detail-body">
+              <div class="p-5 md:p-7 xl:p-8">
+                <div class="grid gap-4 md:grid-cols-[minmax(0,0.95fr)_minmax(0,1.05fr)] md:gap-10 xl:gap-14">
+                  <div class="min-w-0">
+                    <p class="font-mono text-[10px] uppercase leading-[1.4] tracking-[0.12em]" style={`color:${areaColors[index]}`}>
+                      {area.index} · {skills.areasAction}
+                    </p>
+                    <h4 class="mt-3 max-w-[30ch] font-display text-[19px] font-semibold leading-[1.18] tracking-[-0.02em] text-ink md:text-[22px] xl:text-[24px]">{area.decision}</h4>
+                  </div>
+                  <p class="min-w-0 max-w-[64ch] text-[13.5px] leading-[1.7] text-muted md:text-[14.5px] md:pr-2">{area.what}</p>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+
+        <div class="border-t border-line">
+          <div class="px-5 py-3.5 md:px-6">
+            <h3 id="skills-practices-title" class="mono-label text-soft">{skills.practicesLabel}</h3>
+          </div>
+          <div class="grid gap-px border-t border-line bg-line sm:grid-cols-3">
+            {skills.practices.map((practice, index) => (
+              <div class="bg-page p-4 md:p-5">
+                <div class="flex items-center gap-2.5">
+                  <UiIcon name={practiceIcons[index] ?? 'layers'} size={15} class="text-icon" />
+                  <h4 class="font-mono text-[10px] uppercase leading-[1.4] tracking-[0.1em] text-soft">{practice.label}</h4>
+                </div>
+                <p class="mt-2.5 text-[13px] leading-[1.6] text-muted">{practice.what}</p>
+              </div>
+            ))}
+          </div>
+        </div>
       </div>
-      <div class="layer-layout mt-7"><div class="layer-plate"><LayerPlate layers={skills.layers} /></div><div class="layer-controls" role="tablist" aria-labelledby="skills-layers-title" aria-orientation="horizontal" aria-describedby="skills-layers-hint">{skills.layers.map((layer, index) => <button id={`skills-layer-tab-${index}`} type="button" role="tab" aria-selected={index === 1} aria-controls="skills-layer-detail" tabindex={index === 1 ? 0 : -1} data-selected={index === 1} data-layer-tab={index} class="block p-4 text-left transition-colors duration-200 md:p-5"><span class="flex items-center justify-between gap-3"><span class:list={['font-mono text-[10px] tracking-[0.08em]', index === 1 ? 'text-soft' : 'text-soft/80']}>{layer.index}</span><UiIcon name={layerIcons[index] ?? 'layers'} size={18} class={index === 1 ? 'text-soft' : 'text-muted'} /></span><span class="mt-6 block font-display text-[15px] font-semibold uppercase tracking-[0.04em] text-ink md:text-[16px]">{layer.label}</span><span class="mt-1.5 block font-mono text-[10px] uppercase tracking-[0.07em] text-muted">{layer.detail}</span></button>)}</div>
-      <aside id="skills-layer-detail" role="tabpanel" tabindex="-1" class="layer-detail border border-line bg-panel/15 p-5 md:p-6" aria-labelledby="skills-layer-tab-1">{skills.layers.map((layer, index) => <div data-layer-detail={index} hidden={index !== 1} class="detail-body"><div class="flex items-center justify-between gap-3"><span class="font-mono text-[10px] uppercase tracking-[0.1em]" style={`color:${layerColors[index % 4]}`}>{layer.index} · {skills.layersAction}</span><UiIcon name={layerIcons[index] ?? 'layers'} size={18} class="text-muted" /></div><h4 class="mt-3 font-display text-[17px] font-semibold uppercase tracking-[0.04em] text-ink md:text-[18px]">{layer.label}</h4><p class="mt-1.5 font-mono text-[10px] uppercase tracking-[0.07em] text-muted">{layer.detail}</p><p class="mt-4 text-[14px] leading-[1.7] text-muted md:text-[15px]">{layer.what}</p></div>)}</aside></div>
-    </section>
-    <section aria-labelledby="skills-capabilities-title" class="mt-10 border-t border-line pt-8 md:mt-12 md:pt-9">
-      <div class="grid gap-7 lg:grid-cols-[230px_minmax(0,1fr)] lg:gap-12">
-        <div><h3 id="skills-capabilities-title" class="mono-label text-soft">{skills.capabilitiesLabel}</h3><p class="mt-3 max-w-[34ch] text-[13px] leading-[1.7] text-muted md:text-[14px]">{skills.capabilitiesNote}</p></div>
-        <ul class="capabilities grid gap-px bg-line md:grid-cols-2">{skills.items.map((item, index) => <li class="capability-card bg-section p-4 md:p-5" style={`--capability-delay:${Math.min(index * 50, 250)}ms`}><div class="flex items-start gap-3"><UiIcon name={skillIcons[index] ?? 'code'} size={17} class="mt-0.5 text-icon" /><div class="min-w-0"><h4 class="font-display text-[16px] font-semibold leading-snug tracking-[-0.01em] text-ink md:text-[17px]">{item.title}</h4><p class="mt-2 text-[13px] leading-[1.65] text-muted md:text-[13.5px]">{item.description}</p><p class="mt-3 font-mono text-[10px] uppercase tracking-[0.07em] text-muted">{item.tags}</p></div></div></li>)}</ul>
-      </div>
-    </section>
-  </div></PlateFrame>
-</div></section>
-<script>import '@/scripts/skills-layers';</script>
+    </PlateFrame>
+
+    <div class="mt-8 flex justify-end border-t border-line pt-7 md:mt-10 md:pt-8">
+      <a href={`${home}#projects`} class="btn-ghost group w-full shrink-0 sm:w-auto">{skills.closeAction} <UiIcon name="arrow-right" size={15} class="transition group-hover:translate-x-0.5" /></a>
+    </div>
+  </div>
+</section>
+<script>import '@/scripts/skills-areas';</script>
 <style>
-  .layer-layout { display: grid; grid-template-areas: 'plate' 'tabs' 'detail'; gap: 24px; }
-  .layer-plate { grid-area: plate; min-width: 0; }
-  .layer-controls { grid-area: tabs; display: grid; grid-template-columns: minmax(0,1fr); gap: 1px; background-color: var(--c-line); }
-  .layer-controls button { background-color: var(--c-section); }
-  .layer-controls button:hover { background-color: color-mix(in srgb, var(--c-panel) 30%, transparent); }
-  .layer-controls button[data-selected='true'] { background-color: color-mix(in srgb, var(--c-panel) 60%, transparent); box-shadow: inset 0 1px var(--c-soft); }
-  .layer-detail { grid-area: detail; }
-  .detail-body:not([hidden]) { animation: detail-enter 280ms cubic-bezier(0.16,1,0.3,1) both; }
+  .architecture-flow {
+    --node-offset: 22px;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 1px;
+    background-color: var(--c-line);
+  }
+  .architecture-stage {
+    position: relative;
+    display: block;
+    min-width: 0;
+    padding: 14px 16px;
+    text-align: left;
+    cursor: pointer;
+    background-color: var(--c-page);
+    transition: background-color 180ms ease;
+  }
+  .architecture-stage:hover {
+    background-color: color-mix(in srgb, var(--c-panel) 26%, transparent);
+  }
+  .architecture-stage[data-state='active'] {
+    background-color: color-mix(in srgb, var(--c-panel) 36%, transparent);
+  }
+  .architecture-stage:focus-visible {
+    outline-offset: -3px;
+  }
+  .stage-node { display: none; }
+  .stage-index {
+    display: block;
+    font-family: var(--font-mono);
+    font-size: 10px;
+    line-height: 1.4;
+    letter-spacing: 0.12em;
+    color: var(--c-muted);
+    transition: color 180ms ease;
+  }
+  .stage-index:empty { display: none; }
+  .stage-label {
+    display: block;
+    margin-top: 8px;
+    font-family: var(--font-display);
+    font-size: 14px;
+    font-weight: 600;
+    line-height: 1.15;
+    letter-spacing: 0.03em;
+    text-transform: uppercase;
+    color: var(--c-muted);
+    transition: color 180ms ease;
+  }
+  .stage-detail {
+    display: block;
+    margin-top: 5px;
+    font-family: var(--font-mono);
+    font-size: 10px;
+    line-height: 1.45;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--c-muted);
+  }
+  .architecture-stage[data-state='active'] .stage-index {
+    color: var(--c-soft);
+  }
+  .architecture-stage[data-state='active'] .stage-label { color: var(--c-ink); }
+
+  .architecture-detail { background-color: var(--c-page); }
   .detail-body[hidden] { display: none; }
-  @keyframes detail-enter { from { opacity: 0; transform: translate3d(8px,5px,0); } to { opacity: 1; transform: none; } }
-  @media (min-width: 640px) { .layer-controls { grid-template-columns: repeat(2,minmax(0,1fr)); } }
-  @media (min-width: 1024px) { .layer-layout { grid-template-columns: minmax(0,1fr) 340px; grid-template-areas: 'plate detail' 'tabs tabs'; align-items: center; column-gap: 40px; } }
-  @media (min-width: 1280px) { .layer-controls { grid-template-columns: repeat(4,minmax(0,1fr)); } }
-  @media (prefers-reduced-motion: reduce) { .layer-controls button, .detail-body { transition: none; animation: none !important; } }
-  @media (prefers-reduced-motion: no-preference) { .capability-card { transition: opacity 520ms cubic-bezier(0.16,1,0.3,1), transform 520ms cubic-bezier(0.16,1,0.3,1); transition-delay: var(--capability-delay,0ms); } .capabilities.is-armed .capability-card { opacity: 0; transform: translate3d(0,10px,0); transition: none; } }
+  .detail-body:not([hidden]) {
+    animation: detail-enter 260ms cubic-bezier(0.16, 1, 0.3, 1) both;
+  }
+  @keyframes detail-enter {
+    from { opacity: 0; transform: translate3d(0, 5px, 0); }
+    to { opacity: 1; transform: none; }
+  }
+
+  @media (min-width: 1024px) {
+    .architecture-flow {
+      grid-template-columns: repeat(5, minmax(0, 1fr));
+      gap: 0;
+      background-color: transparent;
+    }
+    .architecture-stage {
+      padding: 52px 18px 22px;
+      border-right: 1px solid var(--c-line);
+    }
+    .architecture-stage:last-child { border-right: 0; }
+    .architecture-stage::before {
+      content: '';
+      position: absolute;
+      top: 32px;
+      left: 0;
+      right: 0;
+      height: 1px;
+      background-color: var(--c-line);
+    }
+    .stage-node {
+      display: block;
+      position: absolute;
+      top: 28px;
+      left: calc(var(--node-offset) - 4px);
+      width: 9px;
+      height: 9px;
+      border: 1px solid var(--c-line-strong);
+      background-color: var(--c-page);
+      transition: background-color 180ms ease, border-color 180ms ease, box-shadow 180ms ease;
+    }
+    .architecture-stage[data-state='active'] .stage-node {
+      border-color: var(--c-soft);
+      background-color: var(--c-soft);
+      box-shadow: 0 0 0 4px color-mix(in srgb, var(--c-soft) 16%, transparent);
+    }
+    .stage-label { font-size: 15px; }
+    .architecture-detail { min-height: 148px; }
+  }
+  @media (min-width: 1280px) {
+    .architecture-stage { padding: 56px 24px 24px; }
+    .architecture-stage::before { top: 34px; }
+    .stage-node { top: 30px; }
+    .stage-label { font-size: 16px; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .architecture-stage,
+    .architecture-stage::before,
+    .stage-index,
+    .stage-label,
+    .stage-node,
+    .detail-body:not([hidden]) {
+      transition: none;
+      animation: none !important;
+    }
+  }
 </style>

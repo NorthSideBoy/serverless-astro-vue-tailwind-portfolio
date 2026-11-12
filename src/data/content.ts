@@ -23,17 +23,17 @@ interface Role {
   description: string
 }
 
-interface SkillLayer {
+interface WorkArea {
   index: string
   label: string
   detail: string
+  decision: string
   what: string
 }
 
-interface Skill {
-  title: string
-  description: string
-  tags: string
+interface ArchitecturePractice {
+  label: string
+  what: string
 }
 
 export interface ServiceItem {
@@ -105,14 +105,13 @@ export interface SiteContent {
     eyebrow: string
     title: string
     lead: string
-    layersLabel: string
-    layersNote: string
-    layersHint: string
-    layersAction: string
-    capabilitiesLabel: string
-    capabilitiesNote: string
-    layers: SkillLayer[]
-    items: Skill[]
+    areasLabel: string
+    areasKeys: string
+    areasAction: string
+    practicesLabel: string
+    closeAction: string
+    areas: WorkArea[]
+    practices: ArchitecturePractice[]
   }
   stack: {
     meta: {
@@ -506,77 +505,61 @@ export const content: Record<Locale, SiteContent> = {
     skills: {
       eyebrow: 'HABILIDADES TÉCNICAS',
       title: 'Desarrollo de software con foco en backend',
-      lead: 'Diseño APIs, modelo datos y organizo la lógica de negocio para que los sistemas sean fáciles de mantener. Cuando el proyecto lo necesita, también construyo la interfaz y entrego la solución completa.',
-      capabilitiesLabel: 'QUÉ APORTO A UN PROYECTO',
-      capabilitiesNote:
-        'Las áreas donde trabajo con más frecuencia, desde el diseño del sistema hasta la entrega.',
-      items: [
-        {
-          title: 'Arquitectura y APIs',
-          description:
-            'Diseño APIs y organizo la lógica de negocio para que el sistema pueda evolucionar sin complicar cada cambio.',
-          tags: 'REST · GraphQL · servicios',
-        },
-        {
-          title: 'Modelado de datos',
-          description:
-            'Modelo la información según los procesos del producto y las consultas que necesita.',
-          tags: 'SQL · NoSQL · consultas',
-        },
-        {
-          title: 'Seguridad y permisos',
-          description:
-            'Implemento autenticación, permisos y validación de datos según las necesidades de cada sistema.',
-          tags: 'Autenticación · roles · validación',
-        },
-        {
-          title: 'Integraciones',
-          description:
-            'Conecto servicios externos y aplicaciones existentes sin que el sistema dependa de un solo proveedor.',
-          tags: 'APIs externas · sistemas existentes',
-        },
-        {
-          title: 'Calidad de código',
-          description:
-            'Acompaño los cambios con pruebas y documentación para que el código siga siendo fácil de mantener.',
-          tags: 'Pruebas · documentación · revisión',
-        },
-        {
-          title: 'Desarrollo full stack',
-          description:
-            'Construyo interfaces conectadas al backend, cuidando las acciones y los estados de cada flujo.',
-          tags: 'Vue · interfaces · componentes',
-        },
-      ],
-      layersLabel: 'ORGANIZACIÓN POR CAPAS',
-      layersNote:
-        'En mis proyectos suelo separar la aplicación en cuatro áreas: datos, lógica de negocio, API e interfaz. Esa división me ayuda a mantener claras las responsabilidades de cada parte y a ubicar mejor los cambios.',
-      layersHint: 'Selecciona una capa para ver su responsabilidad.',
-      layersAction: 'CAPA SELECCIONADA',
-      layers: [
+      lead: 'Trabajo en el desarrollo y la arquitectura de aplicaciones full stack. Me importa que el código sea entendible para el equipo, que los cambios se puedan probar y que el sistema se mantenga en producción.',
+      areasLabel: 'ÁREAS DE TRABAJO',
+      areasKeys: 'Usa las flechas, Inicio y Fin para cambiar de área.',
+      areasAction: 'ÁREA SELECCIONADA',
+      practicesLabel: 'PRÁCTICAS TRANSVERSALES',
+      closeAction: 'Ver proyectos',
+      areas: [
         {
           index: '01',
-          label: 'DATOS',
-          detail: 'esquemas · consultas',
-          what: 'Modelo y organizo la información que necesita la aplicación: usuarios, cobros, registros. Aquí viven los esquemas y las consultas.',
+          label: 'INTERFAZ',
+          detail: 'pantallas · flujos',
+          decision: 'Cómo se usa el sistema',
+          what: 'Construyo las pantallas y los flujos de la aplicación, con sus estados de carga, error y confirmación.',
         },
         {
           index: '02',
-          label: 'BACKEND',
-          detail: 'servicios · reglas de negocio',
-          what: 'Implemento las reglas de negocio, valido las entradas y coordino las operaciones sobre los datos.',
+          label: 'API',
+          detail: 'endpoints · permisos',
+          decision: 'Cómo se comunican la interfaz y los servicios',
+          what: 'Defino las operaciones disponibles, lo que recibe cada una y lo que devuelve, junto con la validación y los permisos.',
         },
         {
           index: '03',
-          label: 'API',
-          detail: 'contratos · permisos',
-          what: 'Defino el contrato entre el backend y sus clientes: qué se puede solicitar, qué recibe cada operación y cómo se devuelve la respuesta. Los permisos de acceso también se gestionan aquí.',
+          label: 'DOMINIO',
+          detail: 'reglas · procesos',
+          decision: 'Dónde vive la lógica de negocio',
+          what: 'Implemento las reglas y los procesos de la aplicación, separados del transporte y del almacenamiento.',
         },
         {
           index: '04',
-          label: 'INTERFAZ',
-          detail: 'componentes · estado',
-          what: 'Construyo las pantallas, los componentes y los estados que acompañan cada acción.',
+          label: 'DATOS',
+          detail: 'esquemas · consultas',
+          decision: 'Cómo se guarda y se consulta la información',
+          what: 'Modelo la información y preparo las consultas que necesitan los procesos del sistema.',
+        },
+        {
+          index: '05',
+          label: 'ARQUITECTURA',
+          detail: 'límites · dependencias',
+          decision: 'Cómo se organiza el conjunto',
+          what: 'Defino qué responsabilidades conviene agrupar o separar, cómo se comunican las partes y qué dependencias pueden dificultar un cambio.',
+        },
+      ],
+      practices: [
+        {
+          label: 'SEGURIDAD',
+          what: 'Autenticación, permisos y validación de datos.',
+        },
+        {
+          label: 'INTEGRACIONES',
+          what: 'Conexión con servicios externos y sistemas existentes.',
+        },
+        {
+          label: 'CALIDAD',
+          what: 'Pruebas automatizadas y revisión de código.',
         },
       ],
     },
@@ -869,7 +852,8 @@ export const content: Record<Locale, SiteContent> = {
       },
     },
     footer: {
-      tagline: 'Para el que tiene que mantenerlo después.',
+      tagline:
+        '«Es el final del camino. Vámonos. No deberíamos hacer esperar a los dioses.»',
       sectionsLabel: 'SECCIONES',
       contactLabel: 'CONTACTO',
       meta: '2026 · 0417',
@@ -1035,76 +1019,61 @@ export const content: Record<Locale, SiteContent> = {
     skills: {
       eyebrow: 'TECHNICAL SKILLS',
       title: 'Software development with a backend focus',
-      lead: 'I design APIs, model data and structure business logic to keep systems maintainable. When a project needs it, I also build the interface and ship the whole thing.',
-      capabilitiesLabel: 'WHAT I BRING TO A PROJECT',
-      capabilitiesNote: 'The areas I work in most often, from system design through delivery.',
-      items: [
-        {
-          title: 'Architecture and APIs',
-          description:
-            'I design APIs and structure business logic so the system can evolve without making every change harder.',
-          tags: 'REST · GraphQL · services',
-        },
-        {
-          title: 'Data modeling',
-          description:
-            "I model information around the product's processes and the queries it needs.",
-          tags: 'SQL · NoSQL · queries',
-        },
-        {
-          title: 'Security and permissions',
-          description:
-            "I implement authentication, permissions and data validation to match each system's needs.",
-          tags: 'Authentication · roles · validation',
-        },
-        {
-          title: 'Integrations',
-          description:
-            'I connect external services and existing applications without tying the system to a single provider.',
-          tags: 'External APIs · existing systems',
-        },
-        {
-          title: 'Code quality',
-          description:
-            'I support changes with tests and documentation so the code stays easy to maintain.',
-          tags: 'Testing · documentation · review',
-        },
-        {
-          title: 'Full-stack development',
-          description:
-            'I build interfaces connected to the backend, with attention to the actions and states in each flow.',
-          tags: 'Vue · interfaces · components',
-        },
-      ],
-      layersLabel: 'LAYERED ORGANIZATION',
-      layersNote:
-        "In my projects I usually split the application into four areas: data, business logic, API and interface. That division keeps each part's responsibilities clear and makes it easier to see where a change belongs.",
-      layersHint: 'Select a layer to see its responsibility.',
-      layersAction: 'SELECTED LAYER',
-      layers: [
+      lead: 'I work on software development and architecture for full-stack applications. I care that the code stays readable for the team, that changes can be tested, and that the system holds up in production.',
+      areasLabel: 'WORK AREAS',
+      areasKeys: 'Use the arrow keys, Home and End to change areas.',
+      areasAction: 'SELECTED AREA',
+      practicesLabel: 'CROSS-CUTTING PRACTICES',
+      closeAction: 'View projects',
+      areas: [
         {
           index: '01',
-          label: 'DATA',
-          detail: 'schemas · queries',
-          what: 'I model and organize the information the application needs: users, charges, records. Schemas and queries live here.',
+          label: 'INTERFACE',
+          detail: 'screens · flows',
+          decision: 'How the system is used',
+          what: 'I build the screens and flows of the application, with their loading, error and confirmation states.',
         },
         {
           index: '02',
-          label: 'BACKEND',
-          detail: 'services · business rules',
-          what: 'I implement business rules, validate input and coordinate operations on the data.',
+          label: 'API',
+          detail: 'endpoints · permissions',
+          decision: 'How the interface and the services communicate',
+          what: 'I define the available operations, what each one receives and what it returns, together with validation and permissions.',
         },
         {
           index: '03',
-          label: 'API',
-          detail: 'contracts · permissions',
-          what: 'I define the contract between the backend and its clients: what can be requested, what each operation receives and how the response is returned. Access permissions are managed here too.',
+          label: 'DOMAIN',
+          detail: 'rules · processes',
+          decision: 'Where business logic lives',
+          what: 'I implement the rules and processes of the application, apart from transport and storage.',
         },
         {
           index: '04',
-          label: 'INTERFACE',
-          detail: 'components · state',
-          what: 'I build the screens, components and states that accompany each action.',
+          label: 'DATA',
+          detail: 'schemas · queries',
+          decision: 'How information is stored and queried',
+          what: 'I model the information and prepare the queries the system processes need.',
+        },
+        {
+          index: '05',
+          label: 'ARCHITECTURE',
+          detail: 'boundaries · dependencies',
+          decision: 'How the whole is organised',
+          what: 'I decide which responsibilities belong together or should be separated, how the parts talk to each other and which dependencies make a change harder.',
+        },
+      ],
+      practices: [
+        {
+          label: 'SECURITY',
+          what: 'Authentication, permissions and data validation.',
+        },
+        {
+          label: 'INTEGRATIONS',
+          what: 'Connections to external services and existing systems.',
+        },
+        {
+          label: 'QUALITY',
+          what: 'Automated tests and code review.',
         },
       ],
     },
@@ -1392,7 +1361,8 @@ export const content: Record<Locale, SiteContent> = {
       },
     },
     footer: {
-      tagline: 'For whoever has to maintain it later.',
+      tagline:
+        "“End of the line. Let's go. Shouldn't keep the gods waiting for us.”",
       sectionsLabel: 'SECTIONS',
       contactLabel: 'CONTACT',
       meta: '2026 · 0417',
