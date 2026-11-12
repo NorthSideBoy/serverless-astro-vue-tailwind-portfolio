@@ -1,4 +1,18 @@
-<div class="relative border border-line bg-panel/20">
+---
+interface Props {
+  /** Background ground. `panel` is the translucent default; `page` is the deepest ground. */
+  tone?: 'panel' | 'page' | 'section' | 'sunken';
+  class?: string;
+}
+const { tone = 'panel', class: className } = Astro.props;
+const toneClass = {
+  panel: 'bg-panel/20',
+  page: 'bg-page',
+  section: 'bg-section',
+  sunken: 'bg-sunken',
+}[tone];
+---
+<div class:list={['relative border border-line', toneClass, className]}>
   <span class="pointer-events-none absolute -left-px -top-px h-3.5 w-3.5 border-l border-t border-line-strong" aria-hidden="true" />
   <span class="pointer-events-none absolute -right-px -top-px h-3.5 w-3.5 border-r border-t border-line-strong" aria-hidden="true" />
   <span class="pointer-events-none absolute -bottom-px -left-px h-3.5 w-3.5 border-b border-l border-line-strong" aria-hidden="true" />

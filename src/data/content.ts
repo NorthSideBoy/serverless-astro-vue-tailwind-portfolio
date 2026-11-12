@@ -321,6 +321,7 @@ export interface SiteContent {
     whatsappAria: string
     githubAria: string
     form: {
+      eyebrow: string
       nameLabel: string
       namePlaceholder: string
       emailLabel: string
@@ -828,13 +829,13 @@ export const content: Record<Locale, SiteContent> = {
       title: 'Contacto',
       lead: 'Hablemos de tu proyecto o de la vacante que quieres cubrir.',
       question: '¿Tienes un sistema que construir, uno que mantener o un equipo al que sumarme?',
-      paragraph:
-        'Cuéntame el problema, no la solución. Te respondo por correo con el siguiente paso.',
+      paragraph: 'Cuéntame el problema, no la solución.',
       badges: ['PROYECTOS Y VACANTES', 'REMOTO O LOCAL', 'ESPAÑOL NATIVO / INGLÉS A2'],
       emailAria: 'Escribir un correo a saidlucena519@gmail.com',
       whatsappAria: 'Escribir por WhatsApp al +58 424 888 7764',
       githubAria: 'Abrir el perfil de GitHub de Said Lucena',
       form: {
+        eyebrow: 'FORMULARIO',
         nameLabel: 'NOMBRE',
         namePlaceholder: 'Tu nombre',
         emailLabel: 'CORREO',
@@ -1337,12 +1338,13 @@ export const content: Record<Locale, SiteContent> = {
       title: 'Contact',
       lead: 'Let’s talk about your project or the role you need to fill.',
       question: 'Do you have a system to build, one to maintain, or a team I can join?',
-      paragraph: 'Tell me the problem, not the solution. I reply by email with the next step.',
+      paragraph: 'Tell me the problem, not the solution.',
       badges: ['PROJECTS AND ROLES', 'REMOTE OR LOCAL', 'SPANISH NATIVE / ENGLISH A2'],
       emailAria: 'Write an email to saidlucena519@gmail.com',
       whatsappAria: 'Message +58 424 888 7764 on WhatsApp',
       githubAria: 'Open Said Lucena’s GitHub profile',
       form: {
+        eyebrow: 'FORM',
         nameLabel: 'NAME',
         namePlaceholder: 'Your name',
         emailLabel: 'EMAIL',

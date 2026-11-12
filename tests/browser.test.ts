@@ -293,7 +293,7 @@ describe('rendered portfolio', () => {
     expect(
       await page.locator('#skills-area-detail [data-area-detail]:visible').textContent(),
     ).toContain('Cómo se organiza el conjunto')
-    expect(await page.locator('#contact button[type="submit"]').isDisabled()).toBe(true)
+    expect(await page.locator('#contact button[type="submit"]').isDisabled()).toBe(false)
     const copy = page.locator('[data-copy-email]')
     await copy.click()
     await expect.poll(() => page.locator('[data-copy-status]').textContent()).not.toBe('')

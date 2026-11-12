@@ -1,6 +1,7 @@
 ---
 import { content, type Locale } from '@/data/content';
 import SectionHeader from '@/components/ui/astro/SectionHeader.astro';
+import PlateFrame from '@/components/ui/astro/PlateFrame.astro';
 import UiIcon from '@/components/ui/astro/UiIcon.astro';
 import coreDark from '@/assets/images/core_dark.png';
 import coreLight from '@/assets/images/core_light.png';
@@ -22,14 +23,25 @@ const email = 'saidlucena519@gmail.com';
           <div class="grid gap-2.5 md:grid-cols-2"><a href="https://wa.me/584248887764" target="_blank" rel="noopener noreferrer" aria-label={copy.whatsappAria} class="contact-pill"><span class="contact-pill-icon" aria-hidden="true"><UiIcon name="whatsapp" size={11} /></span><span>+58 424 888 7764</span><UiIcon name="arrow-up-right" size={11} class="ml-auto shrink-0 text-muted" /></a><a href="https://github.com/NorthSideBoy" target="_blank" rel="noopener noreferrer" class="contact-pill"><span class="contact-pill-icon" aria-hidden="true"><UiIcon name="github" size={11} /></span><span>GitHub · NorthSideBoy</span><span class="sr-only">{copy.githubAria}</span><UiIcon name="arrow-up-right" size={11} class="ml-auto shrink-0 text-muted" /></a></div>
         </div>
       </div>
-      <div data-contact-panel class="contact-panel border border-line/80 bg-panel/5 p-5 md:p-6 xl:p-7" style="--reveal-order:1"><form class="space-y-4" novalidate>
-        {([
-          { id: 'name', label: copy.form.nameLabel, placeholder: copy.form.namePlaceholder, type: 'text', autocomplete: 'name' },
-          { id: 'email', label: copy.form.emailLabel, placeholder: copy.form.emailPlaceholder, type: 'email', autocomplete: 'email' },
-          { id: 'subject', label: copy.form.subjectLabel, placeholder: copy.form.subjectPlaceholder, type: 'text', autocomplete: 'off' },
-        ] as const).map((field) => <div><label for={`contact-${field.id}`} class="mb-2 block font-mono text-[10.5px] font-medium uppercase tracking-[0.1em] text-muted">{field.label}</label><input id={`contact-${field.id}`} type={field.type} name={field.id} autocomplete={field.autocomplete} inputmode={field.id === 'email' ? 'email' : undefined} class="field" placeholder={field.placeholder} /></div>)}
-        <div><label for="contact-message" class="mb-2 block font-mono text-[10.5px] font-medium uppercase tracking-[0.1em] text-muted">{copy.form.messageLabel}</label><textarea id="contact-message" name="message" rows="4" class="field min-h-[104px] resize-y" placeholder={copy.form.messagePlaceholder} /></div><button type="submit" class="inline-flex min-h-[52px] w-full items-center justify-center rounded-full border border-line px-7 text-[15px] font-semibold text-muted" disabled>{copy.form.submit}</button>
-      </form></div>
+      <div data-contact-panel class="contact-panel" style="--reveal-order:1"><PlateFrame tone="page">
+        <div class="flex items-center gap-3 border-b border-line px-5 py-3.5 md:px-6">
+          <h3 id="contact-form-title" class="mono-label flex items-center gap-2 text-soft"><span class="inline-block size-1.5 shrink-0 rounded-full bg-line-strong" aria-hidden="true" />{copy.form.eyebrow}</h3>
+          <span class="h-px flex-1 bg-line" aria-hidden="true" />
+        </div>
+        <form class="px-5 py-5 md:px-6 md:py-6" aria-labelledby="contact-form-title" novalidate>
+          <div class="grid gap-4 sm:grid-cols-2">
+            {([
+              { id: 'name', label: copy.form.nameLabel, placeholder: copy.form.namePlaceholder, type: 'text', autocomplete: 'name' },
+              { id: 'email', label: copy.form.emailLabel, placeholder: copy.form.emailPlaceholder, type: 'email', autocomplete: 'email' },
+            ] as const).map((field) => <div><label for={`contact-${field.id}`} class="mb-2 block font-mono text-[10.5px] font-medium uppercase tracking-[0.1em] text-icon">{field.label}</label><input id={`contact-${field.id}`} type={field.type} name={field.id} autocomplete={field.autocomplete} inputmode={field.id === 'email' ? 'email' : undefined} class="field" placeholder={field.placeholder} /></div>)}
+            <div class="sm:col-span-2"><label for="contact-subject" class="mb-2 block font-mono text-[10.5px] font-medium uppercase tracking-[0.1em] text-icon">{copy.form.subjectLabel}</label><input id="contact-subject" type="text" name="subject" autocomplete="off" class="field" placeholder={copy.form.subjectPlaceholder} /></div>
+            <div class="sm:col-span-2"><label for="contact-message" class="mb-2 block font-mono text-[10.5px] font-medium uppercase tracking-[0.1em] text-icon">{copy.form.messageLabel}</label><textarea id="contact-message" name="message" rows="4" class="field min-h-[104px] resize-y" placeholder={copy.form.messagePlaceholder} /></div>
+          </div>
+          <div class="mt-6 border-t border-line pt-5">
+            <button type="submit" class="btn-primary w-full">{copy.form.submit}</button>
+          </div>
+        </form>
+      </PlateFrame></div>
     </div>
   </div>
 </section>

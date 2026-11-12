@@ -664,6 +664,7 @@ html[data-theme='light'] .stack-tile {
     gap: 0.75rem;
     border: 1px solid var(--c-line);
     border-radius: 9999px;
+    background-color: var(--c-page);
     padding: 0.78rem 1.15rem;
     font-family: var(--font-mono);
     font-size: 11.5px;
@@ -677,7 +678,7 @@ html[data-theme='light'] .stack-tile {
 
   .contact-pill:hover {
     border-color: var(--c-soft);
-    background-color: color-mix(in srgb, var(--c-soft) 5%, transparent);
+    background-color: color-mix(in srgb, var(--c-soft) 7%, var(--c-page));
     color: var(--c-soft);
   }
 

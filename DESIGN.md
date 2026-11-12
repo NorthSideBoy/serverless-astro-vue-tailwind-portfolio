@@ -100,6 +100,7 @@ components:
     rounded: '{rounded.pill}'
     padding: '10px 16px'
   contact-pill:
+    backgroundColor: '{colors.canvas}'
     textColor: '{colors.ink}'
     rounded: '{rounded.pill}'
     padding: '11px 18px'
@@ -215,7 +216,7 @@ The dossier registers; it does not fade section by section. The opening authored
 - Project media trace a 1px cyan-to-aqua registration line on hover or keyboard focus.
 - Revealing the remaining testimonials enters the new cards with opacity plus a 12px rise, staggered 60ms across at most four steps. Collapsing is immediate, and keyboard focus stays on the toggle.
 - The review access and panel surfaces are tools, not chapters: no entrance choreography. The panel preview updates instantly, publishing shows one short opacity/translate confirmation under `prefers-reduced-motion: no-preference`, and the home invitation plate stays static.
-- Copying the email draws one short confirmation hairline under the email row, then settles the copy icon into its check and the live status. The contact form has no submission state while no receiver is configured: the submit control rests disabled and no success message is shown.
+- Copying the email draws one short confirmation hairline under the email row, then settles the copy icon into its check and the live status. The contact form has no receiver wired yet: its submit renders as the primary action but performs no request, and no success message is shown.
 - The work-areas panel animates only what the explicit choice changes: the selected node, its ring and the panel rise. Its rail is already painted in the server HTML; no packet or orbit runs on its own.
 - The article progress rail uses `scaleX` on a fixed element, never `width`.
 - Anchor navigation, including the logo's return to the top, runs through one smooth scroll that leaves a 24px gap under the sticky header. The header's scroll spy holds its background hash rewrite while that journey runs, so a click is never superseded by the section being left. Reduced motion replaces the journey with an instant arrival.
@@ -271,6 +272,8 @@ Corners are square (`{rounded.plate}` = 0px) on every plate, card, figure, and c
 
 `field`: Sunken ground, 1px Hairline border, 8px radius, 14px text, Muted placeholders at full opacity. Hover darkens the border; focus shifts the border to Registry Cyan with a 2px offset outline. Error: Alert Rose border + 12px rose message wired via `aria-invalid`/`aria-describedby`, and focus jumps to the first invalid control on submit.
 
+The contact form is one `PlateFrame` set on the deepest ground (`tone="page"`): a mono `FORMULARIO` header band with a trailing rule, the fields (name and email paired from `sm`, subject and message full width), and a hairline footer holding the primary submit. No receiver is wired, so the submit performs no request; confirmations never claim unverified success.
+
 ### Navigation
 
 - **Header:** sticky, 88px (120px at xl), backdrop-blur; hairline appears only once scrolled. Mono 11.5px uppercase links; current section gets cyan text + a 1px underline that scales in from the left. Attraction detail: the "SL" serif seal shifts to cyan on hover.
@@ -302,7 +305,7 @@ Corners are square (`{rounded.plate}` = 0px) on every plate, card, figure, and c
 - **Do** label sections with the mono eyebrow + trailing rule pattern; let the hero's staggered rise and the plate's calibration own the entrance, and let chapter headers draw their rule once and stay settled rather than fading every block into view.
 - **Do** finish a section entrance within roughly 1.4 seconds: header, then the content; anything further down waits for its own entry instead of joining one long choreography. Give every register, grid and record row its staggered registration; reserve the long cascades (60–315ms ladders) for the hero, Experience and the first Project cover.
 - **Do** provide a `prefers-reduced-motion` path that keeps state changes legible (opacity/color yes; movement no).
-- **Do** name actions honestly: the contact form says _Send message_ and keeps its submit control disabled until a receiver exists; confirmations never claim unverified success.
+- **Do** name actions honestly: the contact form says _Send message_ as the primary action and, until a receiver exists, performs no request; confirmations never claim unverified success.
 - **Do** use `UiIcon` (Lucide-backed, single stroke, 1.6 weight) for every UI glyph. Brand and technology marks come from Simple Icons at build, except custom marks declared with `customIcon` and served from R2 as a mask; the identity artwork stays bespoke.
 - **Do** keep the section numerals and 構/設計 in `--font-seal`, and explain the two words once in the About plate's seal legend; a stamp with no reading is decoration.
 
