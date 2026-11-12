@@ -98,7 +98,6 @@ export interface SiteContent {
     complementaryLabel: string
     primary: ServiceItem[]
     complementary: ServiceItem[]
-    ctaQuestion: string
     ctaAction: string
   }
   skills: {
@@ -499,7 +498,6 @@ export const content: Record<Locale, SiteContent> = {
           scope: [],
         },
       ],
-      ctaQuestion: '¿Qué necesitas resolver?',
       ctaAction: 'Cuéntame qué necesitas',
     },
     skills: {
@@ -1013,7 +1011,6 @@ export const content: Record<Locale, SiteContent> = {
           scope: [],
         },
       ],
-      ctaQuestion: 'What do you need help with?',
       ctaAction: 'Tell me what you need',
     },
     skills: {
