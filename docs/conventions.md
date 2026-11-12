@@ -196,12 +196,17 @@ The browser performs exactly two writes and one owner-only read:
 - the visitor review flow may read and write the signed-in visitor's own
   `reviews/{uid}` document through `src/lib/reviews/`;
 - the contact form may append one document to `forms` through
-  `src/lib/forms/`, without a session and only after an explicit submit.
+  `src/lib/forms/`, only for the signed-in Google visitor and only after an
+  explicit submit.
 
-Neither may read another visitor's review, list either collection or approve a
-review from the browser. The contact form **MUST NOT** statically import the
-Firebase SDK or the repository; both load dynamically inside the submit
-handler.
+Both features share one Firebase Auth session through
+`src/composables/useGoogleSession.ts`: signing in or out in either surface
+applies to the other. Neither may read another visitor's review, list either
+collection or approve a review from the browser. The contact form **MUST NOT**
+statically import the Firebase SDK, the forms repository or the notification
+client; the repository and notification client load dynamically inside the
+submit handler, while the session composable resolves the shared Auth state on
+mount.
 
 ## 4. Islands and hydration
 
@@ -494,23 +499,31 @@ Clients write `id`, `authorUid`, `source`, `anchorId` and `createdAt` once.
 `approved` remains `false`. Updates may change only the author metadata, roles,
 quote, locale, relations and `updatedAt`.
 
-### R-DATA-10 — Treat contact messages as private, untrusted input
+### R-DATA-10 — Treat contact messages as private, authenticated input
 
-Every contact submission is validated with `contactDraftSchema` before the write
-and again by Firestore Rules. Limits live in `CONTACT_LIMITS`; the rules repeat
-them. `forms` is append-only from the browser: no read, list, update or delete.
-The static site never renders a stored message. Zod constrains the payload but
-does not rate-limit; spam control belongs to App Check and usage alerts.
+Every contact submission is validated with `contactDraftSchema` before the
+write and again by Firestore Rules. The editable draft contains only `subject`
+and `message`; `name`, `email` and `senderUid` come from the signed-in Google
+session and are never form fields. Limits live in `CONTACT_LIMITS`; the rules
+repeat them.
+
+`forms` accepts only `create` from a verified Google account whose token email
+and UID match `email` and `senderUid` in the document. No read, list, update or
+delete is allowed from the browser. The static site never renders a stored
+message. Zod constrains the payload but does not rate-limit; spam control
+belongs to App Check and usage alerts.
 
 ### R-DATA-11 — Send email notifications after the write, best effort
 
 Contact and new-review emails are sent with EmailJS from the browser, only
 after Firestore confirms the write. `src/lib/notifications/emailjs.ts` owns the
-template variables and is imported dynamically on submit; no page loads EmailJS
-at startup.
+template variables and the EmailJS call; it is imported dynamically on submit,
+so no page loads EmailJS at startup.
 
-- Only the EmailJS public key, service and template IDs are used. The private
-  key is never shipped and no server function exists.
+- Only the EmailJS public key, service and template IDs are used. They are
+  public browser identifiers and appear in the compiled JavaScript. They **MUST
+  NOT** be treated as secrets, and the EmailJS private key **MUST NOT** be
+  shipped or placed in a `PUBLIC_` variable.
 - Notifications happen on creation only: a review edit or approval must not
   notify again.
 - A failed, skipped or slow send must not repeat the write, reject the
@@ -518,6 +531,8 @@ at startup.
   record of truth.
 - Visitor content and provider responses are never logged. The recipient is
   fixed inside EmailJS, never taken from browser input.
+- Do not add a server, endpoint or hosting-specific function just to hide these
+  identifiers. If they must be hidden, the whole notification design changes.
 
 ## 10. Visitor review authentication
 
@@ -526,15 +541,19 @@ at startup.
 The Firebase web SDK is browser-only. It lives behind `src/lib/firebase/` and is
 imported dynamically from `onMounted` or event handlers. A static import in a
 component that Astro renders on the server is forbidden. The home, projects and
-blog features must never import it statically; the contact form is the only
-home feature allowed to load it, and only dynamically from its submit handler.
+blog features must never import `src/lib/firebase/` or `firebase/*` statically.
+The contact form is the only home feature allowed to resolve Auth, and it does
+so through `useGoogleSession` after hydration; the forms repository and
+notification client load only from its submit handler.
 
 ### R-AUTH-02 — Only Google, only the owner
 
-The login page exposes Google only. The browser may `get` its own
-`reviews/{uid}` document and may create/update that document while
-`approved == false`. It must not list the collection, read another document,
-delete its document or change the approval flag.
+The login page exposes Google only. Contact and reviews share the same Google
+session; signing in on either surface authenticates the other. The browser may
+`get` its own `reviews/{uid}` document and may create/update that document while
+`approved == false`. It may create a `forms` document only for its own UID and
+token email. It must not list the collection, read another document, delete its
+document or change the approval flag.
 
 ### R-AUTH-03 — Keep auth pages out of search
 
@@ -772,9 +791,11 @@ output.
 - Letting the browser read or list reviews other than its own.
 - Writing `approved: true` from client code.
 - Importing the Firebase web SDK during SSR or from public content features.
-- Statically importing the Firebase SDK or `src/lib/forms/` in the contact form; both load on submit.
+- Statically importing the Firebase SDK, `src/lib/forms/` or EmailJS in the contact form; the repository and EmailJS load on submit.
+- Making the contact name or email editable instead of reading them from the Google session.
 - Rendering a stored contact message in the static site or logging its body.
 - Loading EmailJS at page startup or sending the notification before Firestore confirms the write.
+- Shipping the EmailJS private key or treating `PUBLIC_EMAILJS_*` values as secrets.
 - Notifying again when a review is edited or approved, or logging notification payloads.
 - Rendering visitor review text with `v-html`.
 - Adding `/resenas/` to the sitemap or treating it as indexable public content.
@@ -799,6 +820,7 @@ output.
 | Review contract and helpers | `src/data/reviews.ts`, `src/data/schemas/review.ts` |
 | Review auth and repository | `src/lib/firebase/`, `src/lib/reviews/` |
 | Contact contract, form and repository | `src/data/contact.ts`, `src/components/home/vue/ContactForm.vue`, `src/lib/forms/` |
+| Shared Google session | `src/lib/auth/google.ts`, `src/composables/useGoogleSession.ts` |
 | Email notifications | `src/lib/notifications/emailjs.ts` |
 | Review pages and islands | `src/components/reviews/`, `src/components/islands/reviews/` |
 | Firestore security rules | `firestore.rules` |

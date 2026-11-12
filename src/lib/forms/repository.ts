@@ -3,8 +3,9 @@ import type { ContactMessagePayload } from '@/data/contact'
 
 /**
  * Contact messages live in one private collection. The browser may only
- * create a document; reads, updates and deletes are denied by Firestore rules
- * and stay available to the Admin SDK and the Console.
+ * create a document, and only for the signed-in Google account; reads,
+ * updates and deletes are denied by Firestore rules and stay available to the
+ * Admin SDK and the Console.
  */
 export const CONTACT_COLLECTION = 'forms'
 

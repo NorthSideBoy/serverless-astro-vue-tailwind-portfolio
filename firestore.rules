@@ -32,17 +32,19 @@ service cloud.firestore {
     // Collection: forms
     // Document ID: auto-generated.
     // Fields:
-    //   - name: string 2..80 (plain text)
-    //   - email: string 3..254, valid address (private reply-to)
+    //   - senderUid: string (required; equals request.auth.uid)
+    //   - name: string 1..80 (from the Google profile)
+    //   - email: string 3..254, valid address; equals request.auth.token.email
     //   - subject: string 3..120 (plain text)
     //   - message: string 10..2000 (plain text)
     //   - locale: 'es' | 'en' (portfolio locale at submit time)
     //   - createdAt: timestamp (server timestamp, required)
     //
-    // Contact messages are private: the browser may only append a document,
-    // and every read, update and delete is denied. The owner reads them in
-    // the Firestore Console or through the Admin SDK. There is no client
-    // query to support, and no document ID is used as a capability.
+    // Contact messages are private and authenticated: the browser may only
+    // append a document for the signed-in Google account, and every read,
+    // update and delete is denied. The owner reads them in the Firestore
+    // Console or through the Admin SDK. There is no client query to support,
+    // and no document ID is used as a capability.
     //
     // Public reads happen at build time with the Admin SDK, which bypasses
     // these rules. The browser only reads the signed-in user's own review and
@@ -58,6 +60,7 @@ service cloud.firestore {
     function isVerifiedGoogleUser() {
       return isSignedIn()
         && request.auth.token.email_verified == true
+        && request.auth.token.firebase.sign_in_provider == 'google.com'
         && request.auth.token.email is string
         && request.auth.token.email.size() > 0;
     }
@@ -150,14 +153,17 @@ service cloud.firestore {
 
     function isValidContactMessage(data) {
       return data.keys().hasAll([
-        'name', 'email', 'subject', 'message', 'locale', 'createdAt'
+        'senderUid', 'name', 'email', 'subject', 'message', 'locale', 'createdAt'
       ])
         && data.keys().hasOnly([
-          'name', 'email', 'subject', 'message', 'locale', 'createdAt'
+          'senderUid', 'name', 'email', 'subject', 'message', 'locale', 'createdAt'
         ])
-        && validString(data.name, 2, 80)
+        && validString(data.senderUid, 1, 128)
+        && data.senderUid == request.auth.uid
+        && validString(data.name, 1, 80)
         && validString(data.email, 3, 254)
         && data.email.matches('^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$')
+        && data.email == request.auth.token.email
         && validString(data.subject, 3, 120)
         && validString(data.message, 10, 2000)
         && (data.locale == 'es' || data.locale == 'en')
@@ -170,9 +176,10 @@ service cloud.firestore {
         || (('order' in data) && ('order' in existing) && data.order == existing.order);
     }
 
-    // Contact form intake: append-only and private.
+    // Contact form intake: authenticated, append-only and private.
     match /forms/{messageId} {
-      allow create: if isValidContactMessage(request.resource.data);
+      allow create: if isVerifiedGoogleUser()
+        && isValidContactMessage(request.resource.data);
 
       // Messages contain PII. Only the Admin SDK/Console may read them.
       allow get, list, update, delete: if false;

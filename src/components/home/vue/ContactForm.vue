@@ -3,6 +3,7 @@ import { computed, nextTick, ref, watch } from 'vue'
 import { usePreferences } from '@/composables/usePreferences'
 import { useContactForm } from '@/composables/useContactForm'
 import { useContactSubmission } from '@/composables/useContactSubmission'
+import { useGoogleSession } from '@/composables/useGoogleSession'
 import { prefersReducedMotion } from '@/router/scrollControl'
 import {
   CONTACT_FIELDS,
@@ -10,10 +11,20 @@ import {
   toContactMessage,
   type ContactField,
 } from '@/data/contact'
+import Avatar from '@/components/ui/vue/Avatar.vue'
+import UiIcon from '@/components/ui/vue/UiIcon.vue'
 
 const { copy, locale } = usePreferences()
 const { draft, errors, isValid, showErrors, messageLength, revealErrors, reset } =
   useContactForm({ locale: locale.value })
+const {
+  status,
+  user,
+  error: sessionError,
+  busy: sessionBusy,
+  signIn,
+  retry,
+} = useGoogleSession()
 const {
   state,
   error: submitError,
@@ -23,19 +34,23 @@ const {
 
 const form = copy.value.contact.form
 const messageMax = CONTACT_LIMITS.messageMax
-const nameInput = ref<HTMLInputElement | null>(null)
+const subjectInput = ref<HTMLInputElement | null>(null)
 
 const fieldIds: Record<ContactField, string> = {
-  name: 'contact-name',
-  email: 'contact-email',
   subject: 'contact-subject',
   message: 'contact-message',
 }
 
+const sessionReady = computed(() => status.value === 'ready' && Boolean(user.value))
+const canSubmit = computed(() => sessionReady.value && state.value !== 'sending')
+const authErrorText = computed(() =>
+  sessionError.value && sessionError.value !== 'cancelled'
+    ? form.authErrors[sessionError.value]
+    : '',
+)
+
 const errorMessages = computed<Record<ContactField, string>>(() => {
   const messages: Record<ContactField, string> = {
-    name: '',
-    email: '',
     subject: '',
     message: '',
   }
@@ -49,8 +64,6 @@ const errorMessages = computed<Record<ContactField, string>>(() => {
 })
 
 const invalidFields = computed<Record<ContactField, boolean>>(() => ({
-  name: Boolean(errorMessages.value.name),
-  email: Boolean(errorMessages.value.email),
   subject: Boolean(errorMessages.value.subject),
   message: Boolean(errorMessages.value.message),
 }))
@@ -91,7 +104,10 @@ watch(
 )
 
 async function submit(): Promise<void> {
-  if (state.value === 'sending') return
+  if (state.value === 'sending' || !sessionReady.value) return
+  const currentUser = user.value
+  if (!currentUser) return
+
   resetSubmission()
   revealErrors()
 
@@ -100,7 +116,13 @@ async function submit(): Promise<void> {
     return
   }
 
-  const message = toContactMessage(draft.value)
+  // Identity comes from the authenticated session, never from editable fields.
+  const message = toContactMessage(draft.value, {
+    uid: currentUser.uid,
+    name: currentUser.displayName,
+    email: currentUser.email,
+  })
+
   const ok = await runSubmission(async () => {
     // The SDK and the repository are imported on submit only: visiting the
     // page must not download or call Firebase.
@@ -133,7 +155,7 @@ async function sendAnother(): Promise<void> {
   reset()
   resetSubmission()
   await nextTick()
-  nameInput.value?.focus()
+  subjectInput.value?.focus()
 }
 </script>
 
@@ -160,70 +182,69 @@ async function sendAnother(): Promise<void> {
     novalidate
     @submit.prevent="submit"
   >
-    <div class="grid gap-4 sm:grid-cols-2">
-      <div>
-        <label
-          for="contact-name"
-          class="mb-2 block font-mono text-[10.5px] font-medium uppercase tracking-[0.1em] text-icon"
-        >
-          {{ form.nameLabel }}
-        </label>
-        <input
-          id="contact-name"
-          ref="nameInput"
-          v-model="draft.name"
-          type="text"
-          name="name"
-          autocomplete="name"
-          class="field"
-          :placeholder="form.namePlaceholder"
-          :maxlength="CONTACT_LIMITS.nameMax"
-          :aria-invalid="invalidFields.name"
-          :aria-describedby="describedBy('name')"
-          required
-        />
-        <p
-          v-if="errorMessages.name"
-          id="contact-name-error"
-          class="mt-2 text-[12px] text-danger"
-          role="alert"
-        >
-          {{ errorMessages.name }}
+    <div class="mb-6 border-b border-line pb-5">
+      <p class="mono-label text-soft">{{ form.sessionLabel }}</p>
+
+      <p v-if="status === 'loading'" role="status" class="mt-3 text-[13px] leading-[1.65] text-muted">
+        {{ form.sessionLoading }}
+      </p>
+
+      <div v-else-if="status === 'error'" class="mt-3" role="alert">
+        <p class="text-[12.5px] leading-relaxed text-danger">
+          {{ authErrorText || form.authErrors.unknown }}
         </p>
+        <button
+          type="button"
+          class="mt-2 inline-flex min-h-11 items-center text-[13px] text-soft underline"
+          @click="retry"
+        >
+          {{ copy.ui.retryContent }}
+        </button>
       </div>
 
-      <div>
-        <label
-          for="contact-email"
-          class="mb-2 block font-mono text-[10.5px] font-medium uppercase tracking-[0.1em] text-icon"
+      <div v-else-if="user" class="mt-3 flex items-center gap-3">
+        <Avatar :name="user.displayName" :photo="user.photoUrl" :size="38" eager />
+        <div class="min-w-0 flex-1">
+          <p class="truncate font-display text-[15px] font-semibold leading-tight text-ink">
+            {{ user.displayName }}
+          </p>
+          <p class="truncate font-mono text-[10.5px] text-muted">{{ user.email }}</p>
+        </div>
+        <button
+          type="button"
+          class="inline-flex min-h-11 shrink-0 items-center text-[12px] text-soft underline"
+          :disabled="sessionBusy"
+          @click="signIn"
         >
-          {{ form.emailLabel }}
-        </label>
-        <input
-          id="contact-email"
-          v-model="draft.email"
-          type="email"
-          name="email"
-          autocomplete="email"
-          inputmode="email"
-          class="field"
-          :placeholder="form.emailPlaceholder"
-          :maxlength="CONTACT_LIMITS.emailMax"
-          :aria-invalid="invalidFields.email"
-          :aria-describedby="describedBy('email')"
-          required
-        />
-        <p
-          v-if="errorMessages.email"
-          id="contact-email-error"
-          class="mt-2 text-[12px] text-danger"
-          role="alert"
-        >
-          {{ errorMessages.email }}
-        </p>
+          {{ form.changeAccount }}
+        </button>
       </div>
 
-      <div class="sm:col-span-2">
+      <div v-else>
+        <p class="mt-2 text-[13px] leading-[1.65] text-muted">{{ form.sessionGuest }}</p>
+        <p
+          v-if="authErrorText"
+          class="mt-3 border border-danger px-3 py-2 text-[12.5px] leading-relaxed text-danger"
+          role="alert"
+        >
+          {{ authErrorText }}
+        </p>
+        <button
+          type="button"
+          data-contact-signin
+          class="btn-ghost mt-3 w-full justify-center"
+          :disabled="sessionBusy"
+          :aria-busy="sessionBusy"
+          @click="signIn"
+        >
+          <UiIcon name="google" :size="17" />
+          {{ sessionBusy ? form.signingIn : form.signIn }}
+        </button>
+      </div>
+    </div>
+
+    <div class="grid gap-4">
+      <div>
         <label
           for="contact-subject"
           class="mb-2 block font-mono text-[10.5px] font-medium uppercase tracking-[0.1em] text-icon"
@@ -232,6 +253,7 @@ async function sendAnother(): Promise<void> {
         </label>
         <input
           id="contact-subject"
+          ref="subjectInput"
           v-model="draft.subject"
           type="text"
           name="subject"
@@ -239,6 +261,7 @@ async function sendAnother(): Promise<void> {
           class="field"
           :placeholder="form.subjectPlaceholder"
           :maxlength="CONTACT_LIMITS.subjectMax"
+          :disabled="!sessionReady"
           :aria-invalid="invalidFields.subject"
           :aria-describedby="describedBy('subject')"
           required
@@ -253,7 +276,7 @@ async function sendAnother(): Promise<void> {
         </p>
       </div>
 
-      <div class="sm:col-span-2">
+      <div>
         <label
           for="contact-message"
           class="mb-2 block font-mono text-[10.5px] font-medium uppercase tracking-[0.1em] text-icon"
@@ -268,6 +291,7 @@ async function sendAnother(): Promise<void> {
           class="field min-h-[104px] resize-y"
           :placeholder="form.messagePlaceholder"
           :maxlength="messageMax"
+          :disabled="!sessionReady"
           :aria-invalid="invalidFields.message"
           :aria-describedby="describedBy('message')"
           required
@@ -324,7 +348,7 @@ async function sendAnother(): Promise<void> {
       <button
         type="submit"
         class="btn-primary w-full"
-        :disabled="state === 'sending'"
+        :disabled="!canSubmit"
         :aria-busy="state === 'sending'"
         :aria-describedby="
           state === 'error' && submitErrorText ? 'contact-form-error' : undefined

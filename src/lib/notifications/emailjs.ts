@@ -10,8 +10,9 @@ import type { Locale, Localized } from '@/data/schemas/primitives'
  * console with visitor content. The SDK is imported on demand: visiting a page
  * downloads no EmailJS code.
  *
- * The public key, service and template identifiers are not secrets; they are
- * shipped in the browser bundle, exactly like the public Firebase config.
+ * The public key, service and template identifiers are not secrets. They ship
+ * in the browser bundle by design (option 2: no notification server). The
+ * EmailJS private key is never used here and must never be shipped.
  */
 export const EMAILJS_SEND_TIMEOUT_MS = 8_000
 
@@ -123,7 +124,10 @@ export function describeReviewRelations(
     ]),
   )
   const projects = new Map(
-    input.projects.map((entry) => [entry.slug, entry.title[input.locale] || entry.title.es]),
+    input.projects.map((entry) => [
+      entry.slug,
+      entry.title[input.locale] || entry.title.es,
+    ]),
   )
 
   const labels = [

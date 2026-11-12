@@ -3,7 +3,7 @@ import { computed, nextTick, onBeforeUnmount, ref, shallowRef, watch } from 'vue
 import { RouterLink } from '@/router/astroRouter'
 import { prefersReducedMotion } from '@/router/scrollControl'
 import { usePreferences } from '@/composables/usePreferences'
-import { useReviewSession } from '@/composables/useReviewSession'
+import { useGoogleSession } from '@/composables/useGoogleSession'
 import { useReviewDraft } from '@/composables/useReviewDraft'
 import { useReviewSubmission } from '@/composables/useReviewSubmission'
 import { getFirestoreDatabase } from '@/lib/firebase/client'
@@ -44,7 +44,7 @@ const {
   signIn,
   signOut,
   retry: retrySession,
-} = useReviewSession()
+} = useGoogleSession()
 const {
   draft,
   errors,

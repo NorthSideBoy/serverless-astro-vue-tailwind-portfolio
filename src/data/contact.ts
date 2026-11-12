@@ -5,9 +5,12 @@ import { localeSchema, type Locale } from './schemas/primitives'
  * Shared contact-form constraints. The Zod schema, the Firestore rules and the
  * form attributes must agree; keep this object as the single source for the
  * values that can be shared with the browser.
+ *
+ * Name and email are not editable: they come from the signed-in Google
+ * account and are validated again by the rules against the auth token.
  */
 export const CONTACT_LIMITS = {
-  nameMin: 2,
+  nameMin: 1,
   nameMax: 80,
   emailMax: 254,
   subjectMin: 3,
@@ -16,17 +19,11 @@ export const CONTACT_LIMITS = {
   messageMax: 2000,
 } as const
 
-export const CONTACT_FIELDS = ['name', 'email', 'subject', 'message'] as const
+export const CONTACT_FIELDS = ['subject', 'message'] as const
 
 export type ContactField = (typeof CONTACT_FIELDS)[number]
 
 export type ContactFieldIssue =
-  | 'name-required'
-  | 'name-min'
-  | 'name-max'
-  | 'email-required'
-  | 'email-invalid'
-  | 'email-max'
   | 'subject-required'
   | 'subject-min'
   | 'subject-max'
@@ -35,12 +32,6 @@ export type ContactFieldIssue =
   | 'message-max'
 
 const CONTACT_FIELD_ISSUES: readonly ContactFieldIssue[] = [
-  'name-required',
-  'name-min',
-  'name-max',
-  'email-required',
-  'email-invalid',
-  'email-max',
   'subject-required',
   'subject-min',
   'subject-max',
@@ -50,22 +41,25 @@ const CONTACT_FIELD_ISSUES: readonly ContactFieldIssue[] = [
 ]
 
 export type ContactDraft = {
-  name: string
-  email: string
   subject: string
   message: string
   locale: Locale
 }
 
-export type ContactMessagePayload = ContactDraft
+/** Identity resolved from the signed-in Google session, never from an input. */
+export type ContactSender = {
+  uid: string
+  name: string
+  email: string
+}
+
+export type ContactMessagePayload = ContactDraft & {
+  name: string
+  email: string
+  senderUid: string
+}
 
 export type ContactFormErrors = Partial<Record<ContactField, ContactFieldIssue>>
-
-/**
- * Firestore rules repeat this pattern because they cannot import TypeScript.
- * Keep both copies in sync.
- */
-export const CONTACT_EMAIL_PATTERN = /^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$/
 
 /** Firestore `string.size()` counts characters, not UTF-16 code units. */
 function characterLength(value: string): number {
@@ -75,21 +69,9 @@ function characterLength(value: string): number {
 /**
  * The issue messages double as the keys consumed by the localized copy. The
  * order of the refinements defines the reported issue: required, then minimum,
- * then maximum or format.
+ * then maximum.
  */
 export const contactDraftSchema = z.object({
-  name: z
-    .string()
-    .trim()
-    .refine((value) => value.length > 0, 'name-required')
-    .refine((value) => characterLength(value) >= CONTACT_LIMITS.nameMin, 'name-min')
-    .refine((value) => characterLength(value) <= CONTACT_LIMITS.nameMax, 'name-max'),
-  email: z
-    .string()
-    .trim()
-    .refine((value) => value.length > 0, 'email-required')
-    .refine((value) => characterLength(value) <= CONTACT_LIMITS.emailMax, 'email-max')
-    .refine((value) => CONTACT_EMAIL_PATTERN.test(value), 'email-invalid'),
   subject: z
     .string()
     .trim()
@@ -106,13 +88,11 @@ export const contactDraftSchema = z.object({
 })
 
 export function createEmptyContactDraft(locale: Locale): ContactDraft {
-  return { name: '', email: '', subject: '', message: '', locale }
+  return { subject: '', message: '', locale }
 }
 
 export function normalizeContactDraft(draft: ContactDraft): ContactDraft {
   return {
-    name: draft.name.trim(),
-    email: draft.email.trim(),
     subject: draft.subject.trim(),
     message: draft.message.trim(),
     locale: draft.locale,
@@ -145,7 +125,18 @@ export function isContactDraftValid(draft: ContactDraft): boolean {
   return Object.keys(validateContactDraft(draft)).length === 0
 }
 
-/** Trimmed values are the only values that reach Firestore. */
-export function toContactMessage(draft: ContactDraft): ContactMessagePayload {
-  return normalizeContactDraft(draft)
+/**
+ * Trimmed values are the only values that reach Firestore. The sender identity
+ * is copied from the authenticated session, never from the form.
+ */
+export function toContactMessage(
+  draft: ContactDraft,
+  sender: ContactSender,
+): ContactMessagePayload {
+  return {
+    ...normalizeContactDraft(draft),
+    name: sender.name.trim(),
+    email: sender.email.trim(),
+    senderUid: sender.uid,
+  }
 }

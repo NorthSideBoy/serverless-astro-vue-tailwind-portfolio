@@ -47,7 +47,10 @@ The boundary is also enforced by code:
   current provenance split.
 - `tests/reviews.test.ts` checks the review schema, public projection, draft
   validation and Firebase error mapping.
-- `tests/contact.test.ts` checks the contact schema, limits and rules alignment.
+- `tests/contact.test.ts` checks the contact schema, limits, session identity
+  and rules alignment.
+- `tests/notifications.test.ts` checks the notification payloads and that the
+  EmailJS SDK loads dynamically without exposing the private key.
 - `tests/browser.test.ts` checks the server-rendered HTML, hydration, deep
   links, theme persistence, keyboard behaviour, locale navigation and review
   shells.

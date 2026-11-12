@@ -304,37 +304,33 @@ describe('rendered portfolio', () => {
     expect(
       await page.locator('#skills-area-detail [data-area-detail]:visible').textContent(),
     ).toContain('Cómo se organiza el conjunto')
-    expect(await page.locator('#contact button[type="submit"]').isDisabled()).toBe(false)
+    expect(await page.locator('#contact button[type="submit"]').isDisabled()).toBe(true)
     await waitForContactHydration(page)
+    await expect.poll(() => page.locator('#contact [data-contact-signin]').isEnabled()).toBe(true)
+    expect(await page.locator('#contact-subject').isDisabled()).toBe(true)
     const copy = page.locator('[data-copy-email]')
     await copy.click()
     await expect.poll(() => page.locator('[data-copy-status]').textContent()).not.toBe('')
     await page.close()
   })
 
-  it('validates the contact form before calling Firebase or EmailJS', async () => {
+  it('requires a Google session before enabling the contact form', async () => {
     const page = await openPage()
     const requests: string[] = []
     page.on('request', (request) => requests.push(request.url()))
     await goto(page, '/')
     await waitForContactHydration(page)
 
-    await page.locator('#contact button[type="submit"]').click()
-
-    await expect.poll(() => page.locator('#contact-name-error').textContent()).toBe(
-      'Escribe tu nombre.',
+    await expect.poll(() => page.locator('#contact [data-contact-signin]').isEnabled()).toBe(true)
+    expect(await page.locator('#contact [data-contact-signin]').textContent()).toContain(
+      'Continuar con Google',
     )
-    expect(await page.locator('#contact-email-error').textContent()).toBe('Escribe tu correo.')
-    expect(await page.locator('#contact-subject-error').textContent()).toBe('Escribe el asunto.')
-    expect(await page.locator('#contact-message-error').textContent()).toBe('Escribe tu mensaje.')
+    expect(await page.locator('#contact-subject').isDisabled()).toBe(true)
+    expect(await page.locator('#contact-message').isDisabled()).toBe(true)
+    expect(await page.locator('#contact button[type="submit"]').isDisabled()).toBe(true)
+
     expect(
-      await page.locator('#contact-name').evaluate((element) => element === document.activeElement),
-    ).toBe(true)
-    expect(await page.locator('#contact-name').getAttribute('aria-invalid')).toBe('true')
-    expect(
-      requests.some((url) =>
-        /firebase|identitytoolkit|firestore\.googleapis|emailjs/.test(url),
-      ),
+      requests.some((url) => /firestore\.googleapis|emailjs/.test(url)),
     ).toBe(false)
     await page.close()
   })

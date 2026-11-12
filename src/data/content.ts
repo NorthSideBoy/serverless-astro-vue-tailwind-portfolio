@@ -324,10 +324,13 @@ export interface SiteContent {
     githubAria: string
     form: {
       eyebrow: string
-      nameLabel: string
-      namePlaceholder: string
-      emailLabel: string
-      emailPlaceholder: string
+      sessionLabel: string
+      sessionLoading: string
+      sessionGuest: string
+      signIn: string
+      signingIn: string
+      changeAccount: string
+      authErrors: Record<AuthErrorKey, string>
       subjectLabel: string
       subjectPlaceholder: string
       messageLabel: string
@@ -846,10 +849,27 @@ export const content: Record<Locale, SiteContent> = {
       githubAria: 'Abrir el perfil de GitHub de Said Lucena',
       form: {
         eyebrow: 'FORMULARIO',
-        nameLabel: 'NOMBRE',
-        namePlaceholder: 'Tu nombre',
-        emailLabel: 'CORREO',
-        emailPlaceholder: 'tu@correo.com',
+        sessionLabel: 'SESIÓN DE GOOGLE',
+        sessionLoading: 'Comprobando tu sesión…',
+        sessionGuest:
+          'Para enviar el formulario, inicia sesión con Google. Usaremos el nombre y el correo de tu cuenta para responderte.',
+        signIn: 'Continuar con Google',
+        signingIn: 'Conectando…',
+        changeAccount: 'Cambiar cuenta',
+        authErrors: {
+          cancelled: '',
+          'popup-blocked':
+            'Tu navegador bloqueó la ventana de Google. Permite las ventanas emergentes e inténtalo de nuevo.',
+          'unauthorized-domain': 'El inicio de sesión no está disponible en este dominio.',
+          network: 'No pudimos conectar. Revisa tu conexión e inténtalo de nuevo.',
+          'unsupported-environment':
+            'Este navegador no permite el inicio de sesión. Abre el enlace en un navegador estándar.',
+          'storage-unsupported':
+            'Tu navegador bloqueó el almacenamiento necesario. Activa las cookies o usa una ventana normal.',
+          'provider-disabled': 'El acceso con Google no está habilitado.',
+          'email-missing': 'No pudimos obtener tu correo de Google.',
+          unknown: 'No pudimos iniciar sesión con Google. Inténtalo de nuevo.',
+        },
         subjectLabel: 'ASUNTO',
         subjectPlaceholder: 'De qué quieres hablar',
         messageLabel: 'MENSAJE',
@@ -860,18 +880,12 @@ export const content: Record<Locale, SiteContent> = {
         copied: 'Correo copiado al portapapeles.',
         copyFailed: 'Tu navegador no permitió copiar. Escríbelo a mano.',
         successTitle: 'Mensaje enviado',
-        successBody: 'Gracias. Te responderé al correo que dejaste.',
+        successBody: 'Gracias. Te responderé al correo de tu cuenta de Google.',
         sendAnother: 'Enviar otro mensaje',
         errorTitle: 'No se pudo enviar',
         noscript:
           'El formulario necesita JavaScript. Escríbeme a saidlucena519@gmail.com o por WhatsApp.',
         errors: {
-          'name-required': 'Escribe tu nombre.',
-          'name-min': 'El nombre es demasiado corto.',
-          'name-max': 'El nombre admite hasta 80 caracteres.',
-          'email-required': 'Escribe tu correo.',
-          'email-invalid': 'Escribe un correo válido.',
-          'email-max': 'El correo admite hasta 254 caracteres.',
           'subject-required': 'Escribe el asunto.',
           'subject-min': 'El asunto es demasiado corto.',
           'subject-max': 'El asunto admite hasta 120 caracteres.',
@@ -1383,10 +1397,27 @@ export const content: Record<Locale, SiteContent> = {
       githubAria: 'Open Said Lucena’s GitHub profile',
       form: {
         eyebrow: 'FORM',
-        nameLabel: 'NAME',
-        namePlaceholder: 'Your name',
-        emailLabel: 'EMAIL',
-        emailPlaceholder: 'you@email.com',
+        sessionLabel: 'GOOGLE SESSION',
+        sessionLoading: 'Checking your session…',
+        sessionGuest:
+          'Sign in with Google to send the form. We will use your account name and email to reply.',
+        signIn: 'Continue with Google',
+        signingIn: 'Connecting…',
+        changeAccount: 'Switch account',
+        authErrors: {
+          cancelled: '',
+          'popup-blocked':
+            'Your browser blocked the Google window. Allow pop-ups and try again.',
+          'unauthorized-domain': 'Sign-in is not available on this domain.',
+          network: 'We could not connect. Check your connection and try again.',
+          'unsupported-environment':
+            'This browser does not support sign-in. Open the link in a standard browser.',
+          'storage-unsupported':
+            'Your browser blocked the required storage. Enable cookies or use a normal window.',
+          'provider-disabled': 'Google sign-in is not enabled.',
+          'email-missing': 'We could not get your Google email.',
+          unknown: 'We could not sign in with Google. Please try again.',
+        },
         subjectLabel: 'SUBJECT',
         subjectPlaceholder: 'What this is about',
         messageLabel: 'MESSAGE',
@@ -1397,18 +1428,12 @@ export const content: Record<Locale, SiteContent> = {
         copied: 'Email copied to clipboard.',
         copyFailed: 'Your browser did not allow copying. Write it down manually.',
         successTitle: 'Message sent',
-        successBody: 'Thank you. I will reply to the email you left.',
+        successBody: 'Thank you. I will reply to the email on your Google account.',
         sendAnother: 'Send another message',
         errorTitle: 'Could not send',
         noscript:
           'This form needs JavaScript. Write to saidlucena519@gmail.com or send a WhatsApp message.',
         errors: {
-          'name-required': 'Enter your name.',
-          'name-min': 'The name is too short.',
-          'name-max': 'The name accepts up to 80 characters.',
-          'email-required': 'Enter your email.',
-          'email-invalid': 'Enter a valid email address.',
-          'email-max': 'The email accepts up to 254 characters.',
           'subject-required': 'Enter a subject.',
           'subject-min': 'The subject is too short.',
           'subject-max': 'The subject accepts up to 120 characters.',

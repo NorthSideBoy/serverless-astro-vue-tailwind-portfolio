@@ -169,7 +169,8 @@ describe('component architecture', () => {
     const violations = publicFeatures.filter((file) =>
       importsOf(file).some(
         (specifier) =>
-          specifier === '@emailjs/browser' || specifier.startsWith('@/lib/notifications'),
+          specifier === '@emailjs/browser' ||
+          specifier.startsWith('@/lib/notifications'),
       ),
     )
     expect(violations.map((file) => path.relative(srcDir, file))).toEqual([])
@@ -188,8 +189,20 @@ describe('component architecture', () => {
           specifier.startsWith('@/lib/forms'),
       ),
     ).toEqual([])
+    expect(staticImports).toContain('@/composables/useGoogleSession')
     expect(form).toContain("import('@/lib/forms/repository')")
     expect(form).toContain("import('@/lib/firebase/client')")
+  })
+
+  it('shares one Google session between the contact form and the reviews', () => {
+    for (const relative of [
+      'home/vue/ContactForm.vue',
+      'reviews/vue/ReviewAccess.vue',
+      'reviews/vue/ReviewPanel.vue',
+    ]) {
+      const source = fs.readFileSync(path.join(componentsDir, relative), 'utf8')
+      expect(source).toContain("from '@/composables/useGoogleSession'")
+    }
   })
 
   it('never imports firebase-admin from client-facing review code', () => {
@@ -197,7 +210,7 @@ describe('component architecture', () => {
       ...walk(path.join(componentsDir, 'reviews')),
       ...walk(path.join(srcDir, 'lib/reviews')),
       ...walk(path.join(srcDir, 'lib/firebase')),
-      path.join(srcDir, 'composables/useReviewSession.ts'),
+      path.join(srcDir, 'composables/useGoogleSession.ts'),
       path.join(srcDir, 'composables/useReviewDraft.ts'),
       path.join(srcDir, 'composables/useReviewSubmission.ts'),
     ]

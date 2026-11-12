@@ -2,14 +2,14 @@
 import { watch } from 'vue'
 import { RouterLink } from '@/router/astroRouter'
 import { usePreferences } from '@/composables/usePreferences'
-import { useReviewSession } from '@/composables/useReviewSession'
+import { useGoogleSession } from '@/composables/useGoogleSession'
 import { reviewPanelPath } from '@/data/paths'
 import SealEyebrow from '@/components/ui/vue/SealEyebrow.vue'
 import PlateFrame from '@/components/ui/vue/PlateFrame.vue'
 import UiIcon from '@/components/ui/vue/UiIcon.vue'
 
 const { copy, locale } = usePreferences()
-const { status, error, busy, signIn, retry } = useReviewSession()
+const { status, error, busy, signIn, retry } = useGoogleSession()
 
 watch(
   status,

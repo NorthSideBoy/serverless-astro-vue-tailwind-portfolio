@@ -26,6 +26,7 @@ const config: EmailJsConfig = {
 }
 
 const contactMessage: ContactMessagePayload = {
+  senderUid: 'abc123XYZ',
   name: 'Andrea Rivas',
   email: 'andrea.rivas@example.com',
   subject: 'Sistema de inventario',
@@ -74,6 +75,22 @@ describe('email notification configuration', () => {
     })
   })
 
+  it('does not read server-style EmailJS variables', () => {
+    expect(
+      readEmailJsConfig({
+        EMAILJS_PUBLIC_KEY: 'key',
+        EMAILJS_SERVICE_ID: 'service',
+        EMAILJS_CONTACT_TEMPLATE_ID: 'contact',
+        EMAILJS_REVIEW_TEMPLATE_ID: 'review',
+      }),
+    ).toEqual({
+      publicKey: '',
+      serviceId: '',
+      contactTemplateId: '',
+      reviewTemplateId: '',
+    })
+  })
+
   it('skips a notification instead of failing when a value is missing', () => {
     expect(isNotificationConfigured(config, 'template-contact')).toBe(true)
     expect(isNotificationConfigured(config, '')).toBe(false)
@@ -98,13 +115,16 @@ describe('contact notification payload', () => {
   })
 
   it('does not add fields the template does not render', () => {
-    expect(Object.keys(buildContactTemplateParams(contactMessage)).sort()).toEqual([
+    const params = buildContactTemplateParams(contactMessage) as Record<string, unknown>
+
+    expect(Object.keys(params).sort()).toEqual([
       'email',
       'locale',
       'message',
       'name',
       'subject',
     ])
+    expect(params).not.toHaveProperty('senderUid')
   })
 })
 
@@ -202,6 +222,12 @@ describe('notification integration boundaries', () => {
     expect(notifyReviewIndex).toBeGreaterThan(createIndex)
     expect(panel.slice(updateIndex, createIndex)).not.toContain('notifyNewReview')
     expect(panel.split('await notifyNewReview(').length - 1).toBe(1)
+  })
+
+  it('never reads or ships the EmailJS private key', () => {
+    const module = read('lib/notifications/emailjs.ts')
+    expect(module).not.toContain('EMAILJS_PRIVATE_KEY')
+    expect(module).not.toContain('accessToken')
   })
 
   it('keeps visitor content out of the console', () => {

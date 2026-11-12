@@ -10,15 +10,20 @@ import {
   signInWithGoogle,
   signOutOfGoogle,
   subscribeToAuth,
-  toReviewSessionUser,
-  type ReviewSessionUser,
-} from '@/lib/reviews/auth'
+  toGoogleSessionUser,
+  type GoogleSessionUser,
+} from '@/lib/auth/google'
 
-export type ReviewSessionStatus = 'loading' | 'guest' | 'ready' | 'error'
+export type GoogleSessionStatus = 'loading' | 'guest' | 'ready' | 'error'
 
-export function useReviewSession() {
-  const status = shallowRef<ReviewSessionStatus>('loading')
-  const user = shallowRef<ReviewSessionUser | null>(null)
+/**
+ * Resolves the single Firebase Auth session for the page. Contact and reviews
+ * each mount their own instance, but both observe the same persisted session,
+ * so signing in or out in one surface applies to the other.
+ */
+export function useGoogleSession() {
+  const status = shallowRef<GoogleSessionStatus>('loading')
+  const user = shallowRef<GoogleSessionUser | null>(null)
   const error = shallowRef<AuthErrorKey | null>(null)
   const busy = shallowRef(false)
 
@@ -46,7 +51,7 @@ export function useReviewSession() {
           return
         }
 
-        const sessionUser = toReviewSessionUser(firebaseUser)
+        const sessionUser = toGoogleSessionUser(firebaseUser)
         if (!sessionUser) {
           user.value = null
           status.value = 'error'

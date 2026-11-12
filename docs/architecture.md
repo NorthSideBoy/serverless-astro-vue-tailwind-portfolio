@@ -17,11 +17,13 @@ content model and delivery have several non-negotiable constraints:
   repository.
 - Every public route must be prerendered. Public content has no runtime data
   source.
-- Visitor reviews are the one owner-scoped runtime surface: Google sign-in,
-  one `reviews/{uid}` write, and a read of that same document. Approved public
+- Visitor reviews are one owner-scoped runtime surface: Google sign-in, one
+  `reviews/{uid}` write, and a read of that same document. Approved public
   reviews are still resolved during the build.
-- The contact form is the one anonymous runtime write: one `forms` document per
-  explicit submit, with no browser read. Messages stay private in Firestore.
+- The contact form is one authenticated runtime write: one `forms` document per
+  explicit submit, bound to the signed-in Google account, with no browser read.
+  Messages stay private in Firestore. Contact and reviews share the same Google
+  session, so signing in on one surface authenticates the other.
 - The initial HTML must contain the managed content that search engines and
   readers need; content must not depend on a browser-side query.
 - JavaScript should be shipped only for behaviour that needs it.
@@ -72,6 +74,7 @@ The implementation therefore uses three rendering paths:
 | Vue SSR-only entry | Managed content that needs no client state | `StackContent.vue`, `ExperienceContent.vue`, `BlogIndexContent.vue`, `ArticleContent.vue` |
 | Hydrated Vue island | Managed or local content that needs client state or browser events | `ProjectsIndexIsland.vue` (`client:load`), `ProjectsIsland.vue` (`client:visible`), `TestimonialsIsland.vue` (`client:idle`) |
 | Hydrated review entry + Firebase client SDK | Google sign-in and visitor review submission | `ReviewsAccessIsland.vue`, `ReviewPanelIsland.vue` (`client:load`) |
+| Hydrated contact entry + shared Google session | Google sign-in and authenticated contact submission | `ContactIsland.vue` (`client:visible`) |
 
 ## Build-time content flow
 
@@ -106,8 +109,8 @@ reads Firestore on every request. `CONTENT_SOURCE=fixture` swaps the source for
 the deterministic fixture used by tests.
 
 The browser never receives server credentials. It writes the signed-in
-visitor's own review, reads that same document, and appends contact messages to
-`forms`. Public content never comes from a browser query.
+visitor's own review, reads that same document, and appends an authenticated
+contact message to `forms`. Public content never comes from a browser query.
 
 ## Visitor reviews
 
@@ -150,38 +153,79 @@ flowchart LR
 
 The browser therefore performs exactly three Firestore operations: a write to
 its own `reviews/{uid}` document, a read of that same document, and an
-append-only write to `forms` when a visitor submits the contact form. All public
+append-only write to `forms` for the signed-in Google visitor. All public
 review output comes from the build.
 
 ## Contact form
 
 The home contact section is a hydrated island because it owns field state,
-validation feedback and a network write. It is still a local-content section:
-its labels and validation copy come from `src/data/content.ts`, and its initial
-HTML carries every field.
+validation feedback, a Google session and a network write. It is still a
+local-content section: its labels, validation copy and account prompt come from
+`src/data/content.ts`, and its initial HTML carries the editable fields and the
+neutral session shell, never a name or email.
 
 ```mermaid
 flowchart LR
-  V[Visitor] --> F[ContactForm.vue]
-  F -->|Zod, on submit| S{Valid?}
-  S -->|No| E[Per-field errors, focus first invalid]
-  S -->|Yes| D[dynamic import: Firestore Lite + repository]
-  D -->|addDoc| C[(forms, create only)]
+  V[Visitor] --> A[Google sign-in]
+  A --> S[Shared Firebase Auth session]
+  S --> F[ContactForm.vue]
+  F -->|Zod, on submit| D{Valid + signed in?}
+  D -->|No| E[Sign-in prompt or per-field errors]
+  D -->|Yes| R[dynamic import: Firestore Lite + repository]
+  R -->|addDoc| C[(forms, create only)]
   C -->|confirmed| OK[Success state]
   C -->|failure| ERR[Error next to submit + mailto fallback]
 ```
 
-- **Contract:** `src/data/contact.ts` owns `CONTACT_LIMITS`, the Zod schema and
-  the issue keys. Fields are trimmed before the write.
-- **Lazy SDK:** neither `src/lib/firebase/` nor `src/lib/forms/` is imported
-  statically. Visiting the home downloads no Firebase code; the dynamic import
-  happens inside the submit handler.
-- **Rules:** `forms` accepts only `create` with the documented fields, lengths,
-  locale and a recent server timestamp. `get`, `list`, `update` and `delete`
-  are denied; the Admin SDK and the Console remain the only readers. Messages
-  are PII and are never rendered by the static site.
+- **Session:** `src/composables/useGoogleSession.ts` observes the same persisted
+  Firebase Auth session as the review pages. Signing in or out in either surface
+  applies to both; changing account uses the Google account picker.
+- **Identity:** `name` and `email` are read-only values from the Google session,
+  not form fields. The payload stores `senderUid`, `name`, `email`, `subject`,
+  `message`, `locale` and the server timestamp.
+- **Contract:** `src/data/contact.ts` owns `CONTACT_LIMITS`, the Zod schema for
+  the editable draft and the issue keys. Subject and message are trimmed before
+  the write.
+- **Lazy write path:** `src/lib/forms/` and Firestore Lite are not imported
+  statically; the dynamic import happens inside the submit handler. The shared
+  session composable only resolves Auth after the island hydrates.
+- **Rules:** `forms` accepts only `create` from a verified Google account. The
+  rules require `request.auth.token.firebase.sign_in_provider == 'google.com'`,
+  `senderUid == request.auth.uid` and `email == request.auth.token.email`, and
+  validate the documented fields, lengths, locale and a recent server
+  timestamp. `get`, `list`, `update` and `delete` are denied; the Admin SDK and
+  the Console remain the only readers. Messages are PII and are never rendered
+  by the static site.
 - **Spam:** Zod and rules constrain the payload, not the rate. App Check and
-  usage alerts are the intended defences; the rules cannot rate-limit.
+  usage alerts are the intended defences; an authenticated account can still
+  submit repeatedly, so rate limiting needs App Check or a backend.
+
+## Email notifications
+
+Contact and new-review emails are best effort and happen after the Firestore
+write. They are sent with EmailJS from the browser; there is no notification
+server.
+
+```mermaid
+sequenceDiagram
+  participant B as Browser
+  participant F as Firestore
+  participant E as EmailJS
+
+  B->>F: create forms / reviews document
+  F-->>B: confirmed
+  B->>E: send template with public identifiers
+  E-->>B: response
+```
+
+- **Client:** `src/lib/notifications/emailjs.ts` builds the template variables
+  and calls EmailJS. It is imported dynamically on submit and uses only the
+  public key, service and template IDs.
+- **Visibility:** `PUBLIC_EMAILJS_*` values appear in the compiled JavaScript
+  and in browser requests. They are public identifiers, not secrets; the
+  private key is never shipped.
+- **Failure:** a missing configuration or provider error never repeats the write
+  or changes the success state. Firestore remains the record of truth.
 
 ## Astro shell
 
@@ -411,7 +455,9 @@ The test suite mirrors the architecture:
 - `tests/reviews.test.ts` — review schema, public projection, draft validation,
   helpers and Firebase error mapping.
 - `tests/contact.test.ts` — contact schema, limits, trimming, payload building,
-  error mapping and rules alignment.
+  session identity, error mapping and rules alignment.
+- `tests/notifications.test.ts` — notification payloads, dynamic EmailJS
+  loading and the public-identifier contract.
 - `tests/browser.test.ts` — no-JavaScript HTML, hydration, project filters,
   theme persistence, locale navigation, deep links, keyboard access, article
   reading aids, review shells and the unauthenticated redirect.
@@ -437,8 +483,9 @@ serve the static output. That build must not be deployed.
   cost, but the script must manage its own listeners and cleanup.
 - Visitor reviews add a browser-side Firebase SDK and make Firestore Rules a
   security boundary. This is the cost of keeping the site static and avoiding
-  a custom server. The SDK is lazy-loaded only on the review routes. The contact
-  form pays the same per-submit cost and adds one anonymous write surface whose
+  a custom server. The contact form shares the same Auth session, so the home
+  loads Firebase Auth only after the contact island becomes visible; Firestore
+  Lite still loads per submit. The form is an authenticated write surface whose
   only client-side control is Zod; rate limiting needs App Check or a backend.
 - Approval is asynchronous with respect to the static site: a review appears
   after the next build/deploy.

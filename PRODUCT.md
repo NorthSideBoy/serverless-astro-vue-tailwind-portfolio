@@ -34,7 +34,7 @@ The same record connects projects, experiences and reviews through stable refere
 - Spanish-first product with an English interface and English versions of substantive content.
 - Public routes: a single-page home with anchored sections, `/proyectos`, `/blog` and `/blog/:slug`. Visitor review routes `/resenas/` and `/resenas/panel/` are interactive, `noindex` utility pages, not public content.
 - The home file follows the order: hero, key figures, about, services, skills, stack, experience, projects, education, certifications, blog, reviews and contact.
-- The contact form collects name, email, subject and message in the browser. No receiver is configured, so the submit control is disabled; visitors reach Said through the email, WhatsApp and GitHub links beside it.
+- The contact form requires Google sign-in, reads the sender name and email from that account, and collects subject and message in the browser. Visitors who prefer not to sign in can still reach Said through the email, WhatsApp and GitHub links beside it.
 - The CV is downloadable in Spanish at `/cv/said-lucena-cv.pdf`.
 - Dark and light themes and the ES/EN preference are persisted between visits. Locale changes are URL-based (`/en/...`) in the Astro build and keep the current section fragment.
 - The professional context is Caracas, Venezuela (UTC−4), with remote or local availability. The site currently declares availability for projects and job opportunities.
@@ -49,7 +49,7 @@ The same record connects projects, experiences and reviews through stable refere
 - Reviews are stored as testimonials from clients and collaborators, with an author profile, roles and quote. Visitors can now sign in with Google, write, preview and submit a review linked to an experience or project. Submitted reviews start unapproved and are published only after moderation.
 - Review author emails are shown with approved reviews. The Firestore document remains owner-read only, but the static build publishes the email in the review card for direct contact. Visitor emails are therefore public, not moderation-only.
 - The only confirmed CV is the Spanish PDF. An English CV is not confirmed.
-- No analytics, newsletter or server-side contact handling are present. Google-authenticated visitor reviews are the only user-account surface. None of the other absent capabilities should be implied.
+- No analytics, newsletter or server-side contact storage are present. Google-authenticated contact messages and visitor reviews are the only user-account surfaces. Email notifications are best-effort and sent from the browser; Firestore remains the record of truth. None of the other absent capabilities should be implied.
 - No formal accessibility standard was recorded. The incumbent implementation includes keyboard navigation, visible focus, reduced-motion handling and both-theme contrast; future work should preserve those affordances.
 
 ## Brand Commitments
