@@ -21,10 +21,11 @@ browser DOM. They do not teach Astro or Vue.
 | [architecture.md](architecture.md) | Explanation | You need to understand why the site is split between Astro and Vue, how content reaches the HTML, or how islands communicate. |
 | [conventions.md](conventions.md) | Reference | You need the normative rule for a file, component, hydration directive, script, data contract or test. |
 | [guides/adding-a-section.md](guides/adding-a-section.md) | How-to | You are adding or changing a section and need the end-to-end recipe. |
+| [guides/tech-icons.md](guides/tech-icons.md) | How-to | You are adding, changing or debugging a technology mark. |
 
 Supporting context:
 
-- [../README.md](../README.md) — project overview, setup and environment variables.
+- [../README.md](../README.md) — comprehensive project README: overview, setup, architecture, operations and environment variables.
 - [../PRODUCT.md](../PRODUCT.md) — product scope, audiences and constraints.
 - [../DESIGN.md](../DESIGN.md) — visual system and design rules.
 - [../src/components/README.md](../src/components/README.md) — short component-layout guide that points back here.
