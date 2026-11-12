@@ -222,7 +222,7 @@ The dossier registers; it does not fade section by section. The opening authored
 - Anchor navigation, including the logo's return to the top, runs through one smooth scroll that leaves a 24px gap under the sticky header. The header's scroll spy holds its background hash rewrite while that journey runs, so a click is never superseded by the section being left. Reduced motion replaces the journey with an instant arrival.
 - Motion uses transform, opacity or `scale`, pauses offscreen, and falls back to static state changes under `prefers-reduced-motion`.
 
-**Astro note.** The page is server-rendered. Sections that do not need client state run their entrances through `src/scripts/reveal.ts`, which applies the same `is-armed` / `is-shown` / `is-traced` classes as the Vue composables; hydrated islands keep `useRevealCycle`. Both paths use the same 2.4s quiet-absence rule, and the script arms only targets that are fully offscreen so server-rendered content never flashes. Chapter headers use the one-shot variant (`once`) in both paths. Hero and IdentityPlate are hydrated (`client:load`) because their calibration is stateful.
+**Astro note.** The page is server-rendered. Sections that do not need client state run their entrances through `src/scripts/reveal.ts`, which applies the same `is-armed` / `is-shown` / `is-traced` classes as the Vue composables; hydrated islands keep `useRevealCycle`. Both paths use the same 2.4s quiet-absence rule, and the script arms only targets that are fully offscreen so server-rendered content never flashes. Chapter headers use the one-shot variant (`once`) in both paths. Hero and IdentityPlate are Astro components enhanced by `src/scripts/identity-plate.ts`; they are not hydrated Vue islands.
 
 ## Elevation & Depth
 
