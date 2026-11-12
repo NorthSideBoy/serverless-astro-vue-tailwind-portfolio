@@ -96,7 +96,6 @@ export interface SiteContent {
     lead: string
     primaryLabel: string
     complementaryLabel: string
-    complementaryNote: string
     primary: ServiceItem[]
     complementary: ServiceItem[]
     ctaQuestion: string
@@ -448,7 +447,6 @@ export const content: Record<Locale, SiteContent> = {
       lead: 'Desarrollo soluciones digitales a medida para tu organización, ya sea que necesites crear algo nuevo, mejorar lo que ya utilizas o mantenerlo en funcionamiento.',
       primaryLabel: 'LO QUE PUEDO CREAR PARA TI',
       complementaryLabel: 'OTRAS FORMAS DE AYUDARTE',
-      complementaryNote: 'Puedes pedirlas junto con una solución nueva o por separado.',
       primary: [
         {
           index: '01',
@@ -978,7 +976,6 @@ export const content: Record<Locale, SiteContent> = {
       lead: 'I develop tailored digital solutions for your organization, whether you need to build something new, improve what you already use or keep it running.',
       primaryLabel: 'WHAT I CAN BUILD FOR YOU',
       complementaryLabel: 'OTHER WAYS I CAN HELP',
-      complementaryNote: 'Ask for these alongside a new solution or on their own.',
       primary: [
         {
           index: '01',

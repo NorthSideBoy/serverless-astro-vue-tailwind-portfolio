@@ -47,9 +47,8 @@ const home = locale === 'en' ? '/en/' : '/';
           </div>
         </div>
         <div class="border-t border-line bg-page">
-          <div class="flex flex-col gap-2 px-5 py-4 md:flex-row md:items-baseline md:justify-between md:gap-8 md:px-6">
+          <div class="px-5 py-4 md:px-6">
             <h3 id="services-complementary-title" class="mono-label text-soft">{services.complementaryLabel}</h3>
-            <p class="max-w-[48ch] text-[13px] leading-[1.6] text-muted md:text-right">{services.complementaryNote}</p>
           </div>
           <div class="grid gap-px bg-line sm:grid-cols-2 xl:grid-cols-4">
             {services.complementary.map((service, index) => <article data-service class="service-item flex h-full flex-col bg-page p-4 transition-colors hover:bg-panel/10 focus-within:bg-panel/10 md:p-5" style={`--service-delay:${Math.min((index + services.primary.length) * 55, 220)}ms`} aria-labelledby={`service-${service.index}`}>
