@@ -23,6 +23,7 @@ Use the smallest solution:
 | Interaction | Prefer |
 | --- | --- |
 | Copy to clipboard, tabs, menu, counters, plate animation | Astro + `src/scripts/` |
+| Form with validation and a network write | Vue island, `client:visible` |
 | Project filtering | Vue island, `client:load` |
 | Carousel or details below the fold | Vue island, `client:visible` |
 | Collapsible reviews after first paint | Vue island, `client:idle` |

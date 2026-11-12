@@ -63,6 +63,17 @@ async function waitForHydration(page: Page) {
   await page.waitForSelector('astro-island[client="load"]:not([ssr])', { state: 'attached' })
 }
 
+async function waitForContactHydration(page: Page) {
+  await page.locator('#contact').scrollIntoViewIfNeeded()
+  await expect
+    .poll(() =>
+      page
+        .locator('#contact')
+        .evaluate((element) => !element.closest('astro-island')?.hasAttribute('ssr')),
+    )
+    .toBe(true)
+}
+
 describe('rendered portfolio', () => {
   it('serves article content and project cards before Vue hydrates', async () => {
     const page = await openPage({ javaScriptEnabled: false })
@@ -294,9 +305,35 @@ describe('rendered portfolio', () => {
       await page.locator('#skills-area-detail [data-area-detail]:visible').textContent(),
     ).toContain('Cómo se organiza el conjunto')
     expect(await page.locator('#contact button[type="submit"]').isDisabled()).toBe(false)
+    await waitForContactHydration(page)
     const copy = page.locator('[data-copy-email]')
     await copy.click()
     await expect.poll(() => page.locator('[data-copy-status]').textContent()).not.toBe('')
+    await page.close()
+  })
+
+  it('validates the contact form before calling Firebase', async () => {
+    const page = await openPage()
+    const requests: string[] = []
+    page.on('request', (request) => requests.push(request.url()))
+    await goto(page, '/')
+    await waitForContactHydration(page)
+
+    await page.locator('#contact button[type="submit"]').click()
+
+    await expect.poll(() => page.locator('#contact-name-error').textContent()).toBe(
+      'Escribe tu nombre.',
+    )
+    expect(await page.locator('#contact-email-error').textContent()).toBe('Escribe tu correo.')
+    expect(await page.locator('#contact-subject-error').textContent()).toBe('Escribe el asunto.')
+    expect(await page.locator('#contact-message-error').textContent()).toBe('Escribe tu mensaje.')
+    expect(
+      await page.locator('#contact-name').evaluate((element) => element === document.activeElement),
+    ).toBe(true)
+    expect(await page.locator('#contact-name').getAttribute('aria-invalid')).toBe('true')
+    expect(
+      requests.some((url) => /firebase|identitytoolkit|firestore\.googleapis/.test(url)),
+    ).toBe(false)
     await page.close()
   })
 

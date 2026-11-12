@@ -1,4 +1,6 @@
 import type { ReviewDraftIssue } from '@/data/reviews'
+import type { ContactFieldIssue } from '@/data/contact'
+import type { ContactSubmitErrorKey } from '@/lib/forms/errors'
 import type { AuthErrorKey, PublishErrorKey } from '@/lib/reviews/errors'
 
 export type Locale = 'es' | 'en'
@@ -331,9 +333,17 @@ export interface SiteContent {
       messageLabel: string
       messagePlaceholder: string
       submit: string
+      sending: string
       copyEmail: string
       copied: string
       copyFailed: string
+      successTitle: string
+      successBody: string
+      sendAnother: string
+      errorTitle: string
+      noscript: string
+      errors: Record<ContactFieldIssue, string>
+      submitErrors: Record<ContactSubmitErrorKey, string>
     }
   }
   footer: {
@@ -845,9 +855,37 @@ export const content: Record<Locale, SiteContent> = {
         messageLabel: 'MENSAJE',
         messagePlaceholder: 'Qué necesitas construir, mantener o resolver',
         submit: 'Enviar mensaje',
+        sending: 'Enviando…',
         copyEmail: 'Copiar correo',
         copied: 'Correo copiado al portapapeles.',
         copyFailed: 'Tu navegador no permitió copiar. Escríbelo a mano.',
+        successTitle: 'Mensaje enviado',
+        successBody: 'Gracias. Te responderé al correo que dejaste.',
+        sendAnother: 'Enviar otro mensaje',
+        errorTitle: 'No se pudo enviar',
+        noscript:
+          'El formulario necesita JavaScript. Escríbeme a saidlucena519@gmail.com o por WhatsApp.',
+        errors: {
+          'name-required': 'Escribe tu nombre.',
+          'name-min': 'El nombre es demasiado corto.',
+          'name-max': 'El nombre admite hasta 80 caracteres.',
+          'email-required': 'Escribe tu correo.',
+          'email-invalid': 'Escribe un correo válido.',
+          'email-max': 'El correo admite hasta 254 caracteres.',
+          'subject-required': 'Escribe el asunto.',
+          'subject-min': 'El asunto es demasiado corto.',
+          'subject-max': 'El asunto admite hasta 120 caracteres.',
+          'message-required': 'Escribe tu mensaje.',
+          'message-min': 'El mensaje debe tener al menos 10 caracteres.',
+          'message-max': 'El mensaje admite hasta 2000 caracteres.',
+        },
+        submitErrors: {
+          'permission-denied':
+            'El envío no está disponible ahora. Escríbeme directo por correo.',
+          network: 'No hay conexión. Revisa tu red e inténtalo de nuevo.',
+          quota: 'El formulario está recibiendo demasiados mensajes. Escríbeme por correo.',
+          unknown: 'Algo falló al enviar. Inténtalo de nuevo o escríbeme por correo.',
+        },
       },
     },
     footer: {
@@ -1354,9 +1392,37 @@ export const content: Record<Locale, SiteContent> = {
         messageLabel: 'MESSAGE',
         messagePlaceholder: 'What you need to build, maintain or solve',
         submit: 'Send message',
+        sending: 'Sending…',
         copyEmail: 'Copy email',
         copied: 'Email copied to clipboard.',
         copyFailed: 'Your browser did not allow copying. Write it down manually.',
+        successTitle: 'Message sent',
+        successBody: 'Thank you. I will reply to the email you left.',
+        sendAnother: 'Send another message',
+        errorTitle: 'Could not send',
+        noscript:
+          'This form needs JavaScript. Write to saidlucena519@gmail.com or send a WhatsApp message.',
+        errors: {
+          'name-required': 'Enter your name.',
+          'name-min': 'The name is too short.',
+          'name-max': 'The name accepts up to 80 characters.',
+          'email-required': 'Enter your email.',
+          'email-invalid': 'Enter a valid email address.',
+          'email-max': 'The email accepts up to 254 characters.',
+          'subject-required': 'Enter a subject.',
+          'subject-min': 'The subject is too short.',
+          'subject-max': 'The subject accepts up to 120 characters.',
+          'message-required': 'Write your message.',
+          'message-min': 'The message must be at least 10 characters.',
+          'message-max': 'The message accepts up to 2000 characters.',
+        },
+        submitErrors: {
+          'permission-denied':
+            'Sending is unavailable right now. Write to me directly by email.',
+          network: 'There is no connection. Check your network and try again.',
+          quota: 'The form is receiving too many messages. Write to me by email.',
+          unknown: 'Something failed while sending. Try again or write to me by email.',
+        },
       },
     },
     footer: {

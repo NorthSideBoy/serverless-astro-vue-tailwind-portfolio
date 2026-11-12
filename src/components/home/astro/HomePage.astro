@@ -13,7 +13,7 @@ import EducationSection from '@/components/islands/home/EducationContent.vue';
 import CertificationsSection from '@/components/islands/home/CertificationsContent.vue';
 import BlogSection from '@/components/islands/blog/BlogContent.vue';
 import Testimonials from '@/components/islands/home/TestimonialsIsland.vue';
-import Contact from './ContactSection.astro';
+import Contact from '@/components/islands/home/ContactIsland.vue';
 import Layout from '@/layouts/Layout.astro';
 import { loadContent } from '@/lib/server/content';
 import { resolveTechnologyIcon, verifyCustomIconUrl } from '@/lib/server/techIcons';
@@ -82,7 +82,7 @@ const ready = { loading: false, error: null };
     <CertificationsSection locale={locale} items={data.certifications} section={data.sections.certifications} />
     <BlogSection locale={locale} articles={data.articles} section={data.sections.blog} />
     <Testimonials locale={locale} path={path} content={{ items: data.reviews, experiences: data.experience, projects: data.projects, section: data.sections.reviews, ...ready }} client:idle={{ timeout: 1500 }} />
-    <Contact locale={locale} />
+    <Contact locale={locale} page="home" path={path} client:visible={{ rootMargin: '200px' }} />
   </main>
   <SiteFooter locale={locale} path={path} />
 </Layout>

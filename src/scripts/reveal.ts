@@ -90,7 +90,6 @@ export function initReveals() {
   collect('[data-education-item]', 'record', targets, seen)
   collect('[data-certification-item]', 'record', targets, seen)
   collect('[data-blog-card]', 'record', targets, seen)
-  collect('[data-contact-panel]', 'stagger', targets, seen)
   collect('.hero-copy', 'stagger', targets, seen)
 
   if (!targets.length) return

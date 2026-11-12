@@ -6,7 +6,7 @@ import { usePreferences } from '@/composables/usePreferences'
 import { useReviewSession } from '@/composables/useReviewSession'
 import { useReviewDraft } from '@/composables/useReviewDraft'
 import { useReviewSubmission } from '@/composables/useReviewSubmission'
-import { getReviewsDatabase } from '@/lib/firebase/client'
+import { getFirestoreDatabase } from '@/lib/firebase/client'
 import {
   createReview,
   getOwnReview,
@@ -189,7 +189,7 @@ async function loadOwnReview(uid: string): Promise<void> {
   resetSubmission()
 
   try {
-    const db = await getReviewsDatabase()
+    const db = await getFirestoreDatabase()
     if (user.value?.uid !== uid) return
     const existing = await getOwnReview(db, uid)
     if (user.value?.uid !== uid) return
@@ -363,7 +363,7 @@ async function publish(): Promise<void> {
   const existing = record.value
   const wasEdited = Boolean(existing)
   const ok = await runSubmission(async () => {
-    const db = await getReviewsDatabase()
+    const db = await getFirestoreDatabase()
     if (wasEdited) await updateReview(db, currentUser, draft.value)
     else await createReview(db, currentUser, draft.value)
   })
@@ -396,7 +396,7 @@ async function publish(): Promise<void> {
 
   if (submissionError.value === 'permission-denied') {
     try {
-      const db = await getReviewsDatabase()
+      const db = await getFirestoreDatabase()
       const latest = await getOwnReview(db, currentUser.uid)
       if (latest?.approved) {
         record.value = latest

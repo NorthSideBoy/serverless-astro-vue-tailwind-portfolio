@@ -191,10 +191,17 @@ follows a deep link.
 Vue receives validated public content through props. Firestore remains a
 build-time source for the home, projects, experience, blog and review lists.
 
-The visitor review flow is the only exception: it may read and write the
-signed-in visitor's own `reviews/{uid}` document through `src/lib/reviews/`.
-It **MUST NOT** read another visitor's review, list the collection or approve a
-review from the browser.
+The browser performs exactly two writes and one owner-only read:
+
+- the visitor review flow may read and write the signed-in visitor's own
+  `reviews/{uid}` document through `src/lib/reviews/`;
+- the contact form may append one document to `forms` through
+  `src/lib/forms/`, without a session and only after an explicit submit.
+
+Neither may read another visitor's review, list either collection or approve a
+review from the browser. The contact form **MUST NOT** statically import the
+Firebase SDK or the repository; both load dynamically inside the submit
+handler.
 
 ## 4. Islands and hydration
 
@@ -487,6 +494,14 @@ Clients write `id`, `authorUid`, `source`, `anchorId` and `createdAt` once.
 `approved` remains `false`. Updates may change only the author metadata, roles,
 quote, locale, relations and `updatedAt`.
 
+### R-DATA-10 — Treat contact messages as private, untrusted input
+
+Every contact submission is validated with `contactDraftSchema` before the write
+and again by Firestore Rules. Limits live in `CONTACT_LIMITS`; the rules repeat
+them. `forms` is append-only from the browser: no read, list, update or delete.
+The static site never renders a stored message. Zod constrains the payload but
+does not rate-limit; spam control belongs to App Check and usage alerts.
+
 ## 10. Visitor review authentication
 
 ### R-AUTH-01 — Keep the Firebase web SDK out of SSR and public features
@@ -494,7 +509,8 @@ quote, locale, relations and `updatedAt`.
 The Firebase web SDK is browser-only. It lives behind `src/lib/firebase/` and is
 imported dynamically from `onMounted` or event handlers. A static import in a
 component that Astro renders on the server is forbidden. The home, projects and
-blog features must never import it.
+blog features must never import it statically; the contact form is the only
+home feature allowed to load it, and only dynamically from its submit handler.
 
 ### R-AUTH-02 — Only Google, only the owner
 
@@ -739,6 +755,8 @@ output.
 - Letting the browser read or list reviews other than its own.
 - Writing `approved: true` from client code.
 - Importing the Firebase web SDK during SSR or from public content features.
+- Statically importing the Firebase SDK or `src/lib/forms/` in the contact form; both load on submit.
+- Rendering a stored contact message in the static site or logging its body.
 - Rendering visitor review text with `v-html`.
 - Adding `/resenas/` to the sitemap or treating it as indexable public content.
 
@@ -761,6 +779,7 @@ output.
 | Schemas | `src/data/schemas/` |
 | Review contract and helpers | `src/data/reviews.ts`, `src/data/schemas/review.ts` |
 | Review auth and repository | `src/lib/firebase/`, `src/lib/reviews/` |
+| Contact contract, form and repository | `src/data/contact.ts`, `src/components/home/vue/ContactForm.vue`, `src/lib/forms/` |
 | Review pages and islands | `src/components/reviews/`, `src/components/islands/reviews/` |
 | Firestore security rules | `firestore.rules` |
 | Relations and anchors | `src/data/relations.ts`, `src/data/anchors.ts` |
@@ -791,6 +810,7 @@ output.
 | --- | --- | --- |
 | Projects index | `ProjectsIndexIsland.vue` | `client:load` |
 | Home projects | `ProjectsIsland.vue` | `client:visible` |
+| Contact | `ContactIsland.vue` | `client:visible` |
 | Reviews | `TestimonialsIsland.vue` | `client:idle` |
 | Review access | `ReviewsAccessIsland.vue` | `client:load` |
 | Review panel | `ReviewPanelIsland.vue` | `client:load` |

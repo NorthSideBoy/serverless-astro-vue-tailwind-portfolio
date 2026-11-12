@@ -85,10 +85,18 @@ describe('component architecture', () => {
 
   it('renders local home content in Astro and Firestore content through Vue', () => {
     const home = fs.readFileSync(path.join(componentsDir, 'home/astro/HomePage.astro'), 'utf8')
-    for (const name of ['HeroSection', 'StatsSection', 'SkillsSection', 'ContactSection']) {
+    for (const name of ['HeroSection', 'StatsSection', 'SkillsSection']) {
       expect(home).toContain(`./${name}.astro`)
-      expect(home).not.toMatch(new RegExp(`<${name === 'HeroSection' ? 'Hero' : name === 'StatsSection' ? 'Stats' : name === 'SkillsSection' ? 'Skills' : 'Contact'}[^>]*client:`))
+      expect(home).not.toMatch(
+        new RegExp(
+          `<${name === 'HeroSection' ? 'Hero' : name === 'StatsSection' ? 'Stats' : 'Skills'}[^>]*client:`,
+        ),
+      )
     }
+    expect(home).toContain('components/islands/home/ContactIsland.vue')
+    expect(home).toMatch(/<Contact[^>]*client:visible/)
+    expect(fs.existsSync(path.join(componentsDir, 'home/astro/ContactSection.astro'))).toBe(false)
+    expect(fs.existsSync(path.join(componentsDir, 'home/vue/ContactSection.vue'))).toBe(true)
     for (const name of ['StackContent', 'ExperienceContent', 'EducationContent', 'CertificationsContent']) {
       expect(home).toContain(`components/islands/home/${name}.vue`)
     }
@@ -152,6 +160,23 @@ describe('component architecture', () => {
       ),
     )
     expect(violations.map((file) => path.relative(srcDir, file))).toEqual([])
+  })
+
+  it('loads the contact Firebase SDK only after an explicit submit', () => {
+    const form = fs.readFileSync(path.join(componentsDir, 'home/vue/ContactForm.vue'), 'utf8')
+    const staticImports = importsOf(path.join(componentsDir, 'home/vue/ContactForm.vue'))
+
+    expect(
+      staticImports.filter(
+        (specifier) =>
+          specifier === 'firebase' ||
+          specifier.startsWith('firebase/') ||
+          specifier.startsWith('@/lib/firebase') ||
+          specifier.startsWith('@/lib/forms'),
+      ),
+    ).toEqual([])
+    expect(form).toContain("import('@/lib/forms/repository')")
+    expect(form).toContain("import('@/lib/firebase/client')")
   })
 
   it('never imports firebase-admin from client-facing review code', () => {

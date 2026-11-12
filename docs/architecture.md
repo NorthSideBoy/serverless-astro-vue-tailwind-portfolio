@@ -17,9 +17,11 @@ content model and delivery have several non-negotiable constraints:
   repository.
 - Every public route must be prerendered. Public content has no runtime data
   source.
-- Visitor reviews are the one runtime write and owner-only read surface:
-  Google sign-in, one `reviews/{uid}` write, and a read of that same document.
-  Approved public reviews are still resolved during the build.
+- Visitor reviews are the one owner-scoped runtime surface: Google sign-in,
+  one `reviews/{uid}` write, and a read of that same document. Approved public
+  reviews are still resolved during the build.
+- The contact form is the one anonymous runtime write: one `forms` document per
+  explicit submit, with no browser read. Messages stay private in Firestore.
 - The initial HTML must contain the managed content that search engines and
   readers need; content must not depend on a browser-side query.
 - JavaScript should be shipped only for behaviour that needs it.
@@ -103,9 +105,9 @@ Production builds reuse one validated snapshot for the whole build. Development
 reads Firestore on every request. `CONTENT_SOURCE=fixture` swaps the source for
 the deterministic fixture used by tests.
 
-The browser never receives server credentials. It only writes and reads the
-signed-in visitor's own review through the Firebase web SDK; public content
-never comes from a browser query.
+The browser never receives server credentials. It writes the signed-in
+visitor's own review, reads that same document, and appends contact messages to
+`forms`. Public content never comes from a browser query.
 
 ## Visitor reviews
 
@@ -146,9 +148,40 @@ flowchart LR
 - **Editorial rows:** the existing sample reviews do not carry `approved`, so
   the build query ignores them. No migration is required to hide them.
 
-The browser therefore performs exactly two Firestore operations: a write to
-its own `reviews/{uid}` document and a read of that same document. All public
+The browser therefore performs exactly three Firestore operations: a write to
+its own `reviews/{uid}` document, a read of that same document, and an
+append-only write to `forms` when a visitor submits the contact form. All public
 review output comes from the build.
+
+## Contact form
+
+The home contact section is a hydrated island because it owns field state,
+validation feedback and a network write. It is still a local-content section:
+its labels and validation copy come from `src/data/content.ts`, and its initial
+HTML carries every field.
+
+```mermaid
+flowchart LR
+  V[Visitor] --> F[ContactForm.vue]
+  F -->|Zod, on submit| S{Valid?}
+  S -->|No| E[Per-field errors, focus first invalid]
+  S -->|Yes| D[dynamic import: Firestore Lite + repository]
+  D -->|addDoc| C[(forms, create only)]
+  C -->|confirmed| OK[Success state]
+  C -->|failure| ERR[Error next to submit + mailto fallback]
+```
+
+- **Contract:** `src/data/contact.ts` owns `CONTACT_LIMITS`, the Zod schema and
+  the issue keys. Fields are trimmed before the write.
+- **Lazy SDK:** neither `src/lib/firebase/` nor `src/lib/forms/` is imported
+  statically. Visiting the home downloads no Firebase code; the dynamic import
+  happens inside the submit handler.
+- **Rules:** `forms` accepts only `create` with the documented fields, lengths,
+  locale and a recent server timestamp. `get`, `list`, `update` and `delete`
+  are denied; the Admin SDK and the Console remain the only readers. Messages
+  are PII and are never rendered by the static site.
+- **Spam:** Zod and rules constrain the payload, not the rate. App Check and
+  usage alerts are the intended defences; the rules cannot rate-limit.
 
 ## Astro shell
 
@@ -377,6 +410,8 @@ The test suite mirrors the architecture:
   route sitemap exclusion.
 - `tests/reviews.test.ts` — review schema, public projection, draft validation,
   helpers and Firebase error mapping.
+- `tests/contact.test.ts` — contact schema, limits, trimming, payload building,
+  error mapping and rules alignment.
 - `tests/browser.test.ts` — no-JavaScript HTML, hydration, project filters,
   theme persistence, locale navigation, deep links, keyboard access, article
   reading aids, review shells and the unauthenticated redirect.
@@ -402,7 +437,9 @@ serve the static output. That build must not be deployed.
   cost, but the script must manage its own listeners and cleanup.
 - Visitor reviews add a browser-side Firebase SDK and make Firestore Rules a
   security boundary. This is the cost of keeping the site static and avoiding
-  a custom server. The SDK is lazy-loaded only on the review routes.
+  a custom server. The SDK is lazy-loaded only on the review routes. The contact
+  form pays the same per-submit cost and adds one anonymous write surface whose
+  only client-side control is Zod; rate limiting needs App Check or a backend.
 - Approval is asynchronous with respect to the static site: a review appears
   after the next build/deploy.
 

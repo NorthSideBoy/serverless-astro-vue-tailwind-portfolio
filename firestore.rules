@@ -29,9 +29,25 @@ service cloud.firestore {
     //   - createdAt: timestamp (immutable)
     //   - updatedAt: timestamp
     //
+    // Collection: forms
+    // Document ID: auto-generated.
+    // Fields:
+    //   - name: string 2..80 (plain text)
+    //   - email: string 3..254, valid address (private reply-to)
+    //   - subject: string 3..120 (plain text)
+    //   - message: string 10..2000 (plain text)
+    //   - locale: 'es' | 'en' (portfolio locale at submit time)
+    //   - createdAt: timestamp (server timestamp, required)
+    //
+    // Contact messages are private: the browser may only append a document,
+    // and every read, update and delete is denied. The owner reads them in
+    // the Firestore Console or through the Admin SDK. There is no client
+    // query to support, and no document ID is used as a capability.
+    //
     // Public reads happen at build time with the Admin SDK, which bypasses
     // these rules. The browser only reads the signed-in user's own review and
-    // writes visitor reviews. Every other collection stays closed.
+    // writes visitor reviews or contact messages. Every other collection stays
+    // closed.
     //
     // ===============================================================
 
@@ -132,9 +148,34 @@ service cloud.firestore {
         && value < request.time + duration.value(1, 'm');
     }
 
+    function isValidContactMessage(data) {
+      return data.keys().hasAll([
+        'name', 'email', 'subject', 'message', 'locale', 'createdAt'
+      ])
+        && data.keys().hasOnly([
+          'name', 'email', 'subject', 'message', 'locale', 'createdAt'
+        ])
+        && validString(data.name, 2, 80)
+        && validString(data.email, 3, 254)
+        && data.email.matches('^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$')
+        && validString(data.subject, 3, 120)
+        && validString(data.message, 10, 2000)
+        && (data.locale == 'es' || data.locale == 'en')
+        && data.createdAt is timestamp
+        && isRecent(data.createdAt);
+    }
+
     function orderIsUnchanged(data, existing) {
       return (!('order' in data) && !('order' in existing))
         || (('order' in data) && ('order' in existing) && data.order == existing.order);
+    }
+
+    // Contact form intake: append-only and private.
+    match /forms/{messageId} {
+      allow create: if isValidContactMessage(request.resource.data);
+
+      // Messages contain PII. Only the Admin SDK/Console may read them.
+      allow get, list, update, delete: if false;
     }
 
     match /reviews/{reviewId} {

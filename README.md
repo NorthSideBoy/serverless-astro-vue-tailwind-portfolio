@@ -8,23 +8,29 @@ colecciones se sirven desde Cloudflare R2. Los archivos estáticos viven
 ## Arquitectura
 
 - **Astro** posee rutas, layout, metadatos SEO, chrome y el contenido local
-  (hero, cifras, about, servicios, habilidades y contacto). Las interacciones de
-  esas secciones viven en scripts ligeros de `src/scripts/`, no en islas Vue.
+  (hero, cifras, about, servicios y habilidades). Las interacciones de esas
+  secciones viven en scripts ligeros de `src/scripts/`, no en islas Vue.
 - **Vue** renderiza el contenido administrado en Firestore durante el build.
   Artículos, índice del blog, stack, experiencia, educación, certificaciones y
   teaser del blog se sirven como HTML inicial sin hidratación. Solo se hidratan
   las superficies que necesitan estado: el índice de proyectos
-  (`client:load`), los proyectos de la home (`client:visible`) y las reseñas
-  (`client:idle`).
+  (`client:load`), los proyectos de la home (`client:visible`), contacto
+  (`client:visible`) y las reseñas (`client:idle`).
 - **Firestore** es la fuente de verdad del contenido editorial. El build falla
   si una colección está vacía o si el grafo editorial no valida, salvo
   `reviews`: puede estar vacía y la home muestra el estado vacío con el botón
   para dejar la primera reseña. El navegador no lee contenido público desde
   Firestore; solo el flujo de reseñas escribe y lee el documento propio del
-  visitante autenticado con Google.
+  visitante autenticado con Google, y el formulario de contacto escribe en
+  `forms`.
 - **Firebase Auth + Firestore Lite** se cargan de forma diferida solo en
-  `/resenas/` y `/resenas/panel/`. Allí el visitante inicia sesión con Google,
-  redacta, previsualiza y publica una reseña con `approved: false`.
+  `/resenas/` y `/resenas/panel/`, y Firestore Lite se carga al enviar el
+  formulario de contacto. Allí el visitante inicia sesión con Google, redacta,
+  previsualiza y publica una reseña con `approved: false`.
+- **Contacto** valida nombre, correo, asunto y mensaje con Zod en el navegador
+  y crea un documento en la colección privada `forms`. Las reglas solo permiten
+  esa escritura: leer, actualizar o borrar mensajes queda reservado al Admin
+  SDK y a la Consola.
 - **Aprobación** fuera del alcance del panel: se hace desde Firestore/Consola
   poniendo `approved: true`. El siguiente build publica la reseña en la home,
   proyectos y experiencia. `firestore.rules` impide que el cliente se apruebe.
@@ -51,6 +57,7 @@ src/
 │   └── schemas/          Contratos Zod y validación del grafo
 ├── lib/
 │   ├── firebase/         SDK web diferido (Auth + Firestore Lite)
+│   ├── forms/            Repositorio y errores del formulario de contacto
 │   ├── reviews/          Auth, repositorio, errores y composables
 │   ├── server/           Firestore, fixtures y resolución de medios
 │   └── withIslandContext.ts  Contexto por isla Vue
@@ -93,8 +100,24 @@ credenciales descritas abajo o Application Default Credentials.
 
 `.env` y las claves de servicio están ignoradas por Git. Las reglas de Firestore
 solo permiten al visitante autenticado leer y escribir su propio documento
-`reviews/{uid}`; el resto del acceso desde navegadores está denegado. El Admin
+`reviews/{uid}`, y permiten crear un documento en `forms` sin autenticación;
+leer, actualizar o borrar mensajes desde el navegador está denegado. El Admin
 SDK del build lee el contenido editorial y las reseñas aprobadas.
+
+## Formulario de contacto
+
+El formulario de la home vive en `src/components/home/vue/ContactSection.vue` y
+se hidrata con `client:visible`. Sus campos se validan con Zod en
+`src/data/contact.ts`; el envío crea un documento en `forms` con `name`,
+`email`, `subject`, `message`, `locale` y `createdAt` de servidor. El SDK de
+Firestore y el repositorio se importan dinámicamente al enviar, así que visitar
+la home no descarga Firebase.
+
+Los límites (nombre 2–80, correo hasta 254, asunto 3–120 y mensaje 10–2000)
+están repetidos en `firestore.rules` porque las reglas no pueden importar
+TypeScript. Los mensajes contienen datos personales: se leen en Firestore →
+`forms` o con el Admin SDK, nunca desde el navegador. No hay un límite de tasa
+en las reglas; para producción conviene habilitar App Check y alertas de uso.
 
 ## Reseñas de visitantes
 

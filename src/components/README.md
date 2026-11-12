@@ -39,8 +39,9 @@ Cada feature usa las mismas subcarpetas:
    - `*Island.vue` — entrada hidratada.
    - `*Content.vue` — entrada renderizada solo en build.
 
-`tests/architecture.test.ts` verifica las reglas 1, 2 y la separación actual
-entre contenido local en Astro y contenido Firestore en Vue.
+`tests/architecture.test.ts` verifica las reglas 1, 2, la separación actual
+entre contenido editorial en Vue y contenido local en Astro, y que el formulario
+de contacto cargue Firebase solo al enviar.
 
 ## Primitivas compartidas
 

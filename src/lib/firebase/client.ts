@@ -6,7 +6,7 @@ import { firebaseConfig } from './config'
 /**
  * The Firebase web SDK is browser-only. Every entry point is a dynamic import
  * so the SDK never executes during Astro's SSR pass and only reaches the
- * review routes.
+ * review routes and the contact form after an explicit visitor action.
  */
 let appPromise: Promise<FirebaseApp> | undefined
 let authPromise: Promise<Auth> | undefined
@@ -30,7 +30,7 @@ export async function getFirebaseAuth(): Promise<Auth> {
   return authPromise
 }
 
-export async function getReviewsDatabase(): Promise<Firestore> {
+export async function getFirestoreDatabase(): Promise<Firestore> {
   dbPromise ??= (async () => {
     const { getFirestore } = await import('firebase/firestore/lite')
     return getFirestore(await getClientApp())
