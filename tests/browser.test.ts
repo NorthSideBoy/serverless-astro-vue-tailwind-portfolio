@@ -376,6 +376,31 @@ describe('rendered portfolio', () => {
     await page.close()
   })
 
+  it('keeps English route segments and switches locale between vocabularies', async () => {
+    const page = await openPage()
+    await goto(page, '/en/projects/')
+    expect(await page.locator('html').getAttribute('lang')).toBe('en')
+    expect(await page.locator('link[rel="canonical"]').getAttribute('href'))
+      .toBe('https://fixture.example.test/en/projects/')
+    expect(
+      await page.locator('link[rel="alternate"][hreflang="es"]').getAttribute('href'),
+    ).toBe('https://fixture.example.test/proyectos/')
+
+    const spanish = page.locator('header [data-locale-link][href="/proyectos/"]').first()
+    await spanish.click()
+    await page.waitForURL(`${base}/proyectos/`)
+    expect(await page.locator('html').getAttribute('lang')).toBe('es')
+
+    await goto(page, '/en/reviews/')
+    expect(await page.locator('meta[name="robots"]').getAttribute('content')).toBe(
+      'noindex, follow',
+    )
+    expect(
+      await page.locator('header [data-locale-link][href="/resenas/"]').first().count(),
+    ).toBe(1)
+    await page.close()
+  })
+
   it('exposes canonical, social and JSON-LD metadata', async () => {
     const page = await openPage({ javaScriptEnabled: false })
     await goto(page, '/')
@@ -417,7 +442,11 @@ describe('rendered portfolio', () => {
     expect(body).toContain('<lastmod>2024-02-02</lastmod>')
     expect(body).toContain('<lastmod>2024-03-02</lastmod>')
     expect(body).toContain('hreflang="x-default"')
-    expect(body).not.toContain('/projects/')
+    expect(body).toContain('https://fixture.example.test/proyectos/')
+    expect(body).toContain('https://fixture.example.test/en/projects/')
+    expect(body).not.toContain('https://fixture.example.test/projects/')
+    expect(body).not.toContain('/resenas/')
+    expect(body).not.toContain('/reviews/')
   })
 
   it('keeps each blog index scoped to its locale', async () => {
@@ -468,7 +497,7 @@ describe('rendered portfolio', () => {
           .filter((href): href is string => {
             if (href === null) return false
             const [pathname] = href.split('#')
-            return /^\/(en\/)?(blog|proyectos)(\/[^/]+)?$/.test(pathname)
+            return /^\/(en\/)?(blog|proyectos|projects|resenas|reviews)(\/[^/]+)?$/.test(pathname)
           }),
       )
       expect(missing).toEqual([])

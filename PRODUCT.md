@@ -32,7 +32,7 @@ The same record connects projects, experiences and reviews through stable refere
 - Personal site maintained as an Astro application with Vue islands, not a company or SaaS product.
 - Content is validated against typed schemas in `src/data/` and loaded from Firestore during the static build; there is no confirmed CMS or editorial team.
 - Spanish-first product with an English interface and English versions of substantive content.
-- Public routes: a single-page home with anchored sections, `/proyectos`, `/blog` and `/blog/:slug`. Visitor review routes `/resenas/` and `/resenas/panel/` are interactive, `noindex` utility pages, not public content.
+- Public routes: a single-page home with anchored sections, `/proyectos/`, `/blog/` and `/blog/:slug/`, with English counterparts under `/en/` that use English segments (`/en/projects/`). Visitor review routes `/resenas/`, `/resenas/panel/`, `/en/reviews/` and `/en/reviews/panel/` are interactive, `noindex` utility pages, not public content.
 - The home file follows the order: hero, key figures, about, services, skills, stack, experience, projects, education, certifications, blog, reviews and contact.
 - The contact form requires Google sign-in, reads the sender name and email from that account, and collects subject and message in the browser. Visitors who prefer not to sign in can still reach Said through the email, WhatsApp and GitHub links beside it.
 - The CV is downloadable in Spanish at `/cv/said-lucena-cv.pdf`.

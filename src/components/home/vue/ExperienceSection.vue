@@ -6,6 +6,7 @@ import type { Project } from '@/data/projects'
 import type { Testimonial } from '@/data/testimonials'
 import type { SiteSections } from '@/data/schemas/siteSection'
 import { experienceAnchor, projectAnchor, reviewAnchor } from '@/data/anchors'
+import { homePath, projectsPath } from '@/data/paths'
 import { projectsForExperience, reviewsForExperience } from '@/data/relations'
 import SectionHeader from '@/components/ui/vue/SectionHeader.vue'
 import UiIcon from '@/components/ui/vue/UiIcon.vue'
@@ -27,10 +28,8 @@ const entriesWithRelations = computed(() =>
 const highlightedId = computed(
   () => props.entries.find((entry) => entry.highlight)?.id,
 )
-const projectsPath = computed(() =>
-  props.locale === 'en' ? '/en/proyectos/' : '/proyectos/',
-)
-const home = computed(() => (props.locale === 'en' ? '/en/' : '/'))
+const projectsHref = computed(() => projectsPath(props.locale))
+const home = computed(() => homePath(props.locale))
 </script>
 <template>
   <section
@@ -153,7 +152,7 @@ const home = computed(() => (props.locale === 'en' ? '/en/' : '/'))
                   <a
                     v-for="project in entry.relatedProjects"
                     :key="project.slug"
-                    :href="`${projectsPath}#${projectAnchor(project.slug)}`"
+                    :href="`${projectsHref}#${projectAnchor(project.slug)}`"
                     class="group inline-flex min-h-11 max-w-full items-center gap-2 border border-line-strong px-3 py-2 text-left text-[12px] leading-snug text-ink transition-colors hover:border-soft hover:text-soft"
                     ><span class="min-w-0">{{ project.title[locale] }}</span
                     ><UiIcon

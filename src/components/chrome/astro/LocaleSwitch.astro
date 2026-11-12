@@ -1,9 +1,9 @@
 ---
+import { alternateLocalePath } from '@/data/paths';
 import { content, type Locale } from '@/data/content';
 interface Props { locale: Locale; path: string }
 const { locale, path } = Astro.props;
-const base = path.replace(/^\/en(?=\/|$)/, '') || '/';
 ---
 <div class="inline-flex items-center rounded-full border border-line bg-panel/25 p-0.5" role="group" aria-label={content[locale].nav.languageLabel}>
-  {(['es', 'en'] as const).map((option) => <a href={`${option === 'en' ? '/en' : ''}${base}`} data-locale-link class:list={['inline-flex min-h-11 min-w-11 items-center justify-center rounded-full px-3 py-2 font-mono text-[11px] font-medium uppercase tracking-[0.06em] transition', locale === option ? 'bg-soft/15 text-soft' : 'text-muted hover:text-ink']} aria-current={locale === option ? 'true' : undefined}>{option}</a>)}
+  {(['es', 'en'] as const).map((option) => <a href={alternateLocalePath(path, option)} data-locale-link class:list={['inline-flex min-h-11 min-w-11 items-center justify-center rounded-full px-3 py-2 font-mono text-[11px] font-medium uppercase tracking-[0.06em] transition', locale === option ? 'bg-soft/15 text-soft' : 'text-muted hover:text-ink']} aria-current={locale === option ? 'true' : undefined}>{option}</a>)}
 </div>

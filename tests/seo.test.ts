@@ -174,7 +174,11 @@ describe('sitemap', () => {
     expect(xml).toContain('hreflang="es"')
     expect(xml).toContain('hreflang="en"')
     expect(xml).toContain('hreflang="x-default"')
-    expect(xml).not.toContain('/projects/')
+    expect(xml).toContain('https://fixture.example.test/proyectos/')
+    expect(xml).toContain('https://fixture.example.test/en/projects/')
+    expect(xml).not.toContain('https://fixture.example.test/projects/')
+    expect(xml).not.toContain('/resenas/')
+    expect(xml).not.toContain('/reviews/')
     expect(xml).not.toContain('/404')
 
     const spanishOnlyEntry = xml.match(

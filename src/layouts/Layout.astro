@@ -2,6 +2,7 @@
 import '../styles/global.css';
 import type { Locale } from '../data/content';
 import { content } from '../data/content';
+import { alternateLocalePath } from '../data/paths';
 import { ogLocale, serializeJsonLd } from '../lib/seo';
 
 interface SocialImage {
@@ -42,9 +43,8 @@ const {
 const copy = content[locale];
 const site = Astro.site ?? new URL(Astro.url.origin);
 const canonical = new URL(Astro.url.pathname, site);
-const defaultPath = Astro.url.pathname.replace(/^\/en(?=\/|$)/, '') || '/';
-const spanishUrl = new URL(defaultPath, site);
-const englishUrl = new URL(`/en${defaultPath}`, site);
+const spanishUrl = new URL(alternateLocalePath(Astro.url.pathname, 'es'), site);
+const englishUrl = new URL(alternateLocalePath(Astro.url.pathname, 'en'), site);
 const showAlternates = indexable && alternates;
 const socialImage: SocialImage = image ?? {
   src: new URL('/og-default.png', site).href,

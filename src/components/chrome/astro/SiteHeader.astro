@@ -3,11 +3,12 @@ import LocaleSwitch from './LocaleSwitch.astro';
 import ThemeToggle from './ThemeToggle.astro';
 import UiIcon from '@/components/ui/astro/UiIcon.astro';
 import { content, type Locale } from '@/data/content';
+import { blogPath, homePath, projectsPath } from '@/data/paths';
 interface Props { locale: Locale; page?: 'home' | 'projects' | 'blog' | 'article' | 'reviews' | 'review-panel' | 'not-found'; path: string }
 const { locale, page = 'home', path } = Astro.props;
 const copy = content[locale];
-const home = locale === 'en' ? '/en/' : '/';
-const target = (id: string) => id === 'projects' && page === 'projects' ? `${locale === 'en' ? '/en' : ''}/proyectos/` : id === 'blog' && (page === 'blog' || page === 'article') ? `${locale === 'en' ? '/en' : ''}/blog/` : `${home}#${id}`;
+const home = homePath(locale);
+const target = (id: string) => id === 'projects' && page === 'projects' ? projectsPath(locale) : id === 'blog' && (page === 'blog' || page === 'article') ? blogPath(locale) : `${home}#${id}`;
 const current = (id: string) => id === 'projects' && page === 'projects' || id === 'blog' && (page === 'blog' || page === 'article');
 ---
 <header class="site-header sticky top-0 z-50 border-b border-transparent bg-page/75 backdrop-blur-md transition-colors duration-200" data-page={page}>

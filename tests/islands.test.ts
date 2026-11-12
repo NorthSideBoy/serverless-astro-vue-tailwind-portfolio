@@ -17,13 +17,13 @@ describe('independent Astro islands', () => {
     const Island = withIslandContext(View)
 
     const english = await renderToString(createSSRApp(Island, {
-      locale: 'en', page: 'projects', path: '/en/proyectos',
+      locale: 'en', page: 'projects', path: '/en/projects',
     }))
     const spanish = await renderToString(createSSRApp(Island, {
       locale: 'es', page: 'home', path: '/',
     }))
 
-    expect(english).toContain('en:/en/proyectos:dark')
+    expect(english).toContain('en:/en/projects:dark')
     expect(spanish).toContain('es:/:dark')
   })
 

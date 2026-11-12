@@ -381,11 +381,19 @@ otherwise guarded. A disabled or full storage area must not break the page.
 Public routes are:
 
 - `/`, `/proyectos/`, `/blog/`, `/blog/:slug/`;
-- `/en/`, `/en/proyectos/`, `/en/blog/`, `/en/blog/:slug/`.
+- `/en/`, `/en/projects/`, `/en/blog/`, `/en/blog/:slug/`;
+- `/resenas/`, `/resenas/panel/`, `/en/reviews/`, `/en/reviews/panel/`.
 
-Every public URL ends with a slash. Vue links must use `toHref` or `RouterLink`
-from `src/router/astroRouter.ts`, not hand-built English paths. Named
-destinations include `{ name: 'article', slug }`.
+Each locale uses its own route segments: English never reuses a Spanish segment
+such as `proyectos` or `resenas`. Every public URL ends with a slash.
+
+`src/data/paths.ts` is the source of truth for route paths. Vue links must use
+`toHref` or `RouterLink` from `src/router/astroRouter.ts`, not hand-built paths.
+Named destinations include `{ name: 'article', slug }`. `alternateLocalePath`
+maps a pathname to the same page in the other locale, so the locale switch,
+`hreflang` alternates and redirects do not depend on prefixing alone. The old
+English paths `/en/proyectos/`, `/en/resenas/` and `/en/resenas/panel/`
+redirect to their current equivalents.
 
 Blog indexes are scoped to their locale. An article without a translation stays
 in the other locale's blog; do not generate a fallback route or a cross-language
@@ -557,9 +565,10 @@ document or change the approval flag.
 
 ### R-AUTH-03 — Keep auth pages out of search
 
-`/resenas/` and `/resenas/panel/` are `noindex, follow`, have no canonical or
-alternate metadata and are absent from the sitemap. Do not add them to
-`robots.txt` as disallowed; the noindex meta is the signal.
+`/resenas/`, `/resenas/panel/`, `/en/reviews/` and `/en/reviews/panel/` are
+`noindex, follow`, have no canonical or alternate metadata and are absent from
+the sitemap. Do not add them to `robots.txt` as disallowed; the noindex meta is
+the signal.
 
 ### R-AUTH-04 — Keep personalized data out of static HTML
 
@@ -798,7 +807,8 @@ output.
 - Shipping the EmailJS private key or treating `PUBLIC_EMAILJS_*` values as secrets.
 - Notifying again when a review is edited or approved, or logging notification payloads.
 - Rendering visitor review text with `v-html`.
-- Adding `/resenas/` to the sitemap or treating it as indexable public content.
+- Adding `/resenas/`, `/en/reviews/` or another review route to the sitemap or
+  treating it as indexable public content.
 
 ## Appendix A — Canonical files
 

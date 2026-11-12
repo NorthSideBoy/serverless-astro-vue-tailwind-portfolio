@@ -10,6 +10,7 @@ import {
 } from 'vue'
 import type { Locale } from '@/data/content'
 import {
+  alternateLocalePath,
   articlePath,
   blogPath,
   homePath,
@@ -72,16 +73,9 @@ export function useRoute(): Route {
 export function toHref(to: Destination, locale: Locale, currentPath: string): string {
   if (typeof to === 'string') {
     if (to.startsWith('#')) return currentPath + to
-    if (
-      locale !== 'en' ||
-      !to.startsWith('/') ||
-      to === '/en' ||
-      to.startsWith('/en/')
-    ) {
-      return to
-    }
+    if (locale !== 'en' || !to.startsWith('/')) return to
 
-    return `/en${to === '/' ? '/' : to}`
+    return alternateLocalePath(to, 'en')
   }
 
   const namedPath =
@@ -100,14 +94,8 @@ export function toHref(to: Destination, locale: Locale, currentPath: string): st
                 : undefined
 
   const rawPath = to.path ?? namedPath ?? currentPath
-  const localized = to.path
-    ? locale === 'en' &&
-      rawPath.startsWith('/') &&
-      rawPath !== '/en' &&
-      !rawPath.startsWith('/en/')
-      ? `/en${rawPath === '/' ? '/' : rawPath}`
-      : rawPath
-    : rawPath
+  const localized =
+    to.path && locale === 'en' ? alternateLocalePath(rawPath, 'en') : rawPath
 
   return localized + (to.hash ?? '')
 }

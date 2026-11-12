@@ -17,7 +17,12 @@ export default defineConfig({
   integrations: [vue()],
   site,
   trailingSlash: 'always',
-  redirects: { '/projects': '/proyectos/' },
+  redirects: {
+    '/projects': '/proyectos/',
+    '/en/proyectos': '/en/projects/',
+    '/en/resenas': '/en/reviews/',
+    '/en/resenas/panel': '/en/reviews/panel/',
+  },
   vite: {
     plugins: [tailwindcss()],
   },

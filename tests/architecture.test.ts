@@ -145,6 +145,7 @@ describe('component architecture', () => {
       articles: [],
     })
     expect(entries.some((entry) => entry.loc.includes('/resenas/'))).toBe(false)
+    expect(entries.some((entry) => entry.loc.includes('/reviews/'))).toBe(false)
   })
 
   it('keeps the Firebase web SDK out of the public content features', () => {

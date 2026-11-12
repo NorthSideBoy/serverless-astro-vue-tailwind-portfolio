@@ -259,8 +259,9 @@ point referenced by `robots.txt` and `Layout.astro`.
 a `.vue` component. The directory is a **module boundary**, not a hydration
 boundary: an entry can be SSR-only or hydrated.
 
-Every entry is wrapped with `withIslandContext` from
-`src/lib/withIslandContext.ts`. The wrapper:
+Hydrated entries are wrapped with `withIslandContext` from
+`src/lib/withIslandContext.ts`. SSR-only, prop-driven entries may export their
+view directly. The wrapper:
 
 - receives `locale`, `page`, `path` and `content` props;
 - provides page preferences and a route object to that Vue root;
@@ -421,8 +422,15 @@ before HTML or island props are generated.
 ## Routing, internationalization and SEO
 
 - Spanish is the default route without a prefix; English is under `/en`.
+- Each locale uses its own route vocabulary: `/proyectos/` ↔ `/en/projects/`,
+  `/resenas/` ↔ `/en/reviews/`, `/resenas/panel/` ↔ `/en/reviews/panel/`.
+  Blog segments are shared (`/blog/` ↔ `/en/blog/`), and articles keep one
+  editorial slug in both languages.
 - Every public URL ends with a slash. `astro.config.mjs` sets
   `trailingSlash: 'always'`; the eventual hosting platform must mirror it.
+- `src/data/paths.ts` owns the canonical paths and `alternateLocalePath`, which
+  maps a page to the other locale. The locale switch, `hreflang` alternates and
+  `toHref` use it instead of assuming that `/en` is the only difference.
 - `src/router/astroRouter.ts` provides `toHref` and `RouterLink` for Vue
   components so links stay localized. Named destinations include articles.
 - `Layout.astro` emits canonical, `hreflang`, `x-default`, Open Graph, Twitter
@@ -431,12 +439,13 @@ before HTML or island props are generated.
   a visible breadcrumb in `ArticleView.vue`; the breadcrumb labels and URLs are
   reused by `BreadcrumbList`.
 - Translated content carries a `lang` attribute.
-- `/projects` redirects to `/proyectos/`; the canonical public routes are
-  `/`, `/proyectos/`, `/blog/` and `/blog/:slug/`, plus their `/en`
-  counterparts.
-- `/resenas/` and `/resenas/panel/` (and `/en/resenas/...`) are interactive
-  utility routes. They are `noindex, follow`, are not in the sitemap and are
-  not treated as public content.
+- `/projects` redirects to `/proyectos/`; `/en/proyectos/`, `/en/resenas/` and
+  `/en/resenas/panel/` redirect to the current English routes. The canonical
+  public routes are `/`, `/proyectos/`, `/blog/`, `/blog/:slug/`, their
+  `/en` counterparts and the review utility routes.
+- `/resenas/`, `/resenas/panel/`, `/en/reviews/` and `/en/reviews/panel/` are
+  interactive utility routes. They are `noindex, follow`, are not in the
+  sitemap and are not treated as public content.
 - Article routes are generated only for the locales that have a translation, so
   an article cannot produce a fallback duplicate in the other language.
 - Blog indexes are scoped to their locale. An article without a translation
