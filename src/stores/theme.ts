@@ -2,7 +2,7 @@ import { atom } from 'nanostores'
 
 export type Theme = 'dark' | 'light'
 
-const key = 'sl-theme'
+const STORAGE_KEY = 'sl-theme'
 const isBrowser = typeof window !== 'undefined'
 const systemTheme = isBrowser && typeof window.matchMedia === 'function'
   ? window.matchMedia('(prefers-color-scheme: light)')
@@ -11,7 +11,7 @@ const systemTheme = isBrowser && typeof window.matchMedia === 'function'
 function storedTheme(): Theme | null {
   if (!isBrowser) return null
   try {
-    const value = window.localStorage.getItem(key)
+    const value = window.localStorage.getItem(STORAGE_KEY)
     return value === 'light' || value === 'dark' ? value : null
   } catch {
     return null
@@ -45,7 +45,7 @@ export function setTheme(value: Theme) {
   followsSystem = false
   themeStore.set(value)
   try {
-    window.localStorage.setItem(key, value)
+    window.localStorage.setItem(STORAGE_KEY, value)
   } catch {
     // The theme still applies for this visit when storage is unavailable.
   }
