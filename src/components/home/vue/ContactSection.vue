@@ -110,16 +110,16 @@ const { armed: rightArmed } = useRevealCycle(rightPanel)
       >
         <div
           ref="leftPanel"
-          class="contact-panel"
+          class="contact-panel min-w-0"
           :class="{ 'is-armed': leftArmed }"
           style="--reveal-order: 0"
         >
           <h3
-            class="max-w-[620px] font-display text-[28px] font-semibold leading-[1.15] tracking-[-0.03em] text-ink md:text-[36px]"
+            class="max-w-[620px] font-display text-[24px] font-semibold leading-[1.15] tracking-[-0.03em] text-ink md:text-[32px] xl:text-[36px]"
           >
             {{ copy.contact.question }}
           </h3>
-          <p class="mt-5 max-w-[520px] text-[16px] leading-[1.7] text-muted md:text-[17px]">
+          <p class="type-copy mt-5 max-w-[520px] leading-[1.7] text-muted">
             {{ copy.contact.paragraph }}
           </p>
           <div class="mt-7 flex max-w-[720px] flex-col gap-2.5">
@@ -132,7 +132,7 @@ const { armed: rightArmed } = useRevealCycle(rightPanel)
               <a
                 :href="`mailto:${email}`"
                 :aria-label="copy.contact.emailAria"
-                class="contact-pill min-w-0 flex-1"
+                class="contact-pill contact-pill--email min-w-0 flex-1"
               >
                 <span class="contact-pill-icon" aria-hidden="true">
                   <UiIcon name="mail" :size="11" />
@@ -161,7 +161,7 @@ const { armed: rightArmed } = useRevealCycle(rightPanel)
                 data-copy-status
                 :data-success="form.copied"
                 :data-failure="form.copyFailed"
-                class="font-mono text-[10.5px] uppercase tracking-[0.06em]"
+              class="type-meta font-mono uppercase tracking-[0.06em]"
                 :class="copyState === 'error' ? 'text-danger' : 'text-soft'"
               >
                 {{ copyStatusText }}
@@ -209,7 +209,7 @@ const { armed: rightArmed } = useRevealCycle(rightPanel)
 
         <div
           ref="rightPanel"
-          class="contact-panel"
+          class="contact-panel min-w-0"
           :class="{ 'is-armed': rightArmed }"
           style="--reveal-order: 1"
         >
@@ -229,7 +229,7 @@ const { armed: rightArmed } = useRevealCycle(rightPanel)
             </div>
             <ContactForm />
             <noscript>
-              <p class="border-t border-line px-5 py-4 text-[13px] leading-relaxed text-muted md:px-6">
+              <p class="type-support border-t border-line px-5 py-4 leading-relaxed text-muted md:px-6">
                 {{ form.noscript }}
               </p>
             </noscript>
@@ -251,6 +251,19 @@ const { armed: rightArmed } = useRevealCycle(rightPanel)
 .contact-pill[data-copied='true'] {
   border-color: color-mix(in srgb, var(--c-soft) 70%, transparent);
   color: var(--c-soft);
+}
+
+/* The mail glyph duplicates the address it sits beside; below 380px the
+ * address itself matters more than the icon, so the pill reclaims the space
+ * instead of truncating the one contact detail the visitor needs. */
+@media (max-width: 379px) {
+  .contact-pill--email {
+    padding-inline: 0.9rem;
+  }
+
+  .contact-pill--email .contact-pill-icon {
+    display: none;
+  }
 }
 
 .contact-copy-trace {

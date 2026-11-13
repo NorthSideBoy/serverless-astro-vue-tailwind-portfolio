@@ -15,7 +15,7 @@ const { locale, items, section } = defineProps<{
 <template>
   <section
     id="certifications"
-    class="section-pad-sm border-t border-line bg-section"
+    class="section-pad border-t border-line bg-section"
     aria-labelledby="certifications-title"
   >
     <div class="shell">
@@ -25,7 +25,6 @@ const { locale, items, section } = defineProps<{
         :title="section[locale].title"
         :lead="section[locale].lead"
         title-id="certifications-title"
-        density="compact"
       />
       <div class="border-t border-line">
         <article
@@ -59,7 +58,7 @@ const { locale, items, section } = defineProps<{
             :href="item.href"
             target="_blank"
             rel="noopener noreferrer"
-            class="group inline-flex min-h-11 max-w-full items-center gap-1 break-all font-mono text-[11px] tracking-[0.02em] text-soft transition hover:text-ink md:justify-end md:text-right"
+              class="type-meta group inline-flex min-h-11 max-w-full items-center gap-1 break-all font-mono tracking-[0.02em] text-soft transition hover:text-ink md:justify-end md:text-right"
             >{{ item.credentialId }}
             <UiIcon
               name="arrow-up-right"

@@ -434,7 +434,7 @@ html[data-theme='light'] .stack-tile {
     mask-image: radial-gradient(ellipse at bottom right, black 0%, transparent 85%);
   }
 
-  .section-marker h2::after {
+  .section-marker :is(h1, h2)::after {
     content: '';
     display: block;
     width: 88px;
@@ -450,7 +450,7 @@ html[data-theme='light'] .stack-tile {
     mask-image: linear-gradient(to right, black 0%, black 50%, transparent 100%);
   }
 
-  .section-signal h2::after {
+  .section-signal :is(h1, h2)::after {
     background-image: radial-gradient(circle, var(--c-soft) 0 2px, transparent 2.4px);
     mask-image: linear-gradient(to right, black 0%, black 60%, transparent 100%);
   }
@@ -489,59 +489,95 @@ html[data-theme='light'] .stack-tile {
     }
   }
 
-  /*
-   * Section rhythm is a hierarchy, not a constant: peaks (Projects) get more
-   * air, annexes (Education, Certifications) get less, and the standard
-   * chapters keep the dossier's original cadence. The shell and the hairlines
-   * stay identical, so the page reads as one file with different chapters.
-   */
+  /* Every chapter uses the same outer air and the same header-to-content pause.
+   * The project feature and smaller annexes differ in composition, not spacing. */
   .section-pad {
-    padding-block: 56px;
+    padding-block: 72px;
   }
 
-  .section-pad-lg {
-    padding-block: 64px;
+  /* A page break divides the same header-to-content gap in half. */
+  .page-intro-pad {
+    padding-bottom: 24px;
   }
 
-  .section-pad-sm {
-    padding-block: 44px;
+  .page-content-pad {
+    padding-block: 24px 72px;
   }
+
+  /* Shared by Astro, Vue, About and page introductions. */
+  .section-header { margin-bottom: 48px; }
+  .section-header__lead { margin-top: 16px; }
+  .section-lead {
+    max-width: 760px;
+    font-size: 16px;
+    line-height: 1.7;
+  }
+
+  /* Role-based type scale. Keep the dossier's four voices while giving every
+   * page the same hierarchy; sizes in rem respect the reader's font setting. */
+  .type-hero { font-size: clamp(2.125rem, 11.2vw, 2.75rem); overflow-wrap: anywhere; }
+  .type-about { font-size: clamp(2rem, 10.3vw, 2.5rem); }
+  .type-chapter { font-size: clamp(1.875rem, 8.8vw, 2.125rem); }
+  .type-page, .type-article { font-size: 2.125rem; }
+  .type-card-title { font-size: 1.25rem; }
+  .type-copy { font-size: 1rem; }
+  .type-copy-compact { font-size: 0.9375rem; }
+  .type-support { font-size: 0.875rem; }
+  .type-action { font-size: 0.875rem; }
+  .type-meta { font-size: 0.75rem; }
 
   @media (min-width: 768px) {
     .section-pad {
-      padding-block: 76px;
+      padding-block: 104px;
     }
 
-    .section-pad-lg {
-      padding-block: 96px;
+    .page-intro-pad {
+      padding-bottom: 32px;
     }
 
-    .section-pad-sm {
-      padding-block: 60px;
+    .page-content-pad {
+      padding-block: 32px 104px;
     }
+
+    .section-header { margin-bottom: 64px; }
+    .section-lead { font-size: 18px; }
+    .type-hero { font-size: 4rem; }
+    .type-about { font-size: 3.125rem; }
+    .type-chapter, .type-page, .type-article { font-size: 2.625rem; }
+    .type-card-title { font-size: 1.375rem; }
+    .type-copy { font-size: 1.0625rem; }
+    .type-copy-compact { font-size: 1rem; }
   }
 
   @media (min-width: 1280px) {
     .section-pad {
-      padding-block: 120px;
-    }
-
-    .section-pad-lg {
       padding-block: 144px;
     }
 
-    .section-pad-sm {
-      padding-block: 84px;
+    .page-intro-pad {
+      padding-bottom: 40px;
     }
+
+    .page-content-pad {
+      padding-block: 40px 144px;
+    }
+
+    .section-header { margin-bottom: 80px; }
+    .type-hero { font-size: 5.5rem; }
+    .type-about { font-size: 3.75rem; }
+    .type-chapter { font-size: 3.125rem; }
+    .type-page, .type-article { font-size: 3.25rem; }
+    .type-card-title { font-size: 1.5rem; }
   }
 
   .mono-label {
     font-family: var(--font-mono);
-    font-size: 11px;
+    font-size: 0.6875rem;
     font-weight: 500;
     letter-spacing: 0.14em;
     line-height: 1.4;
     text-transform: uppercase;
+    overflow-wrap: anywhere;
   }
 
   /*
@@ -667,7 +703,7 @@ html[data-theme='light'] .stack-tile {
     background-color: var(--c-page);
     padding: 0.78rem 1.15rem;
     font-family: var(--font-mono);
-    font-size: 11.5px;
+    font-size: 0.8125rem;
     line-height: 1.4;
     color: var(--c-ink);
     transition:
@@ -680,6 +716,12 @@ html[data-theme='light'] .stack-tile {
     border-color: var(--c-soft);
     background-color: color-mix(in srgb, var(--c-soft) 7%, var(--c-page));
     color: var(--c-soft);
+  }
+
+  @media (min-width: 768px) {
+    .contact-pill {
+      font-size: 0.875rem;
+    }
   }
 
   .contact-pill-icon {

@@ -66,7 +66,7 @@ const metaPeriod = computed(() => {
 
       <component
         :is="headingTag"
-        class="mt-3 font-display text-[18px] font-semibold leading-[1.2] tracking-[-0.02em] text-ink md:text-[19px]"
+        class="type-card-title mt-3 font-display font-semibold leading-[1.2] tracking-[-0.02em] text-ink"
       >
         <RouterLink
           v-if="variant === 'preview'"
@@ -92,7 +92,7 @@ const metaPeriod = computed(() => {
       </component>
 
       <p
-        class="mt-2 text-[13.5px] leading-[1.65] text-muted"
+        class="type-copy-compact mt-2 leading-[1.65] text-muted"
         :class="clampDescription ? 'line-clamp-3' : ''"
       >
         {{ cardDescription[locale] }}
@@ -167,7 +167,7 @@ const metaPeriod = computed(() => {
           <RouterLink
             v-if="caseHref"
             :to="caseHref"
-            class="inline-flex min-h-11 items-center gap-1 font-mono text-[11px] uppercase tracking-[0.08em] text-soft transition hover:text-ink"
+            class="type-meta inline-flex min-h-11 items-center gap-1 font-mono uppercase tracking-[0.08em] text-soft transition hover:text-ink"
           >
             {{ copy.projects.viewCase }}
             <UiIcon name="arrow-right" :size="12" />
@@ -179,7 +179,7 @@ const metaPeriod = computed(() => {
             :href="link.href"
             target="_blank"
             rel="noreferrer"
-            class="inline-flex min-h-11 items-center gap-1 font-mono text-[11px] uppercase tracking-[0.08em] text-soft transition hover:text-ink"
+            class="type-meta inline-flex min-h-11 items-center gap-1 font-mono uppercase tracking-[0.08em] text-soft transition hover:text-ink"
           >
             {{ link.label[locale] }}
             <UiIcon name="arrow-up-right" :size="12" />

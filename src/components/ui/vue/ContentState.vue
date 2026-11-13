@@ -13,7 +13,7 @@ const { copy } = usePreferences()
 
 <template>
   <div
-    class="border border-line bg-panel/10 p-5 text-[13px] text-muted"
+     class="type-support border border-line bg-panel/10 p-5 text-muted"
     :role="error ? 'alert' : 'status'"
   >
     <template v-if="loading">{{ copy.ui.loadingContent }}</template>

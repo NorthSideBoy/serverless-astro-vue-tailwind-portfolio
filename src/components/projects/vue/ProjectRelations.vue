@@ -40,7 +40,7 @@ function reviewLabel(review: Testimonial) {
       :key="entry.id"
       :to="{ name: 'home', hash: `#${experienceAnchor(entry.id)}` }"
       :aria-label="experienceLabel(entry)"
-      class="group/link inline-flex min-h-8 max-w-full items-center gap-1.5 text-[11.5px] leading-snug text-soft transition hover:text-ink"
+       class="type-action group/link inline-flex min-h-8 max-w-full items-center gap-1.5 leading-snug text-soft transition hover:text-ink"
     >
       <UiIcon name="layers" :size="12" class="shrink-0 text-muted" />
       <span class="min-w-0 break-words">{{ entry.org }}</span>
@@ -56,7 +56,7 @@ function reviewLabel(review: Testimonial) {
       :key="review.anchorId"
       :to="{ name: 'home', hash: `#${reviewAnchor(review.anchorId)}` }"
       :aria-label="reviewLabel(review)"
-      class="group/link inline-flex min-h-8 max-w-full items-center gap-1.5 text-[11.5px] leading-snug text-soft transition hover:text-ink"
+       class="type-action group/link inline-flex min-h-8 max-w-full items-center gap-1.5 leading-snug text-soft transition hover:text-ink"
     >
       <Avatar :name="review.author.name" :photo="review.author.photo" :size="20" />
       <span class="min-w-0 break-words">{{ review.author.name }}</span>

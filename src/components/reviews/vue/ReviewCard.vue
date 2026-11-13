@@ -66,7 +66,7 @@ const rolesArePlaceholder = computed(() => props.review.author.roles.length === 
             <span
               v-if="review.author.provider === 'Google'"
               data-review-google
-              class="inline-flex items-center gap-1 border border-line px-1.5 py-0.5 font-mono text-[9.5px] uppercase tracking-[0.06em] text-muted"
+               class="inline-flex items-center gap-1 border border-line px-1.5 py-0.5 font-mono text-[11px] uppercase tracking-[0.06em] text-muted"
             >
               <UiIcon name="google" :size="11" />
               Google
@@ -75,7 +75,7 @@ const rolesArePlaceholder = computed(() => props.review.author.roles.length === 
           <a
             v-if="review.author.email"
             :href="`mailto:${review.author.email}`"
-            class="mt-1 inline-flex min-h-8 max-w-full items-center gap-1.5 text-[12px] text-muted transition hover:text-soft"
+              class="type-action mt-1 inline-flex min-h-8 max-w-full items-center gap-1.5 text-muted transition hover:text-soft"
           >
             <UiIcon name="mail" :size="12" class="shrink-0" />
             <span class="min-w-0 break-all">{{ review.author.email }}</span>
@@ -125,7 +125,7 @@ const rolesArePlaceholder = computed(() => props.review.author.roles.length === 
               class="group inline-flex min-h-11 max-w-full items-center gap-3 border border-line-strong px-3 py-2 text-left transition-colors hover:border-soft"
             >
               <span class="min-w-0">
-                <span class="block text-[12px] leading-snug text-ink">{{ entry.org }}</span>
+                <span class="type-action block leading-snug text-ink">{{ entry.org }}</span>
                 <span
                   class="mt-0.5 block font-mono text-[10px] uppercase tracking-[0.08em] text-muted"
                 >
@@ -143,7 +143,7 @@ const rolesArePlaceholder = computed(() => props.review.author.roles.length === 
               class="inline-flex max-w-full items-center gap-3 border border-line-strong px-3 py-2 text-left"
             >
               <span class="min-w-0">
-                <span class="block text-[12px] leading-snug text-ink">{{ entry.org }}</span>
+                 <span class="type-action block leading-snug text-ink">{{ entry.org }}</span>
                 <span
                   class="mt-0.5 block font-mono text-[10px] uppercase tracking-[0.08em] text-muted"
                 >
@@ -168,7 +168,7 @@ const rolesArePlaceholder = computed(() => props.review.author.roles.length === 
             <RouterLink
               v-if="!preview"
               :to="{ name: 'projects', hash: `#${projectAnchor(project.slug)}` }"
-              class="group inline-flex min-h-11 max-w-full items-center gap-2 border border-line-strong px-3 py-2 text-left text-[12px] leading-snug text-ink transition-colors hover:border-soft hover:text-soft"
+              class="type-action group inline-flex min-h-11 max-w-full items-center gap-2 border border-line-strong px-3 py-2 text-left leading-snug text-ink transition-colors hover:border-soft hover:text-soft"
             >
               <span class="min-w-0">{{ project.title[locale] }}</span>
               <UiIcon
@@ -179,7 +179,7 @@ const rolesArePlaceholder = computed(() => props.review.author.roles.length === 
             </RouterLink>
             <span
               v-else
-              class="inline-flex max-w-full items-center gap-2 border border-line-strong px-3 py-2 text-left text-[12px] leading-snug text-ink"
+              class="type-action inline-flex max-w-full items-center gap-2 border border-line-strong px-3 py-2 text-left leading-snug text-ink"
             >
               <span class="min-w-0">{{ project.title[locale] }}</span>
             </span>

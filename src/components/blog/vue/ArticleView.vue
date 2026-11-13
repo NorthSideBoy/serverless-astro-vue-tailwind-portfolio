@@ -68,7 +68,7 @@ const coverClass = computed(() =>
 <template>
   <main id="main">
     <section class="border-b border-line bg-page">
-      <div class="shell py-12 md:py-16 xl:py-20">
+      <div class="shell page-intro-pad pt-12 md:pt-16 xl:pt-20">
         <nav :aria-label="copy.nav.breadcrumbLabel">
           <ol
             class="flex flex-wrap items-center gap-x-2 gap-y-1 font-mono text-[11px] uppercase tracking-[0.08em] text-muted"
@@ -97,7 +97,7 @@ const coverClass = computed(() =>
             </li>
           </ol>
         </nav>
-        <div class="mt-8 max-w-[860px]">
+        <div class="section-marker mt-8 max-w-[860px]">
           <div class="flex flex-wrap items-center gap-x-4 gap-y-2">
             <p :lang="translation.lang" class="mono-label text-muted">
               {{ translation.category }}
@@ -121,13 +121,13 @@ const coverClass = computed(() =>
           </div>
           <h1
             :lang="translation.lang"
-            class="mt-5 font-display text-[34px] font-bold leading-[1.08] tracking-[-0.03em] text-ink md:text-[46px] xl:text-[54px]"
+            class="type-article mt-5 font-display font-bold leading-[1.08] tracking-[-0.03em] text-ink"
           >
             {{ translation.title }}
           </h1>
           <p
             :lang="translation.lang"
-            class="mt-5 max-w-[720px] text-[15px] leading-[1.7] text-muted md:text-[17px]"
+            class="section-header__lead section-lead text-muted"
           >
             {{ translation.excerpt }}
           </p>
@@ -145,7 +145,7 @@ const coverClass = computed(() =>
                   >{{ article.author.initials }}</span
                 >{{ copy.articlePage.authorLabel }}
               </dt>
-              <dd class="text-[13px] font-semibold text-ink">
+              <dd class="type-action font-semibold text-ink">
                 {{ article.author.name }}
               </dd>
             </div>
@@ -190,7 +190,7 @@ const coverClass = computed(() =>
         </div>
       </div>
     </section>
-    <section class="section-pad bg-section">
+    <section class="page-content-pad bg-section">
       <div class="shell">
         <div
           class="mx-auto grid max-w-[1100px] grid-cols-[minmax(0,1fr)] gap-12 xl:grid-cols-[minmax(0,1fr)_210px] xl:gap-16"
@@ -266,7 +266,7 @@ const coverClass = computed(() =>
                     {{ article.author.name }}
                   </p>
                   <p
-                    class="mt-2 max-w-[440px] text-[13.5px] leading-[1.7] text-muted"
+                    class="type-copy-compact mt-2 max-w-[440px] leading-[1.7] text-muted"
                   >
                     {{ article.author.note[locale] }}
                   </p>
@@ -274,7 +274,7 @@ const coverClass = computed(() =>
                 <a
                   v-if="article.author.cta"
                   :href="article.author.cta.href"
-                  class="inline-flex min-h-11 shrink-0 items-center gap-2 font-mono text-[11px] uppercase tracking-[0.08em] text-soft transition hover:text-ink"
+                  class="type-meta inline-flex min-h-11 shrink-0 items-center gap-2 font-mono uppercase tracking-[0.08em] text-soft transition hover:text-ink"
                   >{{ article.author.cta.label[locale] }}
                   <UiIcon name="arrow-right" :size="13"
                 /></a>
@@ -294,7 +294,7 @@ const coverClass = computed(() =>
                   ← {{ copy.articlePage.prev }}
                 </p>
                 <p
-                  class="mt-2.5 font-display text-[15px] font-semibold leading-[1.4] tracking-[-0.01em] text-ink transition group-hover:text-soft"
+                   class="mt-2.5 font-display text-base font-semibold leading-[1.4] tracking-[-0.01em] text-ink transition group-hover:text-soft"
                 >
                   <span
                     :lang="
@@ -315,7 +315,7 @@ const coverClass = computed(() =>
                   {{ copy.articlePage.next }} →
                 </p>
                 <p
-                  class="mt-2.5 font-display text-[15px] font-semibold leading-[1.4] tracking-[-0.01em] text-ink transition group-hover:text-soft"
+                   class="mt-2.5 font-display text-base font-semibold leading-[1.4] tracking-[-0.01em] text-ink transition group-hover:text-soft"
                 >
                   <span
                     :lang="

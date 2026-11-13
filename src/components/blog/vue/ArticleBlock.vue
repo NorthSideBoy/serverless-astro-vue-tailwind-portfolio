@@ -81,7 +81,7 @@ const footnote = (id: string) => props.footnotes[id] ?? 0
   </template>
   <p
     v-else-if="block.type === 'paragraph'"
-    class="mt-5 max-w-[72ch] text-[15.5px] leading-[1.8] text-ink/85 md:text-[16.5px]"
+    class="type-copy mt-5 max-w-[72ch] leading-[1.8] text-ink/85"
   >
     <ArticleInline
       :nodes="block.segments"
@@ -132,7 +132,7 @@ const footnote = (id: string) => props.footnotes[id] ?? 0
           >{{ String((block.start ?? 1) + index).padStart(2, '0') }}</span
         >
         <div class="min-w-0">
-          <p class="text-[15px] leading-[1.75] text-ink/85 md:text-[16px]">
+          <p class="type-copy leading-[1.75] text-ink/85">
             <ArticleInline
               :nodes="item.segments"
               :locale="locale"
@@ -149,7 +149,7 @@ const footnote = (id: string) => props.footnotes[id] ?? 0
                 class="mt-[10px] h-1 w-1 shrink-0 rounded-full bg-soft"
                 aria-hidden="true"
               />
-              <p class="text-[15px] leading-[1.75] text-ink/85">
+              <p class="type-copy leading-[1.75] text-ink/85">
                 <ArticleInline
                   :nodes="child.segments"
                   :locale="locale"
@@ -172,7 +172,7 @@ const footnote = (id: string) => props.footnotes[id] ?? 0
           aria-hidden="true"
         />
         <div class="min-w-0">
-          <p class="text-[15px] leading-[1.75] text-ink/85 md:text-[16px]">
+          <p class="type-copy leading-[1.75] text-ink/85">
             <ArticleInline
               :nodes="item.segments"
               :locale="locale"
@@ -189,7 +189,7 @@ const footnote = (id: string) => props.footnotes[id] ?? 0
                 class="mt-[10px] h-1 w-1 shrink-0 rounded-full bg-soft"
                 aria-hidden="true"
               />
-              <p class="text-[15px] leading-[1.75] text-ink/85">
+              <p class="type-copy leading-[1.75] text-ink/85">
                 <ArticleInline
                   :nodes="child.segments"
                   :locale="locale"
@@ -322,7 +322,7 @@ const footnote = (id: string) => props.footnotes[id] ?? 0
     >
       {{ block.title }}
     </p>
-    <p class="mt-3 text-[14.5px] leading-[1.75] text-ink/85 md:text-[15.5px]">
+    <p class="type-copy-compact mt-3 leading-[1.75] text-ink/85">
       <ArticleInline
         :nodes="block.segments"
         :locale="locale"
@@ -339,7 +339,7 @@ const footnote = (id: string) => props.footnotes[id] ?? 0
       :aria-label="block.caption ?? copy.articlePage.tableLabel"
     >
       <table
-        class="w-full min-w-[560px] border-collapse text-left text-[14px] leading-[1.65]"
+        class="type-support w-full min-w-[560px] border-collapse text-left leading-[1.65]"
       >
         <caption
           v-if="block.caption"
@@ -451,7 +451,7 @@ const footnote = (id: string) => props.footnotes[id] ?? 0
       aria-hidden="true"
       ><UiIcon name="download" :size="15" /></span
     ><span class="min-w-0"
-      ><span class="block text-[14px] font-semibold text-ink">{{
+      ><span class="type-support block font-semibold text-ink">{{
         block.label
       }}</span
       ><span
@@ -474,7 +474,7 @@ const footnote = (id: string) => props.footnotes[id] ?? 0
         )"
         :id="`fn-${item.id}`"
         :key="item.id"
-        class="flex gap-3 text-[13.5px] leading-[1.7] text-ink/80"
+        class="type-support flex gap-3 leading-[1.7] text-ink/80"
       >
         <span
           class="shrink-0 font-mono text-[11px] font-medium tracking-[0.08em] text-soft"
@@ -490,7 +490,7 @@ const footnote = (id: string) => props.footnotes[id] ?? 0
           </p>
           <a
             :href="`#fnref-${item.id}`"
-            class="mt-1 inline-flex min-h-8 items-center gap-1 font-mono text-[9.5px] uppercase tracking-[0.08em] text-muted transition hover:text-soft"
+            class="type-meta mt-1 inline-flex min-h-8 items-center gap-1 font-mono uppercase tracking-[0.08em] text-muted transition hover:text-soft"
             ><UiIcon name="arrow-up" :size="11" /><span class="sr-only">{{
               copy.articlePage.backToReference
             }}</span></a

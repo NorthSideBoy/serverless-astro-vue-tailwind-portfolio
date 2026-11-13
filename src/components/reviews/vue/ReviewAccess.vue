@@ -42,23 +42,23 @@ function errorMessage() {
           {{ copy.reviews.access.back }}
         </RouterLink>
 
-        <div class="mt-8 max-w-[820px]">
+        <div class="section-marker section-header mt-8 max-w-[820px]">
           <p class="mono-label text-soft">
             <SealEyebrow seal="十" :label="copy.reviews.access.eyebrow" />
           </p>
           <h1
             id="review-access-title"
-            class="mt-4 font-display text-[38px] font-bold leading-[1.05] tracking-[-0.03em] text-ink md:text-[50px] xl:text-[58px]"
+            class="type-page mt-5 font-display font-bold leading-[1.05] tracking-[-0.03em] text-ink"
           >
             {{ copy.reviews.access.title }}
           </h1>
-          <p class="mt-4 max-w-[680px] text-[15px] leading-[1.7] text-muted md:text-base">
+          <p class="section-header__lead section-lead text-muted">
             {{ copy.reviews.access.lead }}
           </p>
         </div>
 
         <div
-          class="mt-10 grid gap-8 lg:mt-14 lg:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)] lg:items-start lg:gap-14"
+          class="grid gap-8 lg:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)] lg:items-start lg:gap-14"
         >
           <div>
             <ol class="border-t border-line">
@@ -74,7 +74,7 @@ function errorMessage() {
                   <span class="block font-display text-[17px] font-semibold text-ink">
                     {{ step.title }}
                   </span>
-                  <span class="mt-1 block text-[13.5px] leading-[1.65] text-muted">
+                  <span class="type-copy-compact mt-1 block leading-[1.65] text-muted">
                     {{ step.body }}
                   </span>
                 </span>
@@ -90,13 +90,13 @@ function errorMessage() {
               <h2 class="mt-4 font-display text-[24px] font-semibold tracking-[-0.02em] text-ink">
                 {{ copy.reviews.access.cardTitle }}
               </h2>
-              <p class="mt-3 text-[13.5px] leading-[1.7] text-muted">
+              <p class="type-copy-compact mt-3 leading-[1.7] text-muted">
                 {{ copy.reviews.access.cardBody }}
               </p>
 
               <p
                 v-if="status === 'ready'"
-                class="mt-6 flex min-h-13 items-center gap-3 border border-line px-4 text-[13px] text-muted"
+                class="type-support mt-6 flex min-h-13 items-center gap-3 border border-line px-4 text-muted"
                 role="status"
               >
                 <span class="h-2 w-2 shrink-0 rounded-full bg-status" aria-hidden="true" />
@@ -123,7 +123,7 @@ function errorMessage() {
 
               <p
                 v-if="errorMessage()"
-                class="mt-4 border border-danger px-3 py-2 text-[12.5px] leading-relaxed text-danger"
+                class="type-support mt-4 border border-danger px-3 py-2 leading-relaxed text-danger"
                 role="alert"
               >
                 {{ errorMessage() }}
@@ -132,18 +132,18 @@ function errorMessage() {
               <button
                 v-if="status === 'error'"
                 type="button"
-                class="mt-4 inline-flex min-h-11 items-center text-[13px] text-soft underline"
+                class="type-action mt-4 inline-flex min-h-11 items-center text-soft underline"
                 @click="retry"
               >
                 {{ copy.ui.retryContent }}
               </button>
 
               <div class="mt-6 border-t border-line pt-4">
-                <p class="text-[12px] leading-[1.65] text-muted">
+                <p class="type-support leading-[1.65] text-muted">
                   {{ copy.reviews.access.note }}
                 </p>
                 <noscript
-                  class="mt-3 block border border-line bg-panel/20 px-3 py-2 text-[12.5px] text-ink"
+                  class="type-support mt-3 block border border-line bg-panel/20 px-3 py-2 text-ink"
                 >
                   {{ copy.reviews.access.noscript }}
                 </noscript>

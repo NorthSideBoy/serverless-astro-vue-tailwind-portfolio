@@ -100,7 +100,6 @@ watch([() => route.hash, () => props.items], ([hash]) => {
         :title="section[locale].title"
         :lead="section[locale].lead"
         title-id="testimonials-title"
-        :density="items.length ? 'default' : 'compact'"
       />
 
       <ContentState

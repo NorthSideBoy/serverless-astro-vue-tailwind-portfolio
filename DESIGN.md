@@ -23,19 +23,19 @@ colors:
 typography:
   display:
     fontFamily: "'Fraunces Variable', Georgia, 'Times New Roman', serif"
-    fontSize: 'clamp(44px, 7vw, 92px)'
+    fontSize: 'clamp(36px, 11.2vw, 44px) → 64px → 88px'
     fontWeight: 900
     lineHeight: 1.02
     letterSpacing: '-0.035em'
   headline:
     fontFamily: "'Space Grotesk Variable', 'Inter Variable', ui-sans-serif, sans-serif"
-    fontSize: 'clamp(30px, 3.4vw, 46px)'
+    fontSize: 'clamp(30px, 8.8vw, 34px) → 42px → 50px'
     fontWeight: 700
     lineHeight: 1.05
     letterSpacing: '-0.025em'
   title:
     fontFamily: "'Space Grotesk Variable', 'Inter Variable', ui-sans-serif, sans-serif"
-    fontSize: 'clamp(17px, 1.6vw, 24px)'
+    fontSize: 'clamp(20px, 1.6vw, 24px)'
     fontWeight: 600
     lineHeight: 1.2
     letterSpacing: '-0.02em'
@@ -59,15 +59,12 @@ spacing:
   gutter-sm: '24px'
   gutter-md: '56px'
   gutter-xl: '120px'
-  section-y-compact-sm: '44px'
-  section-y-compact-md: '60px'
-  section-y-compact-xl: '84px'
-  section-y-sm: '56px'
-  section-y-md: '76px'
-  section-y-xl: '120px'
-  section-y-lead-sm: '64px'
-  section-y-lead-md: '96px'
-  section-y-lead-xl: '144px'
+  section-y-sm: '72px'
+  section-y-md: '104px'
+  section-y-xl: '144px'
+  section-header-gap-sm: '48px'
+  section-header-gap-md: '64px'
+  section-header-gap-xl: '80px'
   gap-card: '16px'
 components:
   button-primary:
@@ -116,7 +113,7 @@ This site reads as a technical dossier filed by the engineer it documents. Every
 
 The palette comes from the Hyprland cyan-to-aqua family laid on near-black ink; the emotional register comes from the portfolio's own seal glyphs — the section numerals 零–十一 and the words 構 (structure) and 設計 (design) — used as sparse stamps, never as decoration, and the dossier eyebrow "零 // DOSSIER". Registry cyan is the system's living signal: it marks what is interactive, current, or selectable. Depth is carried by tonal surfaces and hairlines, not by shadows. Both themes are composed, never inverted: dark is ink-black with teal-tinted panels; light is cool blue-grey paper with deep-sea accents.
 
-Density is deliberate: a three-step section rhythm (up to 144px of vertical air at desktop for the Projects peak, 120px for standard chapters, 84px for annexes), a single reading column for articles, tight grouped cells inside `gap-px` plate-tables. The interface is fully bilingual (ES default, EN chrome) and both art-directed themes swap every raster (identity plate, project covers, blog schematics) through a `theme` preference.
+Density is deliberate: the chapters share one generous section rhythm (144px of vertical air at desktop and an 80px header-to-content pause), while the hero, records and inventories carry different composition and internal density. Articles keep one reading column and grouped data stays tight inside `gap-px` plate-tables. The interface is fully bilingual (ES default, EN chrome) and both art-directed themes swap every raster (identity plate, project covers, blog schematics) through a `theme` preference.
 
 **Key Characteristics:**
 
@@ -175,11 +172,15 @@ Light theme re-derives every role: canvas becomes cool paper, ink flips to near-
 
 ### Hierarchy
 
-- **Display** (Fraunces 900, 44→92px across md/xl, line-height 1.02, tracking -0.035em): the hero name and nothing else. Also the SL monogram at 24–26px in header/footer.
-- **Headline** (Space Grotesk 700, 30→46px section titles; 34→54px article H1, lh 1.05–1.08, tracking -0.025 to -0.03em): every section and page title.
-- **Title** (Space Grotesk 600, 17–24px, lh 1.15–1.35): card titles, article H2/H3 (23→27px bold for H2).
-- **Body** (Inter 400, base 16px; prose 15.5–16.5px at lh 1.75–1.8; card copy 13–15px at lh 1.6–1.7): reading surfaces capped at ~72ch.
-- **Label** (JetBrains Mono 500, 10–11.5px, uppercase, tracking 0.06–0.22em): eyebrows, meta rows, chips, badges, form labels, footer mono lines. `.mono-label` = 11px / 0.14em.
+- **Display** (Fraunces 900, ~36px at 320px viewport → 44px at 390px → 64px at md → 88px at xl, line-height 1.02, tracking -0.035em): the hero name and nothing else. Also the SL monogram at 24–26px in header/footer. The mobile interval adapts to the long unbroken name instead of clipping it.
+- **Headline** (Space Grotesk 700, ~30→34→42→50px chapter titles; 34→42→52px page/article H1; About has a deliberate ~33→40→50→60px signature, lh 1.02–1.08): titles remain below the hero at every width.
+- **Title** (Space Grotesk 600, 20→22→24px for record/card titles, lh 1.15–1.35): compact annex and secondary editorial titles can step down; article H2/H3 retain 23→27px / 18→20px.
+- **Body** (Inter 400, base 16px; long reading 16→17px at lh 1.7–1.8; card copy 15→16px; short supporting copy 14px): reading surfaces capped at ~72ch. Functional links and form feedback are at least 14px, while narrow mono contact pills use 13px on phones and 14px from md.
+- **Label** (JetBrains Mono 500, 11px for eyebrows and serials; 12px for functional metadata/form labels, uppercase with restrained tracking): 10px is reserved for nonessential indices or very short decorative stamps, never instructions or the only action. `.mono-label` = 11px / 0.14em.
+
+The shared role classes in `src/assets/main.css` (`.type-hero`, `.type-about`, `.type-chapter`, `.type-page`, `.type-article`, `.type-card-title`, `.type-copy`, `.type-copy-compact`, `.type-support`, `.type-action`, `.type-meta`) use rem for reader-scalable text. The chapter leads retain their shared 16→18px layout contract. Decorative plate lettering and code have separate, intentional sizes.
+
+Deliberate exceptions outside those roles: code and data figures (12–13px mono), section serials and plate indices (10–11px mono, never an instruction or the only action), identity and monogram lettering (23–230px artwork), stat numerals (32→46px data display), and article display steps (H2 23→27px, H3 18→20px, quote 19→21px). These are fixed local decisions; a new component takes an existing role class before it adds another one-off size.
 - **Seal** (Noto Serif JP 500, 13–46px; only 零 一 二 三 四 五 六 七 八 九 十 構 設 計, with compound numerals stacked vertically): the section indices, the dossier's stamps. `.seal-glyph` scopes the face; its unicode-range leaves any Latin beside it untouched.
 
 ### Named Rules
@@ -191,7 +192,7 @@ Light theme re-derives every role: canvas becomes cool paper, ink flips to near-
 
 ## Layout
 
-The page runs on a single centered shell: max-width **1440px**, inline gutters **24px → 56px (md) → 120px (xl)**. Vertical rhythm is a hierarchy rather than a constant: `.section-pad-lg` (64 → 96 → 144px) for the Projects peak, `.section-pad` (56 → 76 → 120px) for standard chapters, and `.section-pad-sm` (44 → 60 → 84px) for the Stack inventory and the Education/Certifications annex. Sections alternate grounds between canvas and surface, separated by a 1px hairline — the file's page breaks. Section headers carry a `density` (`feature`, `default`, `compact`) so the opening scale and gap match the chapter's role without losing the seal-and-rule signature.
+The page runs on a single centered shell: max-width **1440px**, inline gutters **24px → 56px (md) → 120px (xl)**. Every home chapter uses `.section-pad` (**72 → 104 → 144px**); the hero and figures are the opening composition rather than chapters. Sections alternate grounds between canvas and surface, separated by a 1px hairline. Conventional Astro and Vue chapter headers and inner-page introductions use the same sequence: **20px** from label to title, **16px** from title to lead, a **16 → 18px** lead with a 1.7 line-height and a 760px measure, then **48 → 64 → 80px** before content. The chapter marker's dot rule sits in that same title-to-lead interval. About deliberately keeps its eyebrow above an asymmetric plate-and-copy grid, with the same **48 → 64 → 80px** opening pause; its title and text stay beside the plate. Page introductions divide the header-to-content pause evenly around the hairline: `.page-intro-pad` and `.page-content-pad` each contribute **24 → 32 → 40px**. The bottom of the page content keeps standard chapter padding. Hero, figures and 404 retain their own layout; nested cards, records and article prose retain their content-specific density.
 
 Asymmetry is structural, not decorative: the first featured project runs a wider `1.15fr / 0.85fr` media/copy grid as the section's lead case, the following featured projects alternate media/copy in an `0.8fr / 1.2fr` grid and swap sides per index; the skills plate opens with five work areas on one rail over a shared decision panel, then the cross-cutting practices row; articles run one centered column with a 210px sticky TOC from 1280px. Grouped data (area cells, role cells) uses **`gap-px` on a hairline background** so separators and cells share one pixel — a plate-table, not a card row.
 

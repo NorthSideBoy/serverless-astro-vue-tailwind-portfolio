@@ -63,7 +63,7 @@ function metaLine(project: Project) {
 <template>
   <section
     id="projects"
-    class="home-feature dot-field dot-field--peak dot-field--echo dot-field--body section-pad-lg relative isolate overflow-hidden border-y border-line bg-page"
+    class="home-feature dot-field dot-field--peak dot-field--echo dot-field--body section-pad relative isolate overflow-hidden border-y border-line bg-page"
     aria-labelledby="projects-title"
   >
     <span class="dot-extra" style="--dot-extra-focus: 0% 50%" aria-hidden="true" />
@@ -76,7 +76,6 @@ function metaLine(project: Project) {
         :lead="section[locale].lead"
         title-id="projects-title"
         signal
-        density="feature"
       />
 
       <ContentState
@@ -136,7 +135,7 @@ function metaLine(project: Project) {
 
             <p
               class="featured-copy__description mt-4 max-w-[64ch] leading-[1.72] text-muted"
-              :class="index === 0 ? 'text-[15px] md:text-[16px]' : 'text-[14px] md:text-[15px]'"
+              :class="index === 0 ? 'type-copy' : 'type-copy-compact'"
             >
               {{ (entry.project.description ?? entry.project.summary)[locale] }}
             </p>
@@ -194,7 +193,7 @@ function metaLine(project: Project) {
               <RouterLink
                 :to="{ name: 'projects', hash: `#${projectAnchor(entry.project.slug)}` }"
                 :aria-label="`${entry.project.title[locale]} — ${copy.projects.viewProject}`"
-                class="group inline-flex min-h-11 items-center gap-1.5 font-mono text-[11px] uppercase tracking-[0.08em] text-soft transition hover:text-ink"
+                class="type-meta group inline-flex min-h-11 items-center gap-1.5 font-mono uppercase tracking-[0.08em] text-soft transition hover:text-ink"
               >
                 {{ copy.projects.viewProject }}
                 <UiIcon
@@ -209,7 +208,7 @@ function metaLine(project: Project) {
                 :href="entry.primaryLink.href"
                 target="_blank"
                 rel="noreferrer"
-                class="group inline-flex min-h-11 items-center gap-1.5 font-mono text-[11px] uppercase tracking-[0.08em] text-soft transition hover:text-ink"
+                class="type-meta group inline-flex min-h-11 items-center gap-1.5 font-mono uppercase tracking-[0.08em] text-soft transition hover:text-ink"
               >
                 {{ entry.primaryLink.label[locale] }}
                 <UiIcon
@@ -251,7 +250,7 @@ function metaLine(project: Project) {
               {{ section[locale].moreTitle }}
             </h3>
 
-            <p class="mt-3 max-w-[620px] text-[13.5px] leading-[1.7] text-muted md:text-[14px]">
+            <p class="type-copy-compact mt-3 max-w-[620px] leading-[1.7] text-muted">
               {{ section[locale].moreLead }}
             </p>
           </div>

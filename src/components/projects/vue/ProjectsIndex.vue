@@ -50,7 +50,7 @@ onBeforeUnmount(() => window.removeEventListener('hashchange', focusDeepLink))
     <section
       class="projects-index-texture dot-field relative overflow-hidden border-b border-line bg-page"
     >
-      <div class="shell relative py-12 md:py-16 xl:py-20">
+      <div class="shell page-intro-pad relative pt-12 md:pt-16 xl:pt-20">
         <a
           :href="locale === 'en' ? '/en/' : '/'"
           class="inline-flex min-h-11 items-center gap-2 font-mono text-[11px] uppercase tracking-[0.08em] text-muted transition hover:text-soft"
@@ -58,22 +58,22 @@ onBeforeUnmount(() => window.removeEventListener('hashchange', focusDeepLink))
             copy.projectsPage.back
           }}</a
         >
-        <div class="mt-8 max-w-[760px]">
+        <div class="section-marker mt-8 max-w-[760px]">
           <p class="mono-label text-soft">
             <SealEyebrow seal="五" :label="copy.projectsPage.eyebrow" />
           </p>
           <h1
-            class="mt-4 font-display text-[38px] font-bold leading-[1.05] tracking-[-0.03em] text-ink md:text-[50px] xl:text-[58px]"
+            class="type-page mt-5 font-display font-bold leading-[1.05] tracking-[-0.03em] text-ink"
           >
             {{ props.sections.projects[locale].index?.title }}
           </h1>
-          <p class="mt-4 text-[15px] leading-[1.7] text-muted md:text-base">
+          <p class="section-header__lead section-lead text-muted">
             {{ props.sections.projects[locale].index?.lead }}
           </p>
         </div>
       </div>
     </section>
-    <section class="section-pad bg-section">
+    <section class="page-content-pad bg-section">
       <div class="shell">
         <ProjectsFilter
           v-model="selected"
@@ -107,7 +107,7 @@ onBeforeUnmount(() => window.removeEventListener('hashchange', focusDeepLink))
         </div>
         <p
           v-else
-          class="mt-10 border border-line p-8 text-center text-[13.5px] text-muted"
+          class="type-support mt-10 border border-line p-8 text-center text-muted"
           role="status"
         >
           {{ copy.projectsPage.empty }}

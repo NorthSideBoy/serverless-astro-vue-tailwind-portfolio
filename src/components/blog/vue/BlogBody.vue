@@ -49,32 +49,32 @@ const featuredHasThemeVariant = computed(() =>
 <template>
   <main id="main">
     <section class="border-b border-line bg-page">
-      <div class="shell py-12 md:py-16 xl:py-20">
+      <div class="shell page-intro-pad pt-12 md:pt-16 xl:pt-20">
         <a
           :href="homeHref"
           class="inline-flex min-h-11 items-center gap-2 font-mono text-[11px] uppercase tracking-[0.08em] text-muted transition hover:text-soft"
           ><UiIcon name="arrow-left" :size="14" />{{ copy.blogPage.back }}</a
         >
-        <div class="mt-8 max-w-[760px]">
+        <div class="section-marker mt-8 max-w-[760px]">
           <p class="mono-label text-soft">
             <SealEyebrow seal="八" :label="copy.blogPage.eyebrow" />
           </p>
           <h1
-            class="mt-4 font-display text-[38px] font-bold leading-[1.05] tracking-[-0.03em] text-ink md:text-[50px] xl:text-[58px]"
+            class="type-page mt-5 font-display font-bold leading-[1.05] tracking-[-0.03em] text-ink"
           >
             {{ sections.blog[locale].index?.title }}
           </h1>
-          <p class="mt-4 text-[15px] leading-[1.7] text-muted md:text-base">
+          <p class="section-header__lead section-lead text-muted">
             {{ sections.blog[locale].index?.lead }}
           </p>
         </div>
       </div>
     </section>
-    <section class="section-pad bg-section">
+    <section class="page-content-pad bg-section">
       <div class="shell">
         <p
           v-if="!featured || !featuredTranslation"
-          class="border border-line bg-panel/10 p-5 text-[13px] text-muted"
+            class="type-support border border-line bg-panel/10 p-5 text-muted"
           role="status"
         >
           {{ copy.ui.emptyContent }}
@@ -203,7 +203,7 @@ const featuredHasThemeVariant = computed(() =>
               </h2>
               <p
                 :lang="featuredTranslation.lang"
-                class="mt-4 text-[14px] leading-[1.72] text-muted md:text-[15px]"
+                class="type-copy-compact mt-4 leading-[1.72] text-muted"
               >
                 {{ featuredTranslation.excerpt }}
               </p>
@@ -266,7 +266,7 @@ const featuredHasThemeVariant = computed(() =>
                     }}</span>
                   </h2>
                   <p
-                    class="mt-2.5 max-w-[640px] text-[13.5px] leading-[1.7] text-muted md:text-[14.5px]"
+                    class="type-copy-compact mt-2.5 max-w-[640px] leading-[1.7] text-muted"
                   >
                     <span :lang="translation.lang">{{
                       translation.excerpt

@@ -14,7 +14,7 @@ const { locale, items, section } = defineProps<{
 <template>
   <section
     id="education"
-    class="dot-field dot-field--mark relative overflow-hidden section-pad-sm bg-section"
+    class="dot-field dot-field--mark relative overflow-hidden section-pad bg-section"
     aria-labelledby="education-title"
   >
     <div class="shell">
@@ -24,7 +24,6 @@ const { locale, items, section } = defineProps<{
         :title="section[locale].title"
         :lead="section[locale].lead"
         title-id="education-title"
-        density="compact"
       />
       <div class="border-t border-line">
         <article
@@ -44,7 +43,7 @@ const { locale, items, section } = defineProps<{
           </div>
           <div class="min-w-0">
             <h3
-              class="font-display text-[20px] font-semibold leading-tight tracking-[-0.02em] text-ink md:text-[22px]"
+              class="type-card-title font-display font-semibold leading-tight tracking-[-0.02em] text-ink"
             >
               {{ item.title[locale] }}
             </h3>
@@ -62,7 +61,7 @@ const { locale, items, section } = defineProps<{
               <template v-else>{{ item.institution }}</template>
             </p>
             <p
-              class="mt-2.5 max-w-[68ch] text-[13px] leading-[1.7] text-muted md:text-[13.5px]"
+              class="type-copy-compact mt-2.5 max-w-[68ch] leading-[1.7] text-muted"
             >
               {{ item.description[locale] }}
             </p>

@@ -158,7 +158,7 @@ const leadHasThemeVariant = computed(() =>
                 lead.translation.title
               }}</span>
             </h3>
-            <p class="mt-3 line-clamp-3 max-w-[68ch] text-[13.5px] leading-[1.7] text-muted md:text-[14px]">
+              <p class="type-copy-compact mt-3 line-clamp-3 max-w-[68ch] leading-[1.7] text-muted">
               <span :lang="lead.translation.lang">{{
                 lead.translation.excerpt
               }}</span>
@@ -224,7 +224,7 @@ const leadHasThemeVariant = computed(() =>
               >
                 <span :lang="translation.lang">{{ translation.title }}</span>
               </h3>
-              <p class="mt-2 line-clamp-2 text-[13px] leading-[1.65] text-muted">
+              <p class="type-copy-compact mt-2 line-clamp-2 leading-[1.65] text-muted">
                 <span :lang="translation.lang">{{ translation.excerpt }}</span>
               </p>
             </div>
@@ -256,7 +256,7 @@ const leadHasThemeVariant = computed(() =>
       </div>
       <p
         v-if="!latest.length"
-        class="mt-6 border border-line bg-panel/10 p-5 text-[13px] text-muted"
+          class="type-support mt-6 border border-line bg-panel/10 p-5 text-muted"
         role="status"
       >
         {{ copy.ui.emptyContent }}

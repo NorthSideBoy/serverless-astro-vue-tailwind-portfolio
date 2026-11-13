@@ -75,6 +75,99 @@ async function waitForContactHydration(page: Page) {
 }
 
 describe('rendered portfolio', () => {
+  it('keeps the name above chapter titles without clipping at narrow widths', async () => {
+    for (const [width, heroMin, chapterMax] of [
+      [320, 35, 31],
+      [390, 43, 35],
+      [768, 64, 42],
+      [1440, 88, 50],
+    ] as const) {
+      const page = await openPage({ javaScriptEnabled: false, viewport: { width, height: 900 } })
+      for (const path of ['/', '/en/']) {
+        await goto(page, path)
+        await page.evaluate(() => document.fonts.ready)
+        const sizes = await page.evaluate(() => {
+          const hero = document.querySelector<HTMLElement>('#hero-title')!
+          const chapter = document.querySelector<HTMLElement>('#services-title')!
+          const about = document.querySelector<HTMLElement>('#about-title')!
+          const content = hero.parentElement!
+          const heroRange = document.createRange()
+          heroRange.selectNodeContents(hero)
+          return {
+            hero: parseFloat(getComputedStyle(hero).fontSize),
+            about: parseFloat(getComputedStyle(about).fontSize),
+            chapter: parseFloat(getComputedStyle(chapter).fontSize),
+            heroRight: heroRange.getBoundingClientRect().right,
+            contentRight: content.getBoundingClientRect().right,
+          }
+        })
+        expect(sizes.hero).toBeGreaterThanOrEqual(heroMin)
+        expect(sizes.hero).toBeGreaterThan(sizes.about)
+        expect(sizes.about).toBeGreaterThan(sizes.chapter)
+        expect(sizes.chapter).toBeLessThanOrEqual(chapterMax)
+        expect(sizes.heroRight).toBeLessThanOrEqual(sizes.contentRight + 1)
+        expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(width + 1)
+      }
+
+      const email = page.locator('#contact a[href^="mailto"] span.truncate')
+      expect(await email.evaluate((node) => node.scrollWidth)).toBeLessThanOrEqual(
+        (await email.evaluate((node) => node.clientWidth)) + 1,
+      )
+      await page.close()
+    }
+  })
+
+  it('uses one spacious header rhythm and description size across chapters and pages', async () => {
+    for (const [width, gap, leadSize, sectionPadding] of [
+      [320, 48, 16, 72],
+      [390, 48, 16, 72],
+      [768, 64, 18, 104],
+      [1440, 80, 18, 144],
+    ] as const) {
+      const page = await openPage({ javaScriptEnabled: false, viewport: { width, height: 900 } })
+      await goto(page, '/')
+      for (const id of ['about', 'services', 'skills', 'stack', 'experience', 'projects', 'education', 'certifications', 'blog', 'testimonials', 'contact']) {
+        const section = page.locator(`#${id}`)
+        expect(await section.evaluate((node) => parseFloat(getComputedStyle(node).paddingTop))).toBe(sectionPadding)
+        if (id === 'about') {
+          expect(await section.locator('.shell > div').first().evaluate((node) => parseFloat(getComputedStyle(node).marginBottom))).toBe(gap)
+          const composition = section.locator('.shell > div').nth(1)
+          expect(await composition.locator(':scope > div').first().locator('.about-plate').count()).toBe(1)
+          expect(await composition.locator(':scope > div').nth(1).locator('#about-title').count()).toBe(1)
+          continue
+        }
+        const header = section.locator('.section-header')
+        expect(await header.evaluate((node) => parseFloat(getComputedStyle(node).marginBottom))).toBe(gap)
+        const lead = header.locator('.section-lead')
+        if (await lead.count()) {
+          expect(await lead.evaluate((node) => parseFloat(getComputedStyle(node).fontSize))).toBe(leadSize)
+          expect(await lead.evaluate((node) => parseFloat(getComputedStyle(node).lineHeight))).toBeCloseTo(leadSize * 1.7, 1)
+          expect(await lead.evaluate((node) => node.getBoundingClientRect().top - node.previousElementSibling!.getBoundingClientRect().bottom)).toBeCloseTo(16, 0)
+        }
+      }
+      expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(width + 1)
+
+      for (const path of ['/proyectos/', '/blog/', '/blog/fixture-article/', '/resenas/panel/']) {
+        await goto(page, path)
+        const lead = page.locator('main > section:first-child .section-lead')
+        expect(await lead.evaluate((node) => parseFloat(getComputedStyle(node).fontSize))).toBe(leadSize)
+        expect(await lead.evaluate((node) => node.getBoundingClientRect().top - node.previousElementSibling!.getBoundingClientRect().bottom)).toBeCloseTo(16, 0)
+        const visualGap = await page.evaluate(() => {
+          const header = document.querySelector('main > section:first-child .section-marker')!
+          const content = document.querySelector('main > section:nth-child(2) .shell > :first-child')!
+          return content.getBoundingClientRect().top - header.getBoundingClientRect().bottom
+        })
+        expect(visualGap).toBeGreaterThanOrEqual(gap)
+        expect(visualGap).toBeLessThan(gap + 2)
+        expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(width + 1)
+      }
+      await goto(page, '/resenas/')
+      expect(await page.locator('.section-header').evaluate((node) => parseFloat(getComputedStyle(node).marginBottom))).toBe(gap)
+      expect(await page.locator('.section-lead').evaluate((node) => parseFloat(getComputedStyle(node).fontSize))).toBe(leadSize)
+      await page.close()
+    }
+  }, 45_000)
+
   it('serves article content and project cards before Vue hydrates', async () => {
     const page = await openPage({ javaScriptEnabled: false })
     await goto(page, '/blog/fixture-article/')

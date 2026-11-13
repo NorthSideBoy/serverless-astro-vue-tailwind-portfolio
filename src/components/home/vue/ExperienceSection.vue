@@ -81,7 +81,7 @@ const home = computed(() => homePath(props.locale))
           <div class="min-w-0 pb-7 md:py-8">
             <div data-experience-block style="--block-delay: 60ms">
               <h3
-                class="font-display text-[21px] font-semibold leading-tight tracking-[-0.02em] text-ink md:text-[24px]"
+                class="type-card-title font-display font-semibold leading-tight tracking-[-0.02em] text-ink"
               >
                 {{ entry.org }}
               </h3>
@@ -97,7 +97,7 @@ const home = computed(() => homePath(props.locale))
             <p
               data-experience-block
               style="--block-delay: 110ms"
-              class="mt-4 max-w-[72ch] text-[15px] leading-[1.7] text-ink/90 md:text-base"
+              class="type-copy mt-4 max-w-[72ch] leading-[1.7] text-ink/90"
             >
               {{ entry.summary[locale] }}
             </p>
@@ -109,7 +109,7 @@ const home = computed(() => homePath(props.locale))
               <li
                 v-for="bullet in entry.bullets[locale]"
                 :key="bullet"
-                class="flex gap-3 text-[14px] leading-[1.65] text-muted"
+                class="type-copy-compact flex gap-3 leading-[1.65] text-muted"
               >
                 <span
                   class="mt-[0.62em] h-1 w-1 shrink-0 bg-muted/70"
@@ -153,7 +153,7 @@ const home = computed(() => homePath(props.locale))
                     v-for="project in entry.relatedProjects"
                     :key="project.slug"
                     :href="`${projectsHref}#${projectAnchor(project.slug)}`"
-                    class="group inline-flex min-h-11 max-w-full items-center gap-2 border border-line-strong px-3 py-2 text-left text-[12px] leading-snug text-ink transition-colors hover:border-soft hover:text-soft"
+                    class="type-action group inline-flex min-h-11 max-w-full items-center gap-2 border border-line-strong px-3 py-2 text-left leading-snug text-ink transition-colors hover:border-soft hover:text-soft"
                     ><span class="min-w-0">{{ project.title[locale] }}</span
                     ><UiIcon
                       name="arrow-right"
@@ -180,7 +180,7 @@ const home = computed(() => homePath(props.locale))
                     v-for="review in entry.relatedReviews"
                     :key="review.anchorId"
                     :href="`${home}#${reviewAnchor(review.anchorId)}`"
-                    class="group inline-flex min-h-11 max-w-full items-center gap-2 border border-line-strong px-3 py-2 text-left text-[12px] leading-snug text-ink transition-colors hover:border-soft hover:text-soft"
+                    class="type-action group inline-flex min-h-11 max-w-full items-center gap-2 border border-line-strong px-3 py-2 text-left leading-snug text-ink transition-colors hover:border-soft hover:text-soft"
                     ><span class="min-w-0"
                       >{{ review.author.name }}
                       <span class="text-muted"

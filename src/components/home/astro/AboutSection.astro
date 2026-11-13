@@ -18,8 +18,8 @@ const home = locale === 'en' ? '/en/' : '/';
 <section id="about" class="dot-field--body relative section-pad bg-section" aria-labelledby="about-title">
   <span class="dot-extra" style="--dot-extra-top: 58%; --dot-field-strength: 54%;" aria-hidden="true" />
   <div class="shell">
-    <div class="mb-12 flex items-center gap-4 md:mb-16 xl:mb-[100px]">
-      <p class="mono-label shrink-0 text-soft"><SealEyebrow seal="一" label={copy.about.eyebrow} /></p>
+    <div class="mb-12 flex items-center gap-4 md:mb-16 xl:mb-20">
+      <p class="mono-label min-w-0 text-soft"><SealEyebrow seal="一" label={copy.about.eyebrow} /></p>
       <span class="h-px flex-1 bg-line" aria-hidden="true" />
     </div>
 
@@ -59,17 +59,17 @@ const home = locale === 'en' ? '/en/' : '/';
       </div>
 
       <div data-about-copy class="section-marker section-signal min-w-0 max-w-[640px] lg:pt-1 xl:pt-3">
-        <h2 id="about-title" class="font-display text-[clamp(42px,5.2vw,68px)] font-bold leading-[0.98] tracking-[-0.04em] text-ink">
+        <h2 id="about-title" class="type-about font-display font-bold leading-[1.02] tracking-[-0.035em] text-ink">
           <span class="about-title__part about-title__part--lead">{titleLead},</span>{' '}
           {titleTail && <span class="about-title__part about-title__part--tail">{titleTail}</span>}
         </h2>
-        <p class="about-copy__name mt-5 text-[clamp(18px,1.35vw,22px)] leading-[1.55] text-ink/80 md:mt-6">{copy.about.name}</p>
-        <div class="mt-9 space-y-6 text-[16px] leading-[1.8] text-muted md:mt-12 md:text-[17px]">
+        <p class="about-copy__name mt-4 text-[clamp(18px,1.35vw,22px)] leading-[1.55] text-ink/80">{copy.about.name}</p>
+        <div class="type-copy mt-6 space-y-6 leading-[1.8] text-muted md:mt-8">
           {copy.about.paragraphs.map((paragraph) => <p class="about-copy__paragraph">{paragraph}</p>)}
         </div>
         <div class="about-copy__actions mt-10 flex flex-wrap gap-x-8 gap-y-4 border-t border-line pt-7 md:mt-12">
-          <a href={`${home}#projects`} class="inline-flex items-center gap-2 text-[14px] font-medium text-soft underline decoration-line-strong underline-offset-4 transition-colors hover:decoration-soft">{copy.hero.primary} <UiIcon name="arrow-right" size={16} /></a>
-          <a href={`${home}#contact`} class="inline-flex items-center gap-2 text-[14px] font-medium text-soft underline decoration-line-strong underline-offset-4 transition-colors hover:decoration-soft">{copy.hero.secondary} <UiIcon name="arrow-right" size={16} /></a>
+          <a href={`${home}#projects`} class="type-action inline-flex items-center gap-2 font-medium text-soft underline decoration-line-strong underline-offset-4 transition-colors hover:decoration-soft">{copy.hero.primary} <UiIcon name="arrow-right" size={16} /></a>
+          <a href={`${home}#contact`} class="type-action inline-flex items-center gap-2 font-medium text-soft underline decoration-line-strong underline-offset-4 transition-colors hover:decoration-soft">{copy.hero.secondary} <UiIcon name="arrow-right" size={16} /></a>
         </div>
       </div>
     </div>
@@ -79,7 +79,7 @@ const home = locale === 'en' ? '/en/' : '/';
       <dl class="mt-6 grid gap-px border-y border-line bg-line sm:grid-cols-2 lg:grid-cols-3">
         {copy.about.facts.map((fact, index) => <div class="about-fact min-w-0 bg-section px-4 py-4 md:px-5">
           <dt class="font-mono text-[10px] uppercase tracking-[0.08em] text-muted">{String(index + 1).padStart(2, '0')} · {fact.label}</dt>
-          <dd class="mt-2.5 break-words text-[13px] font-medium leading-relaxed text-ink">{fact.value}</dd>
+          <dd class="mt-2.5 break-words type-support font-medium leading-relaxed text-ink">{fact.value}</dd>
         </div>)}
       </dl>
     </div>
@@ -91,7 +91,7 @@ const home = locale === 'en' ? '/en/' : '/';
           <div class="about-role__inner">
             <span class="font-mono text-[10.5px] text-muted">{String(index + 1).padStart(2, '0')}</span>
             <h3 class="mt-2.5 font-display text-[16px] font-semibold tracking-[-0.01em] text-ink">{role.title}</h3>
-            <p class="mt-1.5 text-[13px] leading-relaxed text-muted">{role.description}</p>
+            <p class="mt-1.5 type-support leading-relaxed text-muted">{role.description}</p>
           </div>
         </article>)}
       </div>

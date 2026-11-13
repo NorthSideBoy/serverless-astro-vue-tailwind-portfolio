@@ -43,7 +43,7 @@ const content = computed(() =>
         >
           {{ content.title }}
         </p>
-        <p class="mt-2 text-[13.5px] leading-[1.7] text-muted md:text-[14px]">
+         <p class="type-copy-compact mt-2 leading-[1.7] text-muted">
           {{ content.body }}
         </p>
       </div>

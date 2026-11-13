@@ -485,7 +485,7 @@ function retryPhase(): void {
       class="dot-field dot-field--quiet relative overflow-hidden border-b border-line bg-section"
       aria-labelledby="review-panel-title"
     >
-      <div class="shell relative py-12 md:py-16 xl:py-20">
+      <div class="shell page-intro-pad relative pt-12 md:pt-16 xl:pt-20">
         <RouterLink
           :to="{ name: 'home', hash: '#testimonials' }"
           class="inline-flex min-h-11 items-center gap-2 font-mono text-[11px] uppercase tracking-[0.08em] text-muted transition hover:text-soft"
@@ -495,17 +495,17 @@ function retryPhase(): void {
         </RouterLink>
 
         <div class="mt-8 flex flex-col gap-8 lg:flex-row lg:items-end lg:justify-between">
-          <div class="max-w-[760px]">
+          <div class="section-marker max-w-[760px]">
             <p class="mono-label text-soft">
               <SealEyebrow seal="十" :label="copy.reviews.panel.eyebrow" />
             </p>
             <h1
               id="review-panel-title"
-              class="mt-4 font-display text-[38px] font-bold leading-[1.05] tracking-[-0.03em] text-ink md:text-[50px] xl:text-[58px]"
+              class="type-page mt-5 font-display font-bold leading-[1.05] tracking-[-0.03em] text-ink"
             >
               {{ copy.reviews.panel.title }}
             </h1>
-            <p class="mt-4 max-w-[680px] text-[15px] leading-[1.7] text-muted md:text-base">
+            <p class="section-header__lead section-lead text-muted">
               {{ copy.reviews.panel.lead }}
             </p>
             <a
@@ -540,7 +540,7 @@ function retryPhase(): void {
             </div>
             <button
               type="button"
-              class="mt-3 inline-flex min-h-11 items-center text-[12px] text-soft underline"
+              class="type-action mt-3 inline-flex min-h-11 items-center text-soft underline"
               @click="requestSignOut"
             >
               {{ copy.reviews.panel.switchAccount }}
@@ -554,24 +554,24 @@ function retryPhase(): void {
             >
               <p
                 id="review-signout-title"
-                class="font-display text-[15px] font-semibold text-ink"
+                class="font-display text-base font-semibold text-ink"
               >
                 {{ copy.reviews.panel.signOut.title }}
               </p>
-              <p class="mt-1 text-[12.5px] leading-relaxed text-muted">
+              <p class="type-support mt-1 leading-relaxed text-muted">
                 {{ copy.reviews.panel.signOut.body }}
               </p>
               <div class="mt-3 flex flex-wrap gap-2">
                 <button
                   type="button"
-                  class="btn-ghost min-h-11 px-4 text-[13px]"
+                  class="btn-ghost min-h-11 px-4"
                   @click="completeSignOut"
                 >
                   {{ copy.reviews.panel.signOut.confirm }}
                 </button>
                 <button
                   type="button"
-                  class="inline-flex min-h-11 items-center px-2 text-[13px] text-muted underline"
+                  class="type-action inline-flex min-h-11 items-center px-2 text-muted underline"
                   @click="showSignOutConfirm = false"
                 >
                   {{ copy.reviews.panel.signOut.cancel }}
@@ -583,10 +583,10 @@ function retryPhase(): void {
       </div>
     </section>
 
-    <section class="section-pad bg-page">
+    <section class="page-content-pad bg-page">
       <div class="shell">
         <noscript
-          class="mb-6 block border border-line bg-panel/20 p-4 text-[13px] text-ink"
+          class="type-support mb-6 block border border-line bg-panel/20 p-4 text-ink"
         >
           {{ copy.reviews.panel.noscript }}
         </noscript>
@@ -595,19 +595,19 @@ function retryPhase(): void {
           v-if="phase === 'loading' || phase === 'guest' || phase === 'error'"
           class="mx-auto max-w-[680px] border border-line bg-panel/10 p-6 md:p-8"
         >
-          <p v-if="phase === 'loading'" class="text-[13.5px] text-muted" role="status">
+          <p v-if="phase === 'loading'" class="type-support text-muted" role="status">
             {{ copy.reviews.panel.checking }}
           </p>
-          <p v-else-if="phase === 'guest'" class="text-[13.5px] text-muted" role="status">
+          <p v-else-if="phase === 'guest'" class="type-support text-muted" role="status">
             {{ copy.reviews.panel.redirecting }}
           </p>
           <div v-else role="alert">
-            <p class="text-[13.5px] leading-relaxed text-danger">
+            <p class="type-support leading-relaxed text-danger">
               {{ authErrorText || recordErrorText || copy.ui.errorContent }}
             </p>
             <button
               type="button"
-              class="mt-4 inline-flex min-h-11 items-center text-[13px] text-soft underline"
+              class="type-action mt-4 inline-flex min-h-11 items-center text-soft underline"
               @click="retryPhase"
             >
               {{ copy.ui.retryContent }}
@@ -632,7 +632,7 @@ function retryPhase(): void {
                   : copy.reviews.panel.status.submittedTitle
               }}
             </h2>
-            <p class="mt-3 text-[14px] leading-[1.7] text-muted">
+            <p class="type-copy-compact mt-3 leading-[1.7] text-muted">
               {{
                 phase === 'approved'
                   ? copy.reviews.panel.status.approvedBody
@@ -661,7 +661,7 @@ function retryPhase(): void {
               <a
                 v-if="phase === 'approved'"
                 :href="`mailto:${copy.seo.email}`"
-                class="inline-flex min-h-11 items-center text-[13px] text-soft underline"
+                class="type-action inline-flex min-h-11 items-center text-soft underline"
               >
                 {{ copy.reviews.panel.contact }}
               </a>
@@ -670,7 +670,7 @@ function retryPhase(): void {
 
           <aside class="lg:sticky lg:top-28 xl:top-36">
             <p class="mono-label text-soft">{{ copy.reviews.panel.preview.title }}</p>
-            <p class="mt-2 text-[12.5px] leading-relaxed text-muted">
+            <p class="type-support mt-2 leading-relaxed text-muted">
               {{ copy.reviews.panel.preview.note }}
             </p>
             <div class="mt-4">
@@ -702,7 +702,7 @@ function retryPhase(): void {
               <p class="font-mono text-[10px] uppercase tracking-[0.1em] text-soft">
                 {{ copy.reviews.panel.status.pendingTitle }}
               </p>
-              <p class="mt-1 text-[13px] leading-relaxed text-muted">
+              <p class="type-support mt-1 leading-relaxed text-muted">
                 {{ copy.reviews.panel.status.pendingBody }}
               </p>
             </div>
@@ -715,7 +715,7 @@ function retryPhase(): void {
               <p class="font-mono text-[10px] uppercase tracking-[0.1em] text-danger">
                 {{ copy.reviews.panel.status.invalidTitle }}
               </p>
-              <ul class="mt-2 list-disc space-y-1 pl-5 text-[13px] text-danger">
+              <ul class="type-support mt-2 list-disc space-y-1 pl-5 text-danger">
                 <li v-for="message in formErrorMessages" :key="message">{{ message }}</li>
               </ul>
             </div>
@@ -762,7 +762,7 @@ function retryPhase(): void {
                       />
                       <p
                         v-if="relationErrorMessage"
-                        class="mt-2 text-[12px] text-danger"
+                        class="type-support mt-2 text-danger"
                         role="alert"
                       >
                         {{ relationErrorMessage }}
@@ -781,11 +781,11 @@ function retryPhase(): void {
 
                   <label
                     for="review-quote"
-                    class="mt-5 mb-2 block font-mono text-[10.5px] font-medium uppercase tracking-[0.1em] text-muted"
+                    class="type-meta mt-5 mb-2 block font-mono font-medium uppercase tracking-[0.1em] text-muted"
                   >
                     {{ copy.reviews.panel.fields.quoteLabel }}
                   </label>
-                  <p id="review-quote-hint" class="mb-2 text-[12px] leading-[1.6] text-muted">
+                  <p id="review-quote-hint" class="type-support mb-2 leading-[1.6] text-muted">
                     {{ copy.reviews.panel.fields.quoteHint }}
                   </p>
                   <textarea
@@ -812,7 +812,7 @@ function retryPhase(): void {
                     <p
                       v-if="quoteErrorMessage"
                       id="review-quote-error"
-                      class="text-[12px] text-danger"
+                      class="type-support text-danger"
                       role="alert"
                     >
                       {{ quoteErrorMessage }}
@@ -827,7 +827,7 @@ function retryPhase(): void {
                       {{ copy.reviews.panel.sections.publish }}
                     </h2>
                   </div>
-                  <p class="mt-4 max-w-[640px] text-[12.5px] leading-[1.65] text-muted">
+                  <p class="type-support mt-4 max-w-[640px] leading-[1.65] text-muted">
                     {{ copy.reviews.panel.consent }}
                   </p>
                   <div
@@ -840,20 +840,20 @@ function retryPhase(): void {
                     <p class="font-mono text-[10px] uppercase tracking-[0.1em] text-danger">
                       {{ copy.reviews.panel.status.errorTitle }}
                     </p>
-                    <p class="mt-1 text-[13px] leading-relaxed text-danger">
+                    <p class="type-support mt-1 leading-relaxed text-danger">
                       {{ publishErrorText }}
                     </p>
                     <div class="mt-3 flex flex-wrap items-center gap-4">
                       <button
                         type="button"
-                        class="inline-flex min-h-11 items-center text-[13px] text-soft underline"
+                        class="type-action inline-flex min-h-11 items-center text-soft underline"
                         @click="publish"
                       >
                         {{ copy.ui.retryContent }}
                       </button>
                       <a
                         :href="`mailto:${copy.seo.email}`"
-                        class="inline-flex min-h-11 items-center text-[13px] text-muted underline"
+                        class="type-action inline-flex min-h-11 items-center text-muted underline"
                       >
                         {{ copy.reviews.panel.contact }}
                       </a>
@@ -899,7 +899,7 @@ function retryPhase(): void {
             <div class="flex items-baseline justify-between gap-4">
               <p class="mono-label text-soft">{{ copy.reviews.panel.preview.title }}</p>
             </div>
-            <p class="mt-2 text-[12.5px] leading-relaxed text-muted">
+            <p class="type-support mt-2 leading-relaxed text-muted">
               {{ copy.reviews.panel.preview.note }}
             </p>
             <div class="mt-4">

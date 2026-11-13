@@ -168,7 +168,7 @@ async function sendAnother(): Promise<void> {
     >
       {{ form.successTitle }}
     </h3>
-    <p class="mt-3 max-w-[46ch] text-[14px] leading-[1.7] text-muted md:text-[15px]">
+    <p class="type-copy-compact mt-3 max-w-[46ch] leading-[1.7] text-muted">
       {{ form.successBody }}
     </p>
     <button type="button" class="btn-ghost mt-6 w-full" @click="sendAnother">
@@ -185,17 +185,17 @@ async function sendAnother(): Promise<void> {
     <div class="mb-6 border-b border-line pb-5">
       <p class="mono-label text-soft">{{ form.sessionLabel }}</p>
 
-      <p v-if="status === 'loading'" role="status" class="mt-3 text-[13px] leading-[1.65] text-muted">
+      <p v-if="status === 'loading'" role="status" class="type-support mt-3 leading-[1.65] text-muted">
         {{ form.sessionLoading }}
       </p>
 
       <div v-else-if="status === 'error'" class="mt-3" role="alert">
-        <p class="text-[12.5px] leading-relaxed text-danger">
+        <p class="type-support leading-relaxed text-danger">
           {{ authErrorText || form.authErrors.unknown }}
         </p>
         <button
           type="button"
-          class="mt-2 inline-flex min-h-11 items-center text-[13px] text-soft underline"
+          class="type-action mt-2 inline-flex min-h-11 items-center text-soft underline"
           @click="retry"
         >
           {{ copy.ui.retryContent }}
@@ -205,14 +205,14 @@ async function sendAnother(): Promise<void> {
       <div v-else-if="user" class="mt-3 flex items-center gap-3">
         <Avatar :name="user.displayName" :photo="user.photoUrl" :size="38" eager />
         <div class="min-w-0 flex-1">
-          <p class="truncate font-display text-[15px] font-semibold leading-tight text-ink">
+          <p class="truncate font-display text-base font-semibold leading-tight text-ink">
             {{ user.displayName }}
           </p>
           <p class="truncate font-mono text-[10.5px] text-muted">{{ user.email }}</p>
         </div>
         <button
           type="button"
-          class="inline-flex min-h-11 shrink-0 items-center text-[12px] text-soft underline"
+          class="type-action inline-flex min-h-11 shrink-0 items-center text-soft underline"
           :disabled="sessionBusy"
           @click="signIn"
         >
@@ -221,10 +221,10 @@ async function sendAnother(): Promise<void> {
       </div>
 
       <div v-else>
-        <p class="mt-2 text-[13px] leading-[1.65] text-muted">{{ form.sessionGuest }}</p>
+        <p class="type-support mt-2 leading-[1.65] text-muted">{{ form.sessionGuest }}</p>
         <p
           v-if="authErrorText"
-          class="mt-3 border border-danger px-3 py-2 text-[12.5px] leading-relaxed text-danger"
+          class="type-support mt-3 border border-danger px-3 py-2 leading-relaxed text-danger"
           role="alert"
         >
           {{ authErrorText }}
@@ -247,7 +247,7 @@ async function sendAnother(): Promise<void> {
       <div>
         <label
           for="contact-subject"
-          class="mb-2 block font-mono text-[10.5px] font-medium uppercase tracking-[0.1em] text-icon"
+          class="type-meta mb-2 block font-mono font-medium uppercase tracking-[0.1em] text-icon"
         >
           {{ form.subjectLabel }}
         </label>
@@ -269,7 +269,7 @@ async function sendAnother(): Promise<void> {
         <p
           v-if="errorMessages.subject"
           id="contact-subject-error"
-          class="mt-2 text-[12px] text-danger"
+          class="type-support mt-2 text-danger"
           role="alert"
         >
           {{ errorMessages.subject }}
@@ -279,7 +279,7 @@ async function sendAnother(): Promise<void> {
       <div>
         <label
           for="contact-message"
-          class="mb-2 block font-mono text-[10.5px] font-medium uppercase tracking-[0.1em] text-icon"
+          class="type-meta mb-2 block font-mono font-medium uppercase tracking-[0.1em] text-icon"
         >
           {{ form.messageLabel }}
         </label>
@@ -307,7 +307,7 @@ async function sendAnother(): Promise<void> {
           <p
             v-if="errorMessages.message"
             id="contact-message-error"
-            class="text-[12px] text-danger"
+            class="type-support text-danger"
             role="alert"
           >
             {{ errorMessages.message }}
@@ -326,18 +326,18 @@ async function sendAnother(): Promise<void> {
       <p class="font-mono text-[10px] uppercase tracking-[0.1em] text-danger">
         {{ form.errorTitle }}
       </p>
-      <p class="mt-1 text-[13px] leading-relaxed text-danger">{{ submitErrorText }}</p>
+      <p class="type-support mt-1 leading-relaxed text-danger">{{ submitErrorText }}</p>
       <div class="mt-3 flex flex-wrap items-center gap-4">
         <button
           type="button"
-          class="inline-flex min-h-11 items-center text-[13px] text-soft underline"
+          class="type-action inline-flex min-h-11 items-center text-soft underline"
           @click="submit"
         >
           {{ copy.ui.retryContent }}
         </button>
         <a
           :href="`mailto:${copy.seo.email}`"
-          class="inline-flex min-h-11 items-center text-[13px] text-muted underline"
+          class="type-action inline-flex min-h-11 items-center text-muted underline"
         >
           {{ copy.seo.email }}
         </a>

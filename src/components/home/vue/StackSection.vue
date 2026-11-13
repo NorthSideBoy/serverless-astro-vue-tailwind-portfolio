@@ -32,7 +32,7 @@ const grouped = computed(() =>
 <template>
   <section
     id="stack"
-    class="dot-field dot-field--mark dot-field--body relative overflow-hidden section-pad-sm bg-section"
+    class="dot-field dot-field--mark dot-field--body relative overflow-hidden section-pad bg-section"
     aria-labelledby="stack-title"
   >
     <span class="dot-extra" style="--dot-extra-focus: 0% 50%" aria-hidden="true" />
@@ -44,7 +44,6 @@ const grouped = computed(() =>
         :title="section[locale].title"
         :lead="section[locale].lead"
         title-id="stack-title"
-        density="compact"
       />
       <PlateFrame>
         <div class="p-5 md:p-8 xl:p-9">
@@ -52,7 +51,7 @@ const grouped = computed(() =>
             class="flex flex-col gap-4 border-b border-line pb-6 md:flex-row md:items-end md:justify-between md:gap-12"
           >
             <p
-              class="max-w-[620px] text-[13.5px] leading-[1.7] text-muted md:text-[14px]"
+              class="type-copy-compact max-w-[620px] leading-[1.7] text-muted"
             >
               {{ section[locale].note }}
             </p>
@@ -94,7 +93,7 @@ const grouped = computed(() =>
                   {{ group.name[locale] }}
                 </h3>
                 <p
-                  class="mt-1.5 text-[12px] leading-[1.6] text-muted lg:mt-2.5"
+                  class="type-support mt-1.5 leading-[1.6] text-muted lg:mt-2.5"
                 >
                   {{ group.description[locale] }}
                 </p>
@@ -152,7 +151,7 @@ const grouped = computed(() =>
                     </div>
                     <div class="min-w-0">
                       <p
-                        class="break-words text-[12.5px] font-medium leading-tight text-ink"
+                        class="type-support break-words font-medium leading-tight text-ink"
                       >
                         {{ item.name }}
                       </p>

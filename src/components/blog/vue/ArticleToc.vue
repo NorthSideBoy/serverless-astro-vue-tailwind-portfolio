@@ -36,8 +36,8 @@ defineProps<{
           :href="`#${item.id}`"
           :class="
             variant === 'aside'
-              ? '-ml-px block border-l border-transparent pl-4 text-[12.5px] leading-[1.55] text-muted transition hover:border-soft hover:text-ink'
-              : 'flex min-h-11 items-center border-b border-line/60 py-2 text-[13px] leading-[1.5] text-ink transition hover:text-soft'
+               ? 'type-action -ml-px block border-l border-transparent pl-4 leading-[1.55] text-muted transition hover:border-soft hover:text-ink'
+               : 'type-action flex min-h-11 items-center border-b border-line/60 py-2 leading-[1.5] text-ink transition hover:text-soft'
           "
         >
           <span :style="{ paddingLeft: `${(item.level - 2) * 12}px` }">{{

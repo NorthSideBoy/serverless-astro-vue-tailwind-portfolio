@@ -38,11 +38,11 @@ const atMax = computed(() => total.value >= props.max)
     aria-describedby="review-relations-hint review-relations-max"
   >
     <legend
-      class="mb-2 block font-mono text-[10.5px] font-medium uppercase tracking-[0.1em] text-muted"
+       class="type-meta mb-2 block font-mono font-medium uppercase tracking-[0.1em] text-muted"
     >
       {{ label }}
     </legend>
-    <p id="review-relations-hint" class="text-[12px] leading-[1.6] text-muted">
+     <p id="review-relations-hint" class="type-support leading-[1.6] text-muted">
       {{ hint }}
     </p>
 
@@ -74,7 +74,7 @@ const atMax = computed(() => total.value >= props.max)
             @change="emit('toggle-experience', entry.id)"
           />
           <span class="min-w-0">
-            <span class="block text-[13px] leading-snug text-ink">{{ entry.org }}</span>
+            <span class="type-support block leading-snug text-ink">{{ entry.org }}</span>
             <span
               class="mt-0.5 block font-mono text-[10px] uppercase tracking-[0.08em] text-muted"
             >
@@ -113,7 +113,7 @@ const atMax = computed(() => total.value >= props.max)
             @change="emit('toggle-project', project.slug)"
           />
           <span class="min-w-0">
-            <span class="block text-[13px] leading-snug text-ink">
+            <span class="type-support block leading-snug text-ink">
               {{ project.title[locale] }}
             </span>
             <span
@@ -126,7 +126,7 @@ const atMax = computed(() => total.value >= props.max)
       </div>
     </div>
 
-    <p id="review-relations-max" class="mt-3 font-mono text-[10px] uppercase tracking-[0.06em] text-muted">
+     <p id="review-relations-max" class="type-meta mt-3 font-mono uppercase tracking-[0.06em] text-muted">
       {{ atMax ? maxMessage : optionalNote }}
     </p>
   </fieldset>

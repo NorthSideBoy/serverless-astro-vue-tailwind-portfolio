@@ -91,12 +91,12 @@ function remove(index: number): void {
   <div>
     <label
       :for="inputId"
-      class="mb-2 block font-mono text-[10.5px] font-medium uppercase tracking-[0.1em] text-muted"
+       class="type-meta mb-2 block font-mono font-medium uppercase tracking-[0.1em] text-muted"
     >
       {{ label }}
     </label>
     <div class="mb-2 flex items-start justify-between gap-3">
-      <p :id="hintId" class="text-[12px] leading-[1.6] text-muted">{{ hint }}</p>
+       <p :id="hintId" class="type-support leading-[1.6] text-muted">{{ hint }}</p>
       <span
         class="shrink-0 font-mono text-[10px] uppercase tracking-[0.06em]"
         :class="
@@ -118,7 +118,7 @@ function remove(index: number): void {
       <ul class="contents" role="list" :aria-label="label">
         <li v-for="(role, index) in roles" :key="`${role}-${index}`">
           <span
-            class="inline-flex min-h-8 items-center gap-1 border border-line bg-panel/30 py-1 pl-2.5 pr-1 text-[11.5px] leading-tight text-soft"
+             class="type-support inline-flex min-h-8 items-center gap-1 border border-line bg-panel/30 py-1 pl-2.5 pr-1 leading-tight text-soft"
           >
             {{ role }}
             <button
@@ -137,7 +137,7 @@ function remove(index: number): void {
         :id="inputId"
         v-model="value"
         type="text"
-        class="min-h-8 min-w-[150px] flex-1 bg-transparent px-1.5 text-[14px] text-ink outline-none placeholder:text-muted"
+         class="min-h-8 min-w-[150px] flex-1 bg-transparent px-1.5 text-base text-ink outline-none placeholder:text-muted"
         :placeholder="placeholder"
         :maxlength="maxLength"
         :aria-invalid="invalid"
@@ -152,7 +152,7 @@ function remove(index: number): void {
     <p
       v-if="visibleMessage"
       :id="messageId"
-      class="mt-2 text-[12px] text-danger"
+       class="type-support mt-2 text-danger"
       role="alert"
     >
       {{ visibleMessage }}
